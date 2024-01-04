@@ -25,4 +25,7 @@ players are available. This will continue until the user disconnects from the so
   - Players from different games do not interfere with each other.
 - Calculate Words / Minute for each player
 
-
+**Set-up Instructions**
+- Open up Client and Server folder in separate terminals
+- Compile server and client projects
+- Start the server then start the client
