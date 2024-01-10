@@ -5,7 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e22d3ace-78f8-429d-94c4-5df505c10dd4" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../Server/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../out/production/typeracer/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../out/production/typeracer/.idea/misc.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,7 +27,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "C:/Users/Elain/Projects/typeracer/Server",
+    "last_opened_file_path": "C:/Users/Elain/Projects/typeracer",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -47,6 +49,7 @@
       <workItem from="1704405904642" duration="47000" />
       <workItem from="1704406946423" duration="10461000" />
       <workItem from="1704788725285" duration="5241000" />
+      <workItem from="1704844020350" duration="252000" />
     </task>
     <servers />
   </component>
