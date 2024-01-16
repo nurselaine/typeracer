@@ -45,7 +45,7 @@ public class Server{
                             out.println("Client " + soc.getInetAddress() + ": " + clientStr);
                         }
                     } catch (Exception e){
-                        System.out.print("Client abruptly disconnected...");
+                        System.out.println("Client abruptly disconnected...");
                         e.getMessage();
                     }
                 } catch (Exception e){
