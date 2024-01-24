@@ -44,6 +44,8 @@ public class Server{
                             PrintWriter out = new PrintWriter(soc.getOutputStream(), true);
                             out.println("Client " + soc.getInetAddress() + ": " + clientStr);
                         }
+                        System.out.println("Client socket closed");
+                        soc.close();
                     } catch (Exception e){
                         System.out.println("Client abruptly disconnected...");
                         e.getMessage();

@@ -5,7 +5,7 @@ import java.io.*;
 import java.nio.Buffer;
 
 public class Client {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         try {
             System.out.println("Client Socket");
@@ -14,33 +14,30 @@ public class Client {
             // Once server accept the connection with client will socket object be created
             Socket soc = new Socket("localhost", 9001);
 
-            while(soc.isConnected()){
-                // System.in is an inputstream obj that takes a bytestream of data
-                // Using inputstream reader, it takes a bytestream and returns a character stream
-                // Lastly bufferedreader will be able to read the entire string from the input
-                BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
-                System.out.print("Enter Message: ");
-                String userStr; // this method will capture user input
+            // System.in is an input stream obj that takes a byte stream of data
+            // Using input stream reader, it takes a byte stream and returns a character stream
+            // Lastly bufferedreader will be able to read the entire string from the input
+            BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
+            // prompt client to add message
+            System.out.print("Enter message: ");
+            String userStr = userInput.readLine(); // this method will capture user input
 
-                while((userStr = userInput.readLine()) != null){
-                    // printwriter obj will write any kind of data and passing in socket obj
-                    PrintWriter out = new PrintWriter(soc.getOutputStream(), true);
-                    // send string to server
-                    out.println(userStr);
+            // create output stream & send to server
+            PrintWriter out = new PrintWriter(soc.getOutputStream(), true);
+            out.println(userStr);
 
-                    BufferedReader in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
-                    System.out.println(in.readLine());
+            // create input stream & print out for user
+            BufferedReader in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
+            String serverMessage = in.readLine();
+            System.out.println(serverMessage);
 
-                    System.out.print("Enter Message: ");
-                }
-            }
+            // sleep for 5 seconds
+            Thread.sleep(5000);
+
+            soc.close();
 
         } catch (Exception e){
             e.printStackTrace();
         }
-    }
-
-    public static void getInput(){
-
     }
 }
