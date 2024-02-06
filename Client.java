@@ -18,21 +18,11 @@ public class Client {
                 // System.in is an inputstream obj that takes a bytestream of data
                 // Using inputstream reader, it takes a bytestream and returns a character stream
                 // Lastly bufferedreader will be able to read the entire string from the input
-                BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
-                System.out.print("Enter Message: ");
-                String userStr; // this method will capture user input
+                String userStr = getInput();
 
-                while((userStr = userInput.readLine()) != null){
-                    // printwriter obj will write any kind of data and passing in socket obj
-                    PrintWriter out = new PrintWriter(soc.getOutputStream(), true);
-                    // send string to server
-                    out.println(userStr);
+                // send message to server
+                sendInput(userStr, soc);
 
-                    BufferedReader in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
-                    System.out.println(in.readLine());
-
-                    System.out.print("Enter Message: ");
-                }
             }
 
         } catch (Exception e){
@@ -40,7 +30,31 @@ public class Client {
         }
     }
 
-    public static void getInput(){
+    public static String getInput(){
+        try {
+            // System.in is an inputstream obj that takes a bytestream of data
+            // Using inputstream reader, it takes a bytestream and returns a character stream
+            // Lastly bufferedreader will be able to read the entire string from the input
+            BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
+            System.out.print("Enter Message: ");
+            String userStr;
+            if((userStr = userInput.readLine())  != null){ // this method will capture user input
+                return userStr;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("IOException occurred while getting input from user");
+        }
+        return null;
+    }
 
+    public static void sendInput(String userStr, Socket soc){
+        try {
+            PrintWriter out = new PrintWriter(soc.getOutputStream(), true);
+            // send string to server
+            out.println(userStr);
+        } catch (IOException e){
+            System.out.println("Error sending message to server");
+        }
     }
 }
