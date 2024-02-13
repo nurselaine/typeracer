@@ -1,6 +1,8 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /*
  * When the server gets a new connection request from client.
@@ -25,11 +27,18 @@ public class Server{
 
         ServerSocketService socketServer = new ServerSocketService(PORT);
 
+        // create thread pool with 4 threads
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
+
         while(socketServer.isAccepting()){
+
+
 
             Socket clientSocket = socketServer.acceptConnection();
             System.out.println("Client successfully connected to server!");
 
+            // create new thread object
+            ClientHandler clientThread = new ClientHandler(executorService, clientSocket);
             receiveMessage(clientSocket);
         }
 
@@ -61,4 +70,5 @@ public class Server{
             System.out.println("Error writing message to client!" + e.getMessage());
         }
     }
+
 }
