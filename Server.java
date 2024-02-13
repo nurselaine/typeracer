@@ -1,3 +1,4 @@
+import context.UserCache;
 import context.UserContext;
 
 import java.io.*;
@@ -53,8 +54,32 @@ public class Server{
 
     }
 
-    private static void handleNewClient(Socket clientSocket){
-        UserContext newClient = new UserContext();
+    /**
+     * ValidateUsernameRPC will determine if username provided is unique and
+     * not included in current list of users on the server
+     * */
+    private static void validateUsernameRPC(Socket clientSocket, String username){
+
+
+    }
+
+    /**
+     * ConnectRPC will handle notifying clientside that client has been connected
+     * succesfully and then transfer over to ClientHandler thread for auth RPCs
+     * */
+    private static void ConnectRPC(Socket clientSocket){
+        try {
+            PrintWriter serverOutputStream =
+                    new PrintWriter(clientSocket.getOutputStream(), true);
+            if(clientSocket == null){
+                serverOutputStream.println(0);
+            }
+            serverOutputStream.println(1);
+            System.out.println("Client successfully connected to server!" + clientSocket.getInetAddress());
+        } catch (IOException e) {
+            System.out.println("Unsuccessful connect to server, please disconnect " +
+                    "clientside and retry" + e.getMessage());
+        }
     }
 
     private static void receiveMessage(Socket clientSocket){
@@ -71,25 +96,6 @@ public class Server{
         } catch (IOException e) {
             System.out.println("Client disconnected abruptly - " +
                     "unable to receive messages from client " + e.getMessage());
-        }
-    }
-
-    /**
-     * Server Thread will handle notifying clientside that client has been connected
-     * succesfully and then transfer over to ClientHandler thread for auth RPCs
-     * */
-    private static void ConnectRPC(Socket clientSocket){
-        try {
-            PrintWriter serverOutputStream =
-                    new PrintWriter(clientSocket.getOutputStream(), true);
-            if(clientSocket == null){
-                serverOutputStream.println(0);
-            }
-            serverOutputStream.println(1);
-            System.out.println("Client successfully connected to server!" + clientSocket.getInetAddress());
-        } catch (IOException e) {
-            System.out.println("Unsuccessful connect to server, please disconnect " +
-                    "clientside and retry" + e.getMessage());
         }
     }
 
