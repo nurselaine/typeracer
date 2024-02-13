@@ -21,40 +21,44 @@ public class Server{
     public static void main(String[] args) {
 
         System.out.println("Single threaded server...");
+        int PORT = 3001;
 
-        try (ServerSocket ss = new ServerSocket(9001)) {
-            // ServerSocket obj awaits client connectiona and creates socket obj when
-            // client triggers connection request
+        ServerSocketService socketServer = new ServerSocketService(PORT);
 
-            while(true){
+        while(socketServer.isAccepting()){
 
-                try{
-                    Socket soc = ss.accept(); // server accpts connection and captures socket obj (soc)
-                    System.out.println("Accepted connection from: " + soc.getInetAddress());
+            Socket clientSocket = socketServer.acceptConnection();
+            System.out.println("Client successfully connected to server!");
 
-                    // receive string from client (input stream is reading data)
-                    try (BufferedReader in = new BufferedReader(new InputStreamReader(soc.getInputStream()))) {
-                        String clientStr;
-
-                        // when server gets new server connection, server should begin endless loop
-                        while((clientStr = in.readLine()) != null){
-                            System.out.println("Message received from client1: " + clientStr);
-
-                            // Send message to client output stream is from sending (writing) data to client
-                            PrintWriter out = new PrintWriter(soc.getOutputStream(), true);
-                            out.println("Client " + soc.getInetAddress() + ": " + clientStr);
-                        }
-                    } catch (Exception e){
-                        System.out.println("Client abruptly disconnected...");
-                        e.getMessage();
-                    }
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        } catch (Exception exception){
-            exception.printStackTrace();
+            receiveMessage(clientSocket);
         }
 
+    }
+
+    private static void receiveMessage(Socket clientSocket){
+        try {
+            BufferedReader clientInputStream =
+                    new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            String clientMessage;
+
+            while((clientMessage = clientInputStream.readLine()) != null){
+                System.out.println("Message recieved from client! " + clientMessage + " : " + clientSocket.getInetAddress());
+
+                sendMessage(clientSocket);
+            }
+        } catch (IOException e) {
+            System.out.println("Client disconnected abruptly - " +
+                    "unable to receive messages from client " + e.getMessage());
+        }
+    }
+
+    private static void sendMessage(Socket clientSocket){
+        try {
+            PrintWriter serverOutputStream =
+                    new PrintWriter(clientSocket.getOutputStream(), true);
+            serverOutputStream.println("Server received message from : " + clientSocket.getInetAddress());
+        } catch (IOException e) {
+            System.out.println("Error writing message to client!" + e.getMessage());
+        }
     }
 }

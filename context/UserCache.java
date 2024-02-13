@@ -22,7 +22,7 @@ public class UserCache {
     // update game status to playing
     public void joinGame(GameContext game){
         List<UserContext> players = game.getPlayers();
-        players.forEach(player -> player.joinGame(game.getId()));
+        players.forEach(player -> player.joinGame(game.gameID));
     }
 
     // update game status to not playing
@@ -33,8 +33,8 @@ public class UserCache {
         });
     }
 
-    public void joinWaitQueue(){
-        
+    public void joinWaitQueue(UserContext user){
+        user.joinWaitQueue();
     }
 
     private UserContext getUser(String username, String socketId){

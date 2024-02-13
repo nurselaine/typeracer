@@ -1,2 +1,4 @@
-package context;public class GlobalContext {
+package context;
+
+public class GlobalContext {
 }

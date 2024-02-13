@@ -12,7 +12,7 @@ public class Client {
 
             // client creates new socket using host and port number that server is running
             // Once server accept the connection with client will socket object be created
-            Socket soc = new Socket("localhost", 9001);
+            Socket soc = new Socket("localhost", 3001);
 
             while(soc.isConnected()){
                 // System.in is an inputstream obj that takes a bytestream of data
@@ -23,11 +23,16 @@ public class Client {
                 // send message to server
                 sendInput(userStr, soc);
 
+                // recieve message from server
+                receiveMessage(soc);
+
             }
 
         } catch (Exception e){
             e.printStackTrace();
         }
+
+        System.out.println("Socket disconnected & client ");
     }
 
     public static String getInput(){
@@ -55,6 +60,17 @@ public class Client {
             out.println(userStr);
         } catch (IOException e){
             System.out.println("Error sending message to server");
+        } catch (Exception e) {
+            System.out.println("Socket disconnected abruptly " + e.getMessage());
+        }
+    }
+
+    public static void receiveMessage(Socket soc){
+        try {
+            BufferedReader serverInputStream = new BufferedReader(new InputStreamReader(soc.getInputStream()));
+            System.out.println(serverInputStream.readLine());
+        } catch (IOException e) {
+            System.out.println("Error receiving message from server " + e.getMessage());
         }
     }
 }

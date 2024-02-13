@@ -18,7 +18,7 @@ public class UserContext {
     private int totalWins;
     // STATUS represents the user's current game condition
     // (connect, playing, waiting, disconnected)
-    private enum STATUS {
+    public enum STATUS {
         PLAYING,
         WAITING,
         CONNECTED,
