@@ -13,26 +13,24 @@ public class Client {
             // client creates new socket using host and port number that server is running
             // Once server accept the connection with client will socket object be created
             Socket soc = new Socket("localhost", 3001);
+            Thread thread = receiveMessage(soc);
+            thread.start();
 
             while(soc.isConnected()){
+
                 // System.in is an inputstream obj that takes a bytestream of data
                 // Using inputstream reader, it takes a bytestream and returns a character stream
                 // Lastly bufferedreader will be able to read the entire string from the input
                 String userStr = getInput();
-
                 // send message to server
                 sendInput(userStr, soc);
-
-                // recieve message from server
-                receiveMessage(soc);
-
             }
 
         } catch (Exception e){
             e.printStackTrace();
         }
 
-        System.out.println("Socket disconnected & client ");
+        System.out.println("Socket disconnected & client will now shutdown");
     }
 
     public static String getInput(){
@@ -65,12 +63,21 @@ public class Client {
         }
     }
 
-    public static void receiveMessage(Socket soc){
-        try {
-            BufferedReader serverInputStream = new BufferedReader(new InputStreamReader(soc.getInputStream()));
-            System.out.println(serverInputStream.readLine());
-        } catch (IOException e) {
-            System.out.println("Error receiving message from server " + e.getMessage());
-        }
+    public static Thread receiveMessage(Socket soc){
+        Thread thread = new Thread(() -> {
+            try {
+                BufferedReader serverInputStream =
+                        new BufferedReader(new InputStreamReader(soc.getInputStream()));
+                String serverStr;
+
+                while((serverStr = serverInputStream.readLine()) != null){
+                    System.out.println("");
+                    System.out.println("Server Message: " + serverStr);
+                }
+            } catch (IOException e) {
+                System.out.println("Unable to receive message from server " + e.getMessage());
+            }
+        });
+        return thread;
     }
 }
