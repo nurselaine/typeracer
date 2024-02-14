@@ -1,5 +1,6 @@
 package context;
 
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class UserCache {
         user.joinWaitQueue();
     }
 
-    private UserContext getUser(String username, String socketId){
+    public UserContext getUser(String username, SocketAddress socketId){
         UserContext user = userList.stream().filter(player -> player.getUsername().equals(username))
                 .findFirst().orElse(null);
         return user;

@@ -1,5 +1,7 @@
 package context;
 
+import java.net.SocketAddress;
+
 public class UserContext {
 
     // unique user identifier
@@ -9,7 +11,7 @@ public class UserContext {
     private String password;
 
     // user's socket that connected to server
-    private String socketID;
+    private SocketAddress socketID;
 
     // represent total games user has played
     private int gameCount;
@@ -21,6 +23,7 @@ public class UserContext {
     public enum STATUS {
         PLAYING,
         WAITING,
+        LOGGEDIN,
         CONNECTED,
         DISCONNECTED
     }
@@ -33,7 +36,7 @@ public class UserContext {
     private int gameID = -1;
 
     //
-    public UserContext(String socketID, String username, String password){
+    public UserContext(SocketAddress socketID, String username, String password){
         this.socketID = socketID;
         this.username = username;
         this.password = password;
@@ -45,6 +48,8 @@ public class UserContext {
         this.userStatus = STATUS.PLAYING;
         this.gameCount++;
     }
+
+    public void login(){ this.userStatus = STATUS.LOGGEDIN; }
 
     public void endGame(){
         this.userStatus = STATUS.CONNECTED;

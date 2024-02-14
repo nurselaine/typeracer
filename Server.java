@@ -1,3 +1,4 @@
+import RPC.LoginRPC;
 import context.GameSession;
 import context.GlobalContext;
 import context.UserCache;
@@ -62,13 +63,62 @@ public class Server{
 
     }
 
+    private static String[] getUserCredentials(Socket clientSocket){
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
+            // get username and password
+            String username = bufferedReader.readLine();
+            String password = bufferedReader.readLine();
+
+            return new String[]{username, password};
+        } catch (IOException e) {
+            System.out.println("GET_USER_CREDENTIALS Error: unable to read input stream of username & password");
+        }
+        return null;
+    }
+
+    public static void LoginRPC(Socket clientSocket){
+        try {
+            String[] userCredentials = getUserCredentials(clientSocket);
+            String username = userCredentials[0], password = userCredentials[1];
+            PrintWriter printWriter = new PrintWriter(clientSocket.getOutputStream());
+            UserContext user = userCache.getUser(username, clientSocket.getRemoteSocketAddress());
+            if(user.getUsername().equals(username) && user.getPassword().equals(password)){
+                // update user status
+                user.login();
+                printWriter.println("Successfully logged in");
+            } else {
+                printWriter.println("Login Failed - please attempt to login again");
+            }
+        } catch (IOException e) {
+            System.out.println("LOGIN_RPC Error: unable to validate user credentials" + e.getMessage());
+        }
+    }
+
+    private static void newUserRPC(Socket clientSocket){
+        try {
+            // validate username is unique
+            String[] userCredentials = getUserCredentials(clientSocket);
+            String username = userCredentials[0], password = userCredentials[1];
+            int validUsername = -1;
+            while(validUsername != 1){
+                validUsername = validateUsername(clientSocket);
+            }
+
+            // create new user context
+            UserContext newUser = new UserContext(clientSocket.getRemoteSocketAddress(), username, password);
+            userCache.addNewUser(newUser);
+        } catch (Exception e) {
+            System.out.println("NEW_USER_RPC Error creating new user profile " + e.getMessage());
+        }
+    }
 
     /**
      * ValidateUsernameRPC will determine if username provided is unique and
      * not included in current list of users on the server
      * */
-    private static void validateUsernameRPC(Socket clientSocket){
+    private static int validateUsername(Socket clientSocket){
 
         try {
             // request for unique username
@@ -80,16 +130,20 @@ public class Server{
             PrintWriter outputStream = new PrintWriter(clientSocket.getOutputStream(), true);
             if(!userCache.validateUsername(username)){
                 // if username is not found in user cache then send success integer to client
-                outputStream.println("Username is valid");
+                outputStream.println(1);
+                System.out.println("Validated username successfully");
+                return 1;
             } else {
                 // if username is found in user cache then send failure integer to client
-                outputStream.println("Username is taken");
+                outputStream.println(0);
+                System.out.println("Validated username successfully");
+                return 0;
             }
-            System.out.println("Validated username successfully");
 
         } catch (IOException e) {
             System.out.println("VALIDATE_USERNAME_RPC: Error reading in client username " + e.getMessage());
         }
+        return 0;
     }
 
     /**
@@ -122,11 +176,10 @@ public class Server{
                 // depending on client message, route to specific RPC
                 switch(clientMessage){
                     case "Login":
-
+                        LoginRPC(clientSocket);
                         break;
                     case "New User":
-                        validateUsernameRPC(clientSocket);
-
+                        newUserRPC(clientSocket);
                         break;
                     case "Waiting":
                         break;
