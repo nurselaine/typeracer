@@ -1,8 +1,9 @@
+import context.GameSession;
+import context.GlobalContext;
 import context.UserCache;
 import context.UserContext;
 
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,6 +24,12 @@ import java.util.concurrent.Executors;
  * */
 
 public class Server{
+
+    // initialize context
+    public static UserCache userCache = new UserCache();
+    public static GameSession gameSession = new GameSession();
+    public static GlobalContext globalContext = new GlobalContext(userCache, gameSession);
+
     public static void main(String[] args) {
 
         System.out.println("Single threaded server...");
@@ -32,6 +39,7 @@ public class Server{
             ServerSocketService socketServer = new ServerSocketService(PORT);
             // create thread pool with 4 threads
             ExecutorService executorService = Executors.newFixedThreadPool(4);
+
 
             while(socketServer.isAccepting()){
 
@@ -54,13 +62,34 @@ public class Server{
 
     }
 
+
+
     /**
      * ValidateUsernameRPC will determine if username provided is unique and
      * not included in current list of users on the server
      * */
-    private static void validateUsernameRPC(Socket clientSocket, String username){
+    private static void validateUsernameRPC(Socket clientSocket){
 
+        try {
+            // request for unique username
+            String username;
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            username = bufferedReader.readLine();
 
+            // validate username
+            PrintWriter outputStream = new PrintWriter(clientSocket.getOutputStream(), true);
+            if(!userCache.validateUsername(username)){
+                // if username is not found in user cache then send success integer to client
+                outputStream.println("Username is valid");
+            } else {
+                // if username is found in user cache then send failure integer to client
+                outputStream.println("Username is taken");
+            }
+            System.out.println("Validated username successfully");
+
+        } catch (IOException e) {
+            System.out.println("VALIDATE_USERNAME_RPC: Error reading in client username " + e.getMessage());
+        }
     }
 
     /**
@@ -90,6 +119,25 @@ public class Server{
 
             // continuously check for incoming messages and print to server
             while((clientMessage = clientInputStream.readLine()) != null){
+                // depending on client message, route to specific RPC
+                switch(clientMessage){
+                    case "Login":
+
+                        break;
+                    case "New User":
+                        validateUsernameRPC(clientSocket);
+
+                        break;
+                    case "Waiting":
+                        break;
+                    case "Game End":
+                        break;
+                    case "Disconnect":
+                        break;
+                    default:
+                        sendMessage(clientSocket, "Server received invalid client request.");
+
+                }
                 System.out.println("Message recieved from client! " +
                         clientMessage + " : " + clientSocket.getInetAddress());
             }

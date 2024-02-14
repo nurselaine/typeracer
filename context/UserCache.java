@@ -42,4 +42,9 @@ public class UserCache {
                 .findFirst().orElse(null);
         return user;
     }
+
+    public boolean validateUsername(String username){
+        if(username.getClass() != String.class) return false;
+        return userList.stream().anyMatch(player -> player.getUsername().equals(username));
+    }
 }
