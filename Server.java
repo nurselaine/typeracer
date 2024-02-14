@@ -53,97 +53,11 @@ public class Server{
                     ConnectRPC(clientSocket);
                     receiveMessage(clientSocket);
                 });
-
-                // create new thread object
-//            ClientHandler clientThread = new ClientHandler(executorService, clientSocket);
             }
         } catch (Exception e) {
             System.out.println("Error starting server " + e.getMessage());
         }
 
-    }
-
-    private static String[] getUserCredentials(Socket clientSocket){
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-            // get username and password
-            String username = bufferedReader.readLine();
-            String password = bufferedReader.readLine();
-
-            return new String[]{username, password};
-        } catch (IOException e) {
-            System.out.println("GET_USER_CREDENTIALS Error: unable to read input stream of username & password");
-        }
-        return null;
-    }
-
-    public static void LoginRPC(Socket clientSocket){
-        try {
-            String[] userCredentials = getUserCredentials(clientSocket);
-            String username = userCredentials[0], password = userCredentials[1];
-            PrintWriter printWriter = new PrintWriter(clientSocket.getOutputStream());
-            UserContext user = userCache.getUser(username, clientSocket.getRemoteSocketAddress());
-            if(user.getUsername().equals(username) && user.getPassword().equals(password)){
-                // update user status
-                user.login();
-                printWriter.println("Successfully logged in");
-            } else {
-                printWriter.println("Login Failed - please attempt to login again");
-            }
-        } catch (IOException e) {
-            System.out.println("LOGIN_RPC Error: unable to validate user credentials" + e.getMessage());
-        }
-    }
-
-    private static void newUserRPC(Socket clientSocket){
-        try {
-            // validate username is unique
-            String[] userCredentials = getUserCredentials(clientSocket);
-            String username = userCredentials[0], password = userCredentials[1];
-            int validUsername = -1;
-            while(validUsername != 1){
-                validUsername = validateUsername(clientSocket);
-            }
-
-            // create new user context
-            UserContext newUser = new UserContext(clientSocket.getRemoteSocketAddress(), username, password);
-            userCache.addNewUser(newUser);
-        } catch (Exception e) {
-            System.out.println("NEW_USER_RPC Error creating new user profile " + e.getMessage());
-        }
-    }
-
-    /**
-     * ValidateUsernameRPC will determine if username provided is unique and
-     * not included in current list of users on the server
-     * */
-    private static int validateUsername(Socket clientSocket){
-
-        try {
-            // request for unique username
-            String username;
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            username = bufferedReader.readLine();
-
-            // validate username
-            PrintWriter outputStream = new PrintWriter(clientSocket.getOutputStream(), true);
-            if(!userCache.validateUsername(username)){
-                // if username is not found in user cache then send success integer to client
-                outputStream.println(1);
-                System.out.println("Validated username successfully");
-                return 1;
-            } else {
-                // if username is found in user cache then send failure integer to client
-                outputStream.println(0);
-                System.out.println("Validated username successfully");
-                return 0;
-            }
-
-        } catch (IOException e) {
-            System.out.println("VALIDATE_USERNAME_RPC: Error reading in client username " + e.getMessage());
-        }
-        return 0;
     }
 
     /**
@@ -171,15 +85,17 @@ public class Server{
                     new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             String clientMessage;
 
+            LoginRPC loginHandler = new LoginRPC();
+
             // continuously check for incoming messages and print to server
             while((clientMessage = clientInputStream.readLine()) != null){
                 // depending on client message, route to specific RPC
                 switch(clientMessage){
                     case "Login":
-                        LoginRPC(clientSocket);
+                        loginHandler.Login(clientSocket, userCache);
                         break;
                     case "New User":
-                        newUserRPC(clientSocket);
+                        loginHandler.newUserRPC(clientSocket, userCache);
                         break;
                     case "Waiting":
                         break;
