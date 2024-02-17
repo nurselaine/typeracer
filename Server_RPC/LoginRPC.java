@@ -1,7 +1,7 @@
-package RPC;
+package Server_RPC;
 
-import context.UserCache;
-import context.UserContext;
+import Server_context.UserCache;
+import Server_context.UserContext;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,7 +11,18 @@ import java.net.Socket;
 public class LoginRPC {
 
     /**
+     * this is for after this course ends and we continue to build this project:
+     * Feature: auth
+     *
+     * Use cookies to store user credentials
+     * can set policy to delete cookie within X time
+     * if user
+     * */
+
+    /**
      * Creates a user profile for new users joining the server for the first time
+     *
+     * Create PrintWriter objects to share between threads
      * */
     public void newUserRPC(Socket clientSocket, UserCache userCache){
         System.out.println("New User RPC");
@@ -24,9 +35,13 @@ public class LoginRPC {
             int validUsername = -1;
             while(validUsername != 1){
                 printWriter.println("Provide username + password");
+
+                // helper function to prompt client for user and password
                 userCredentials = getUserCredentials(clientSocket);
                 username = userCredentials[0];
                 password = userCredentials[1];
+
+                // username validation
                 validUsername = validateUsername(clientSocket, userCache, username);
             }
 
@@ -52,9 +67,15 @@ public class LoginRPC {
             PrintWriter printWriter = new PrintWriter(clientSocket.getOutputStream(), true);
             System.out.println("Attempting Login");
 
+            // client sends username and passwrod
             printWriter.println("Provider username + password");
             String[] userCredentials = getUserCredentials(clientSocket);
             String username = userCredentials[0], password = userCredentials[1];
+
+            /**
+             * ?? Refactor
+             * */
+            // check whether user is in the userCache
             UserContext user = userCache.getUser(username, clientSocket.getRemoteSocketAddress());
             boolean isUser = false;
             if(user != null){

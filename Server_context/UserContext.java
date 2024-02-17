@@ -1,13 +1,17 @@
-package context;
+package Server_context;
 
 import java.net.SocketAddress;
 
 public class UserContext {
 
+    /**
+     * Assign user their own PrintWriter object
+     * */
+
     // unique user identifier
     private String username;
 
-    // encrypted passcode for user authentication
+    // passcode for user authentication
     private String password;
 
     // user's socket that connected to server
@@ -18,19 +22,21 @@ public class UserContext {
 
     // Represents cumulative wins user has
     private int totalWins;
+
+    /**
+     * Put enum in its own class so it can be available to all classes for status updates
+     * */
     // STATUS represents the user's current game condition
     // (connect, playing, waiting, disconnected)
     public enum STATUS {
-        PLAYING,
-        WAITING,
-        LOGGEDIN,
-        CONNECTED,
-        DISCONNECTED
+        PLAYING, // joined active game
+        WAITING, // entered waiting queue
+        LOGGEDIN, // user has created/entered credentials
+        CONNECTED, // use just got accepted to server
+        DISCONNECTED // no longer connected to server
     }
 
-    public STATUS userStatus;
-
-
+    private STATUS userStatus;
 
     // Game status is an ID that is assigned when user enters a game
     private int gameID = -1;
@@ -52,7 +58,7 @@ public class UserContext {
     public void login(){ this.userStatus = STATUS.LOGGEDIN; }
 
     public void endGame(){
-        this.userStatus = STATUS.CONNECTED;
+        this.userStatus = STATUS.LOGGEDIN;
     }
 
     public void joinWaitQueue(){
@@ -86,4 +92,6 @@ public class UserContext {
     public int getTotalWins(){
         return this.totalWins;
     }
+
+    public void updateStatus(STATUS status) { this.userStatus = status; }
 }

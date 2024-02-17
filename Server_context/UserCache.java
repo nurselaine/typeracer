@@ -1,10 +1,16 @@
-package context;
+package Server_context;
 
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserCache {
+
+    /**
+     * use dictionary type data structure that will write to file
+     * for user credentials and every time server starts up
+     * then read the file and add back all clients into dictionary
+     * */
 
     private List<UserContext> userList;
 
@@ -20,6 +26,10 @@ public class UserCache {
         userList.add(user);
     }
 
+    /**
+     * Create a new class to handle game funcationaly and user state updates when
+     * joining/playing/leaving game to reduce coupling between classes
+     * */
     // update game status to playing
     public void joinGame(GameContext game){
         List<UserContext> players = game.getPlayers();
@@ -45,7 +55,7 @@ public class UserCache {
     }
 
     public boolean validateUsername(String username){
-        if(username.getClass() != String.class) return false;
+        if(username.getClass() != String.class || username.isEmpty()) return false;
         return userList.stream().anyMatch(player -> player.getUsername().equals(username));
     }
 }

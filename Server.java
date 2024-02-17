@@ -1,8 +1,7 @@
-import RPC.LoginRPC;
-import context.GameSession;
-import context.GlobalContext;
-import context.UserCache;
-import context.UserContext;
+import Server_RPC.LoginRPC;
+import Server_context.GameSession;
+import Server_context.GlobalContext;
+import Server_context.UserCache;
 
 import java.io.*;
 import java.net.Socket;
@@ -27,13 +26,13 @@ import java.util.concurrent.Executors;
 public class Server{
 
     // initialize context
-    public static UserCache userCache = new UserCache();
-    public static GameSession gameSession = new GameSession();
-    public static GlobalContext globalContext = new GlobalContext(userCache, gameSession);
+    private static UserCache userCache = new UserCache();
+    private static GameSession gameSession = new GameSession();
+    private static GlobalContext globalContext = new GlobalContext(userCache, gameSession);
 
     public static void main(String[] args) {
 
-        System.out.println("Single threaded server...");
+        System.out.println("multi-threaded server...");
         int PORT = 3001;
 
         try {
@@ -42,14 +41,18 @@ public class Server{
             ExecutorService executorService = Executors.newFixedThreadPool(4);
 
 
+            // Non-blocking socket that allows clients to be accepted and
             while(socketServer.isAccepting()){
 
-                // socket accepts client request & creates client socket
-                Socket clientSocket = socketServer.acceptConnection();
+                // pass off client to thread to create client socket
 
-                // Use a thread from threadpool to notify client of connection status
+                // use thread pool to accept incoming clients
+
+                // Use a thread from thread pool to notify client of connection status
                 // and listen to incoming client messages
                 executorService.execute(() -> {
+                    // socket accepts client request & creates client socket
+                    Socket clientSocket = socketServer.acceptConnection();
                     ConnectRPC(clientSocket);
                     receiveMessage(clientSocket);
                 });
