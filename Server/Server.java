@@ -4,9 +4,12 @@ import Server.Server_RPC.LoginRPC;
 import Server.Server_context.GameSession;
 import Server.Server_context.GlobalContext;
 import Server.Server_context.UserCache;
+import Server.Server_context.UserContext;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketAddress;
+import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -24,6 +27,30 @@ public class Server{
 
         System.out.println("multi-threaded server...");
         int PORT = 3001;
+
+        // on server start = read user database and create new user profile for each saved user
+        Thread reloadClient = new Thread(() -> {
+            File userDB = new File("C:\\Users\\Elain\\Projects\\typeracer\\Server\\utils\\user_database.txt");
+            try {
+                Scanner fileReader = new Scanner(userDB);
+                while(fileReader.hasNextLine()){
+                    String[] user_credentials = fileReader.nextLine().split(" ");
+
+                    // get socket id - use localhost for development
+//                    int colon = user_credentials[0].indexOf(':');
+//                    String host = user_credentials[0].substring(0, colon);
+                    Socket userSocket = new Socket("localhost", PORT);
+                    SocketAddress socketAddress = userSocket.getRemoteSocketAddress();
+
+                    // create new user context and add to user cache
+                    userCache.addNewUser(new UserContext(socketAddress, user_credentials[1], user_credentials[2]));
+                }
+            } catch (IOException e){
+                System.out.println("Unable to initialize user database");
+                e.printStackTrace();
+            }
+        });
+        reloadClient.start();
 
         try {
             ServerSocketService socketServer = new ServerSocketService(PORT);
@@ -44,13 +71,14 @@ public class Server{
                 // and listen to incoming client messages
                 executorService.execute(() -> {
 
-                    // create a client reader and writer objects for each new thread created
                     try {
-//                        System.out.println("waiting for sem permit");
                         sem.acquire();
+
+                        // create a client reader and writer objects for each new thread created
                         PrintWriter clientWriter = new PrintWriter(clientSocket.getOutputStream(), true);
                         BufferedReader clientReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                         ConnectRPC(clientSocket, clientWriter, clientReader);
+
                         sem.release();
 
                     } catch (IOException | InterruptedException e){
@@ -66,11 +94,11 @@ public class Server{
                     System.out.println("New client thread being created");
                     try{
 
-                        // each client will get their own writer and reader objects
+                        // create individual client writer and reader object
                         PrintWriter clientWriter = new PrintWriter(clientSocket.getOutputStream(), true);
                         BufferedReader clientReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-                        // method to handle incoming requests and map to the correct RPC
+                        // handle incoming requests and map client to the correct RPC
                         receiveMessage(clientSocket, clientWriter, clientReader, "client" + clientThreadCount);
                     } catch (IOException e){
                         System.out.println("SERVER ERROR: ISSUES CREATING INDIVIDUAL CLIENT THREAD");
@@ -80,6 +108,7 @@ public class Server{
                 clientThread.start();
 //
 //                // wait for threads to join
+//                - this breaks the multithreaded server becuase it does not allow for mtliple clients to join
 //                clientThread.join();
                 clientThreadCount--;
             }

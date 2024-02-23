@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.io.*;
 
 public class LoginRPC {
 
@@ -17,20 +18,6 @@ public class LoginRPC {
         this.clientWriter = clientWriter;
     }
 
-    /**
-     * this is for after this course ends and we continue to build this project:
-     * Feature: auth
-     *
-     * Use cookies to store user credentials
-     * can set policy to delete cookie within X time
-     * if user
-     * */
-
-    /**
-     * Creates a user profile for new users joining the server for the first time
-     *
-     * Create PrintWriter objects to share between threads
-     * */
     public void newUserRPC(Socket clientSocket, UserCache userCache){
 //        System.out.println("New User RPC");
         // validate username is unique
@@ -55,6 +42,21 @@ public class LoginRPC {
             userCache.addNewUser(newUser);
             clientWriter.println("Successfully created new user profile" +
                     username+ " " + password +  "  - please Login now");
+
+            // write user credentials to file to use for future server restarts
+            try {
+                FileWriter fileWriter =
+                        new FileWriter("C:\\Users\\Elain\\Projects\\typeracer\\Server\\utils\\user_database.txt", true);
+
+                // client credentials string
+                String credential = clientSocket.getRemoteSocketAddress() + " " + username + " " + password + "\n";
+                fileWriter.write(credential);
+
+                fileWriter.close();
+            } catch (IOException e){
+                System.out.println("Unable to write user credentials to user database");
+                e.printStackTrace();
+            }
         }
     }
 
