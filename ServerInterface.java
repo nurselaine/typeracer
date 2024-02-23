@@ -7,8 +7,6 @@ import java.io.*;
 
 public interface ServerInterface {
 
-    boolean ConnectRPC(Socket clientSocket);
-
     UserContext CreateUserRPC() throws IOException;
 
     void ReceiveMessage(Socket clientSocket);

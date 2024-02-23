@@ -17,7 +17,9 @@ import Server_context.UserContext;
     
     public ClientHandler(Socket clientSocket, GlobalContext globalContext) throws IOException {
         this.socket = clientSocket;
-        ConnectRPC(clientSocket);
+        this.out = new PrintWriter(clientSocket.getOutputStream(), true);
+        this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+//        ConnectRPC(clientSocket);
         this.globalContext = globalContext; 
     }
 
@@ -42,23 +44,23 @@ import Server_context.UserContext;
         }
     }
 
-    @Override
-    public boolean ConnectRPC(Socket clientSocket) {
-        try {
-            this.out = new PrintWriter(clientSocket.getOutputStream(), true);
-            if (clientSocket == null) {
-                out.println(0);
-            }
-            out.println(1);
-            System.out.println("Client successfully connected to server!" + clientSocket.getInetAddress());
-            return true;
-
-        } catch (IOException e) {
-            System.out.println("Unsuccessful connect to server, please disconnect " +
-                    "clientside and retry" + e.getMessage());
-        }
-        return false;
-    }
+//    @Override
+//    public boolean ConnectRPC(Socket clientSocket) {
+//        try {
+//
+//            if (clientSocket == null) {
+//                out.println(0);
+//            }
+//            out.println(1);
+//            System.out.println("Client successfully connected to server!" + clientSocket.getInetAddress());
+//            return true;
+//
+//        } catch (IOException e) {
+//            System.out.println("Unsuccessful connect to server, please disconnect " +
+//                    "clientside and retry" + e.getMessage());
+//        }
+//        return false;
+//    }
 
     @Override
     public UserContext CreateUserRPC() throws IOException {
