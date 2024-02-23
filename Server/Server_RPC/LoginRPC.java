@@ -23,6 +23,7 @@ public class LoginRPC {
         // validate username is unique
         String[] userCredentials;
         String username = "", password = "";
+        String socketAddress = clientSocket.getRemoteSocketAddress().toString();
         int validUsername = -1;
         while(validUsername != 1){
             clientWriter.println("Provide username + password");
@@ -38,7 +39,7 @@ public class LoginRPC {
 
         // create new user context
         if(!username.isEmpty() && !password.isEmpty()){
-            UserContext newUser = new UserContext(clientSocket.getRemoteSocketAddress(), username, password);
+            UserContext newUser = new UserContext(socketAddress, username, password);
             userCache.addNewUser(newUser);
             clientWriter.println("Successfully created new user profile" +
                     username+ " " + password +  "  - please Login now");
@@ -49,7 +50,7 @@ public class LoginRPC {
                         new FileWriter("C:\\Users\\Elain\\Projects\\typeracer\\Server\\utils\\user_database.txt", true);
 
                 // client credentials string
-                String credential = clientSocket.getRemoteSocketAddress() + " " + username + " " + password + "\n";
+                String credential = socketAddress + " " + username + " " + password + "\n";
                 fileWriter.write(credential);
 
                 fileWriter.close();

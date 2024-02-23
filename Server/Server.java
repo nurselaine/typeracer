@@ -37,13 +37,11 @@ public class Server{
                     String[] user_credentials = fileReader.nextLine().split(" ");
 
                     // get socket id - use localhost for development
-//                    int colon = user_credentials[0].indexOf(':');
-//                    String host = user_credentials[0].substring(0, colon);
-                    Socket userSocket = new Socket("localhost", PORT);
-                    SocketAddress socketAddress = userSocket.getRemoteSocketAddress();
+                    int colon = user_credentials[0].indexOf(':');
+                    String host = user_credentials[0].substring(0, colon);
 
                     // create new user context and add to user cache
-                    userCache.addNewUser(new UserContext(socketAddress, user_credentials[1], user_credentials[2]));
+                    userCache.addNewUser(new UserContext(host, user_credentials[1], user_credentials[2]));
                 }
             } catch (IOException e){
                 System.out.println("Unable to initialize user database");

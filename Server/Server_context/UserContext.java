@@ -15,7 +15,7 @@ public class UserContext {
     private String password;
 
     // user's socket that connected to server
-    private SocketAddress socketID;
+    private String socketID;
 
     // represent total games user has played
     private int gameCount;
@@ -42,7 +42,7 @@ public class UserContext {
     private int gameID = -1;
 
     //
-    public UserContext(SocketAddress socketID, String username, String password){
+    public UserContext(String socketID, String username, String password){
         this.socketID = socketID;
         this.username = username;
         this.password = password;
