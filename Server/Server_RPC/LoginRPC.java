@@ -4,10 +4,8 @@ import Server.Server_context.UserCache;
 import Server.Server_context.UserContext;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.nio.Buffer;
 
 public class LoginRPC {
 
@@ -34,9 +32,8 @@ public class LoginRPC {
      * Create PrintWriter objects to share between threads
      * */
     public void newUserRPC(Socket clientSocket, UserCache userCache){
-        System.out.println("New User RPC");
+//        System.out.println("New User RPC");
         // validate username is unique
-        System.out.println("Getting user credentials");
         String[] userCredentials;
         String username = "", password = "";
         int validUsername = -1;
@@ -68,20 +65,18 @@ public class LoginRPC {
      * */
     public void Login(Socket clientSocket, UserCache userCache){
 
-        System.out.println("Attempting Login");
+//        System.out.println("Attempting Login");
 
         // client sends username and passwrod
         clientWriter.println("Provider username + password");
         String[] userCredentials = getUserCredentials(clientSocket);
         String username = userCredentials[0];
         String password = userCredentials[1];
-        System.out.println("Retrieved credentials");
         /**
          * ?? Refactor
          * */
         // check whether user is in the userCache
         UserContext user = userCache.getUser(username, clientSocket.getRemoteSocketAddress());
-        System.out.println("Validating user credentials");
         boolean isUser = false;
         if(user != null){
             isUser = user.getUsername().equals(username) && user.getPassword().equals(password);
@@ -98,18 +93,16 @@ public class LoginRPC {
      * */
     private int validateUsername(Socket clientSocket, UserCache userCache, String username){
 
-        System.out.println("Validating Username");
+//        System.out.println("Validating Username");
 
         // validate username
         if(!userCache.validateUsername(username)){
             // if username is not found in user cache then send success integer to client
             clientWriter.println(1);
-            System.out.println("Validated username successfully");
             return 1;
         } else {
             // if username is found in user cache then send failure integer to client
             clientWriter.println(0);
-            System.out.println("Validated username successfully");
             return 0;
         }
 
@@ -120,15 +113,11 @@ public class LoginRPC {
      * */
     private String[] getUserCredentials(Socket clientSocket){
         try {
-            BufferedReader bufferedReader =
-                    new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            PrintWriter printWriter = new PrintWriter(clientSocket.getOutputStream(), true);
-
             // get username and password
-            printWriter.println("Enter username: ");
-            String username = bufferedReader.readLine();
-            printWriter.println("Enter password: ");
-            String password = bufferedReader.readLine();
+            clientWriter.println("Enter username: ");
+            String username = clientReader.readLine();
+            clientWriter.println("Enter password: ");
+            String password = clientReader.readLine();
             return new String[]{username, password};
         } catch (IOException e) {
             System.out.println("GET_USER_CREDENTIALS Error: unable to read input stream of username & password");
