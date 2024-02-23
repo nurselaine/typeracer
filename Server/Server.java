@@ -90,7 +90,7 @@ public class Server{
             System.out.println("receive message");
 
             String clientMessage;
-            LoginRPC loginHandler = new LoginRPC();
+            LoginRPC loginHandler = new LoginRPC(clientWriter, clientReader);
 
             // continuously check for incoming messages and print to server
             while((clientMessage = clientReader.readLine()) != null){
