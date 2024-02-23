@@ -22,7 +22,7 @@ public class UserCache {
         return userList;
     }
 
-    public void addNewUser(UserContext user){
+    public void addUser(UserContext user){
         userList.add(user);
     }
 
@@ -57,5 +57,16 @@ public class UserCache {
     public boolean validateUsername(String username){
         if(username.getClass() != String.class || username.isEmpty()) return false;
         return userList.stream().anyMatch(player -> player.getUsername().equals(username));
+    }
+
+    public boolean validatePassword(String username, String password){
+        UserContext user = userList.stream().filter(player -> player.getUsername().equals(username))
+                .findFirst().orElse(null);
+        if(user == null) return false;
+        return user.getPassword().equals(password);
+    }
+
+    public boolean userNameExists(String username){
+        return userList.contains(username);
     }
 }

@@ -48,7 +48,7 @@ public class LoginRPC {
             // create new user context
             if(!username.isEmpty() && !password.isEmpty()){
                 UserContext newUser = new UserContext(clientSocket.getRemoteSocketAddress(), username, password);
-                userCache.addNewUser(newUser);
+                userCache.addUser(newUser);
                 printWriter.println("Successfully created new user profile" +
                         username+ " " + password +  "  - please Login now");
             }

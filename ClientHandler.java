@@ -3,6 +3,9 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import Server_context.GlobalContext;
+import Server_context.UserContext;
+
     public class ClientHandler implements Runnable, ServerInterface{
     // this method accepts new incoming client connections and
     // creates a new socket object or returns null if connection was unsuccessful
@@ -10,11 +13,12 @@ import java.util.concurrent.Executors;
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
+    private GlobalContext globalContext;
     
-    public ClientHandler(Socket clientSocket) throws IOException {
+    public ClientHandler(Socket clientSocket, GlobalContext globalContext) throws IOException {
         this.socket = clientSocket;
         ConnectRPC(clientSocket);
-
+        this.globalContext = globalContext; 
     }
 
     @Override
@@ -57,14 +61,36 @@ import java.util.concurrent.Executors;
     }
 
     @Override
-    public void CreateUserRPC(Socket clientSocket) {
-        
+    public UserContext CreateUserRPC() throws IOException {
+
+        try {
+            //get user name
+            SendMessage("Enter user name:");
+            String userName = readMessage();
+
+            // get password
+            SendMessage("Enter password:");
+            String password = readMessage();
+
+            // add user to global context user cache
+            if(globalContext.addUser(new UserContext(socket.getLocalSocketAddress(), userName, password))){
+                SendMessage("User successfully created!");
+            } else {
+                SendMessage("User already exists!");
+            }
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+
+        }
+
+        return (new UserContext(socket.getLocalSocketAddress(), userName, password));
     }
 
     @Override
     public void ReceiveMessage(Socket clientSocket) {
         try {
-            this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             String clientMessage;
             while ((clientMessage = in.readLine()) != null) {
                 // depending on client message, route to specific RPC
@@ -73,7 +99,7 @@ import java.util.concurrent.Executors;
                         LoginRPC(clientSocket);
                         break;
                     case "New User":
-                        CreateUserRPC(clientSocket);
+                        CreateUserRPC();
                         break;
                     case "Waiting":
                         break;
@@ -91,6 +117,11 @@ import java.util.concurrent.Executors;
     }
 
     @Override
+    public void SendMessage(String message) throws IOException{
+        out.println(message);
+    }
+
+    @Override
     public void LoginRPC(Socket clientSocket) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'LoginRPC'");
@@ -98,8 +129,12 @@ import java.util.concurrent.Executors;
 
     @Override
     public void DisconnectRPC(Socket clientSocket) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'DisconnectRPC'");
+        try{
+            clientSocket.close();
+        } catch (IOException e){
+            System.out.println("Error disconnecting client");
+            e.printStackTrace();
+        } 
     }   
 
     @Override
@@ -108,6 +143,12 @@ import java.util.concurrent.Executors;
         throw new UnsupportedOperationException("Unimplemented method 'LogoutRPC'");
     }
 
-
-
+    public String readMessage() {
+        try {
+            return in.readLine().toString();
+        } catch (IOException e) {
+            System.out.println("Error reading message from client");
+        }
+        return null;
+    }
 }

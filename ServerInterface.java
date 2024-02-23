@@ -1,13 +1,19 @@
 import java.net.Socket;
+
+import Server_context.UserContext;
+
 import java.io.*;
+
 
 public interface ServerInterface {
 
     boolean ConnectRPC(Socket clientSocket);
 
-    void CreateUserRPC(Socket clientSocket);
+    UserContext CreateUserRPC() throws IOException;
 
     void ReceiveMessage(Socket clientSocket);
+
+    void SendMessage(String message) throws IOException;
 
     void LoginRPC(Socket clientSocket);
 

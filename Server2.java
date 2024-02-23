@@ -5,7 +5,9 @@ import java.util.concurrent.Executors;
 
 import Server_RPC.LoginRPC;
 import Server_context.GameSession;
+import Server_context.GlobalContext;
 import Server_context.UserCache;
+import Server_context.UserContext;
 
 public class Server2{
     
@@ -17,7 +19,7 @@ public class Server2{
 
     private ExecutorService executorService;
 
-    private LoginRPC loginRPC;
+    private static GlobalContext globalContext;
 
     UserCache userCache;
 
@@ -33,19 +35,29 @@ public class Server2{
 
         this.executorService = Executors.newFixedThreadPool(4);
 
-
+        globalContext = new GlobalContext(userCache, gameSession);
     }
 
-    public static void start(ServerSocketService ss, ExecutorService executorService) {
+    private void test(){
+        System.out.println("Server is running...");
+    }
+
+    public void start(ServerSocketService ss, ExecutorService executorService) {
         while (ss.isAccepting()) {
 
-            executorService.execute(() -> {
-                // socket accepts client request & creates client socket
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    // socket accepts client request & creates client socket
                 Socket clientSocket = ss.acceptConnection();
                 try {
 
                     ClientHandler clientHandler = new ClientHandler(clientSocket);
-                    clientHandler.ConnectRPC(clientSocket);
+                    if(clientHandler.ConnectRPC(clientSocket)){
+                        System.out.println("Client successfully connected to server!" + clientSocket.getInetAddress());
+                        
+                    }
+                }
                     
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
@@ -56,10 +68,12 @@ public class Server2{
         }
     }
 
+
+
     public static void main(String[] args) {
         System.out.println("multi-threaded server...");
         int PORT = 3001;
         Server2 server = new Server2(PORT);
     }
-    
-}
+
+ }
