@@ -86,6 +86,7 @@ public class LoginRPC {
         }
 
         String clientMessage = isUser ? "Successfully logged in as " + username : "Login Failed - please attempt to login again";
+        user.login(); // update user status to loggedin
         clientWriter.println(clientMessage);
 
     }

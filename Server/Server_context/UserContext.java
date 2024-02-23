@@ -4,10 +4,6 @@ import java.net.SocketAddress;
 
 public class UserContext {
 
-    /**
-     * Assign user their own PrintWriter object
-     * */
-
     // unique user identifier
     private String username;
 
@@ -23,9 +19,8 @@ public class UserContext {
     // Represents cumulative wins user has
     private int totalWins;
 
-    /**
-     * Put enum in its own class so it can be available to all classes for status updates
-     * */
+    private long lastScore;
+
     // STATUS represents the user's current game condition
     // (connect, playing, waiting, disconnected)
     public enum STATUS {
@@ -57,7 +52,8 @@ public class UserContext {
 
     public void login(){ this.userStatus = STATUS.LOGGEDIN; }
 
-    public void endGame(){
+    public void endGame(long score){
+        this.lastScore = score;
         this.userStatus = STATUS.LOGGEDIN;
     }
 

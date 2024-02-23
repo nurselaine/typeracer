@@ -38,8 +38,11 @@ public class Server{
 
                 Future<Socket> clientSocketFuture = connectRPC(socketServer, executorService, sem);
                 Socket clientSocket = clientSocketFuture.get();
-
-                handleClient(clientSocket);
+                if(clientSocket!= null){
+                    handleClient(clientSocket);
+                } else {
+                    System.out.println("client failed to connect to server");
+                }
 
             }
         } catch (Exception e) {
@@ -53,8 +56,7 @@ public class Server{
      * succesfully and then transfer over to ClientHandler thread for auth RPCs
      * */
     private static Future<Socket> connectRPC(ServerSocketService socketServer, ExecutorService executorService, Semaphore sem) {
-        // Use a thread from thread pool to notify client of connection status
-        // and listen to incoming client messages
+        // Use future object to asynchronously get the
         CompletableFuture<Socket> futureSocket = new CompletableFuture<>();
         executorService.execute(() -> {
             try {

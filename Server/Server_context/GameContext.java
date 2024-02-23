@@ -30,15 +30,6 @@ public class GameContext {
     // players inactive/disconnected players
     private List<UserContext> ghostPlayers;
 
-    /**
-     * ?? Create a new class to track game times for each user and calculate
-     * game placement (1st, 2nd, 3rd, 4th) in that class ??
-     *
-     * ?? User will send RPC with total time taken to complete typing to new class
-     * ?? new class will hold all user times and calculate avg time speed and scores
-     *
-     * ?? Game context will use this new class to send users result of game
-     * */
     // game start time
     private long startTime;
 
@@ -78,10 +69,11 @@ public class GameContext {
 
     // Add players that have been disconnected from game/server
     public void stopWatchingPlayer(UserContext user){
-        if(user.getStatus() == UserContext.STATUS.DISCONNECTED){
-            ghostPlayers.add(user);
-        }
 
+    }
+
+    public int getGameID(){
+        return this.gameID;
     }
 
 
