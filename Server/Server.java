@@ -45,12 +45,25 @@ public class Server{
                         PrintWriter clientWriter = new PrintWriter(clientSocket.getOutputStream(), true);
                         BufferedReader clientReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                         ConnectRPC(clientSocket, clientWriter, clientReader);
-                        receiveMessage(clientSocket, clientWriter, clientReader);
                     } catch (IOException e){
                         System.out.println("Unsuccessful connect to server, please disconnect " +
                                 "client-side and retry" + e.getMessage());
                     }
+                    System.out.println("Thread returning to pool");
                 });
+
+                Thread clientThread = new Thread(() -> {
+                    System.out.println("New client thread being created");
+                    try{
+                        PrintWriter clientWriter = new PrintWriter(clientSocket.getOutputStream(), true);
+                        BufferedReader clientReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                        receiveMessage(clientSocket, clientWriter, clientReader);
+                    } catch (IOException e){
+                        System.out.println("SERVER ERROR: ISSUES CREATING INDIVIDUAL CLIENT THREAD");
+                        e.printStackTrace();
+                    }
+                });
+                clientThread.start();
             }
         } catch (Exception e) {
             System.out.println("Error starting server " + e.getMessage());
