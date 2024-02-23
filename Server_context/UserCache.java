@@ -69,4 +69,11 @@ public class UserCache {
     public boolean userNameExists(String username){
         return userList.contains(username);
     }
+
+    public boolean authenticateUser(String username, String password){
+        UserContext user = userList.stream().filter(player -> player.getUsername().equals(username))
+                .findFirst().orElse(null);
+        if(user == null) return false;
+        return user.getPassword().equals(password);
+    }
 }

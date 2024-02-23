@@ -63,8 +63,9 @@ import Server_context.UserContext;
     @Override
     public UserContext CreateUserRPC() throws IOException {
 
+        UserContext userContext;
         try {
-            //get user name
+            // get user name
             SendMessage("Enter user name:");
             String userName = readMessage();
 
@@ -79,13 +80,13 @@ import Server_context.UserContext;
                 SendMessage("User already exists!");
             }
 
+
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
 
         }
-
-        return (new UserContext(socket.getLocalSocketAddress(), userName, password));
+        return null;
     }
 
     @Override
@@ -122,9 +123,18 @@ import Server_context.UserContext;
     }
 
     @Override
-    public void LoginRPC(Socket clientSocket) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'LoginRPC'");
+    public void LoginRPC(Socket clientSocket) throws IOException{
+        SendMessage("Enter user name: ");
+        String userName = readMessage(); 
+
+        SendMessage("Enter password: ");
+        String password = readMessage();
+
+        if(globalContext.authenticateUser(userName, password)){
+            out.println("Login successful!");
+        } else {
+            out.println("Login failed!");
+        }
     }
 
     @Override

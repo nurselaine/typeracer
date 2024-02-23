@@ -48,4 +48,8 @@ public class GlobalContext {
         userCache.addUser(user);
         return true;
     }
+    
+    public boolean authenticateUser(String userName, String password){
+        return userCache.authenticateUser(userName, password);
+    }
 }

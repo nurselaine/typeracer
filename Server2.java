@@ -36,6 +36,9 @@ public class Server2{
         this.executorService = Executors.newFixedThreadPool(4);
 
         globalContext = new GlobalContext(userCache, gameSession);
+
+        start(ss, executorService);
+
     }
 
     private void test(){
@@ -44,36 +47,23 @@ public class Server2{
 
     public void start(ServerSocketService ss, ExecutorService executorService) {
         while (ss.isAccepting()) {
-
-            executorService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    // socket accepts client request & creates client socket
+            executorService.execute(() -> {
                 Socket clientSocket = ss.acceptConnection();
                 try {
-
-                    ClientHandler clientHandler = new ClientHandler(clientSocket);
-                    if(clientHandler.ConnectRPC(clientSocket)){
+                    ClientHandler clientHandler = new ClientHandler(clientSocket, globalContext);
+                    if (clientHandler.ConnectRPC(clientSocket)) {
                         System.out.println("Client successfully connected to server!" + clientSocket.getInetAddress());
-                        
                     }
-                }
-                    
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             });
-
         }
     }
-
-
 
     public static void main(String[] args) {
         System.out.println("multi-threaded server...");
         int PORT = 3001;
         Server2 server = new Server2(PORT);
     }
-
  }
