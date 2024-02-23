@@ -1,13 +1,23 @@
+package Client;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.io.*;
+import java.net.SocketAddress;
 import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class Client {
     public static void main(String[] args) {
 
         try {
+
             System.out.println("Client Socket");
 
             // client creates new socket using host and port number that server is running

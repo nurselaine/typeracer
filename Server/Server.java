@@ -1,27 +1,16 @@
-import Server_RPC.LoginRPC;
-import Server_context.GameSession;
-import Server_context.GlobalContext;
-import Server_context.UserCache;
+package Server;
+
+import Server.Server_RPC.LoginRPC;
+import Server.Server_context.GameSession;
+import Server.Server_context.GlobalContext;
+import Server.Server_context.UserCache;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.channels.Selector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/*
- * When the server gets a new connection request from client.
- * Server will then be in an endless loop servicing this client
- * until the client has disconnected.
- *
- * Once the client has disconnected, the server will then go
- * back to accepting a new connection.
- * This model is a single threaded server that can only
- * handle one client at a time.
- *
- * The client program should Establish a connection to the server
- * Execute the Connect call Sleep for a random amount of time
- * between 1 and 10 seconds. Execute the Disconnect call
- * */
 
 public class Server{
 
@@ -44,17 +33,23 @@ public class Server{
             // Non-blocking socket that allows clients to be accepted and
             while(socketServer.isAccepting()){
 
-                // pass off client to thread to create client socket
-
-                // use thread pool to accept incoming clients
+                // socket accepts client request & creates client socket
+                Socket clientSocket = socketServer.acceptConnection();
 
                 // Use a thread from thread pool to notify client of connection status
                 // and listen to incoming client messages
                 executorService.execute(() -> {
-                    // socket accepts client request & creates client socket
-                    Socket clientSocket = socketServer.acceptConnection();
-                    ConnectRPC(clientSocket);
-                    receiveMessage(clientSocket);
+
+                    // create a client reader and writer objects for each new thread created
+                    try {
+                        PrintWriter clientWriter = new PrintWriter(clientSocket.getOutputStream(), true);
+                        BufferedReader clientReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                        ConnectRPC(clientSocket, clientWriter, clientReader);
+                        receiveMessage(clientSocket, clientWriter, clientReader);
+                    } catch (IOException e){
+                        System.out.println("Unsuccessful connect to server, please disconnect " +
+                                "client-side and retry" + e.getMessage());
+                    }
                 });
             }
         } catch (Exception e) {
@@ -67,31 +62,25 @@ public class Server{
      * ConnectRPC will handle notifying clientside that client has been connected
      * succesfully and then transfer over to ClientHandler thread for auth RPCs
      * */
-    private static void ConnectRPC(Socket clientSocket){
-        try {
-            PrintWriter serverOutputStream =
-                    new PrintWriter(clientSocket.getOutputStream(), true);
-            if(clientSocket == null){
-                serverOutputStream.println(0);
-            }
-            serverOutputStream.println(1);
+    private static void ConnectRPC(Socket clientSocket, PrintWriter clientWriter, BufferedReader clientReader) {
+        if (clientSocket == null) {
+            clientWriter.println(0);
+            System.out.println("Client socket not connected to server!" + clientSocket.getInetAddress());
+        } else {
+            clientWriter.println(1);
             System.out.println("Client successfully connected to server!" + clientSocket.getInetAddress());
-        } catch (IOException e) {
-            System.out.println("Unsuccessful connect to server, please disconnect " +
-                    "clientside and retry" + e.getMessage());
         }
     }
 
-    private static void receiveMessage(Socket clientSocket){
+    private static void receiveMessage(Socket clientSocket, PrintWriter clientWriter, BufferedReader clientReader) throws IOException {
         try {
-            BufferedReader clientInputStream =
-                    new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            String clientMessage;
+            System.out.println("receive message");
 
+            String clientMessage;
             LoginRPC loginHandler = new LoginRPC();
 
             // continuously check for incoming messages and print to server
-            while((clientMessage = clientInputStream.readLine()) != null){
+            while((clientMessage = clientReader.readLine()) != null){
                 // depending on client message, route to specific RPC
                 switch(clientMessage){
                     case "Login":
@@ -107,7 +96,7 @@ public class Server{
                     case "Disconnect":
                         break;
                     default:
-                        sendMessage(clientSocket, "Server received invalid client request.");
+                        sendMessage(clientSocket, " Server received invalid client request.", clientWriter, clientReader);
 
                 }
                 System.out.println("Message recieved from client! " +
@@ -116,17 +105,18 @@ public class Server{
         } catch (IOException e) {
             System.out.println("Client disconnected abruptly - " +
                     "unable to receive messages from client " + e.getMessage());
+        } finally {
+            if(clientReader!=null){
+                clientReader.close();
+            }
+            if(clientWriter != null){
+                clientWriter.close();
+            }
         }
     }
 
-    private static void sendMessage(Socket clientSocket, String message){
-        try {
-            PrintWriter serverOutputStream =
-                    new PrintWriter(clientSocket.getOutputStream(), true);
-            serverOutputStream.println(message);
-        } catch (IOException e) {
-            System.out.println("Error writing message to client!" + e.getMessage());
-        }
+    private static void sendMessage(Socket clientSocket, String message,  PrintWriter clientWriter, BufferedReader clientReader){
+        clientWriter.println(message);
     }
 
 }

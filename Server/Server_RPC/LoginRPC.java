@@ -1,7 +1,7 @@
-package Server_RPC;
+package Server.Server_RPC;
 
-import Server_context.UserCache;
-import Server_context.UserContext;
+import Server.Server_context.UserCache;
+import Server.Server_context.UserContext;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -52,6 +52,7 @@ public class LoginRPC {
                 printWriter.println("Successfully created new user profile" +
                         username+ " " + password +  "  - please Login now");
             }
+
         } catch (IOException e) {
             System.out.println("NEW_USER_RPC Error creating new user profile " + e.getMessage());
         }
@@ -70,13 +71,15 @@ public class LoginRPC {
             // client sends username and passwrod
             printWriter.println("Provider username + password");
             String[] userCredentials = getUserCredentials(clientSocket);
-            String username = userCredentials[0], password = userCredentials[1];
-
+            String username = userCredentials[0];
+            String password = userCredentials[1];
+            System.out.println("Retrieved credentials");
             /**
              * ?? Refactor
              * */
             // check whether user is in the userCache
             UserContext user = userCache.getUser(username, clientSocket.getRemoteSocketAddress());
+            System.out.println("Validating user credentials");
             boolean isUser = false;
             if(user != null){
                 isUser = user.getUsername().equals(username) && user.getPassword().equals(password);
@@ -132,7 +135,6 @@ public class LoginRPC {
             String username = bufferedReader.readLine();
             printWriter.println("Enter password: ");
             String password = bufferedReader.readLine();
-
             return new String[]{username, password};
         } catch (IOException e) {
             System.out.println("GET_USER_CREDENTIALS Error: unable to read input stream of username & password");

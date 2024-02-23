@@ -2,8 +2,8 @@
 import java.io.IOException;
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
-        String clientFile = "Client.java";
-        String serverFile = "Server.java";
+        String clientFile = "Client/Client.java";
+        String serverFile = "Server/Server.java";
         String compiledClientFile = "Client";
         String compiledServerFile = "Server";
         String serverComand;

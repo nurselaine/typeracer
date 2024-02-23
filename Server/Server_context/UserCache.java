@@ -1,4 +1,4 @@
-package Server_context;
+package Server.Server_context;
 
 import java.net.SocketAddress;
 import java.util.ArrayList;
@@ -23,6 +23,7 @@ public class UserCache {
     }
 
     public void addNewUser(UserContext user){
+        System.out.println("User cache added new user");
         userList.add(user);
     }
 

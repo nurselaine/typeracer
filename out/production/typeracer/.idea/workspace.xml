@@ -5,11 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a0849281-223c-4dcb-9927-4d9c458aecdb" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/RPC/LoginRPC.java" beforeDir="false" afterPath="$PROJECT_DIR$/RPC/LoginRPC.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/context/GameContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/context/GameContext.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/context/UserCache.java" beforeDir="false" afterPath="$PROJECT_DIR$/context/UserCache.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/context/UserContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/context/UserContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/Server.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ServerSocketService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/ServerSocketService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server_RPC/LoginRPC.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/Server_RPC/LoginRPC.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server_context/GameContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/Server_context/GameContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server_context/GameSession.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/Server_context/GameSession.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server_context/GlobalContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/Server_context/GlobalContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server_context/UserCache.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/Server_context/UserCache.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server_context/UserContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/Server_context/UserContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/typeracer/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/typeracer/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/typeracer/Client.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/typeracer/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/typeracer/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/typeracer/Server.class" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,20 +45,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "jdk.selected.JAVA_MODULE": "21",
-    "last_opened_file_path": "C:/Users/Elain/Projects/typeracer",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;21&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Elain/Projects/typeracer&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
-  <component name="RunManager" selected="Application.Server">
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Elain\Projects\typeracer\Client" />
+      <recent name="C:\Users\Elain\Projects\typeracer\Server" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.Client2">
     <configuration name="Client" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="Client" />
       <module name="typeracer" />
@@ -62,6 +79,19 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Client.Client" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Client.Client" />
+      <module name="typeracer" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Client.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Server" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Server" />
       <module name="typeracer" />
@@ -69,15 +99,32 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Server.Server" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Server.Server" />
+      <module name="typeracer" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Server.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <list>
       <item itemvalue="Application.Client2" />
+      <item itemvalue="Application.Client.Client" />
+      <item itemvalue="Application.Server.Server" />
       <item itemvalue="Application.Client" />
       <item itemvalue="Application.Server" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.Server" />
+        <item itemvalue="Application.Client.Client" />
+        <item itemvalue="Application.Server.Server" />
         <item itemvalue="Application.Client" />
+        <item itemvalue="Application.Server" />
       </list>
     </recent_temporary>
   </component>
@@ -95,7 +142,8 @@
       <workItem from="1706821302155" duration="31000" />
       <workItem from="1707246689746" duration="4979000" />
       <workItem from="1707778520735" duration="29171000" />
-      <workItem from="1708130460879" duration="6561000" />
+      <workItem from="1708130460879" duration="7628000" />
+      <workItem from="1708649520781" duration="6946000" />
     </task>
     <servers />
   </component>
