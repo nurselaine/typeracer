@@ -57,7 +57,7 @@ public class GameContext {
     }
 
     // Generate a random string for players to type
-    private String randomlyGenerateString(){
+    public String randomlyGenerateString(){
         // use this as test string for now
         return "I like to code.";
     }
