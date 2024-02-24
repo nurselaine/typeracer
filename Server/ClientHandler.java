@@ -17,7 +17,6 @@ public class ClientHandler implements Runnable, ServerInterface {
     private BufferedReader in;
     private PrintWriter out;
     private GlobalContext globalContext;
-
     private UserCache userCache;
 
     public ClientHandler(Socket clientSocket, GlobalContext globalContext) throws IOException {
@@ -25,6 +24,8 @@ public class ClientHandler implements Runnable, ServerInterface {
         ConnectRPC(clientSocket);
         this.globalContext = globalContext;
         this.userCache = globalContext.userCache;
+        this.out = new PrintWriter(clientSocket.getOutputStream(), true);
+        this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
     }
 
     @Override
