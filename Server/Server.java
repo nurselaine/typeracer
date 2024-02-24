@@ -7,15 +7,14 @@ import Server.Server_context.UserCache;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.channels.Selector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
 
 
 public class Server{
 
     // initialize context
-    public static int clientThreadCount = 0;
     private static UserCache userCache = new UserCache();
     private static GameSession gameSession = new GameSession();
     private static GlobalContext globalContext = new GlobalContext(userCache, gameSession);
@@ -30,14 +29,11 @@ public class Server{
             // create thread pool with 4 threads
             ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-            // Creating Semaphore object to share client reader and writers for connecting to server
-            Semaphore sem = new Semaphore(4);
-
 
             // Non-blocking socket that allows clients to be accepted and
             while(socketServer.isAccepting()){
 
-                // socket accepts 4 client request & creates client socket simultaneuously
+                // socket accepts client request & creates client socket
                 Socket clientSocket = socketServer.acceptConnection();
 
                 // Use a thread from thread pool to notify client of connection status
@@ -46,42 +42,28 @@ public class Server{
 
                     // create a client reader and writer objects for each new thread created
                     try {
-//                        System.out.println("waiting for sem permit");
-                        sem.acquire();
                         PrintWriter clientWriter = new PrintWriter(clientSocket.getOutputStream(), true);
                         BufferedReader clientReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                         ConnectRPC(clientSocket, clientWriter, clientReader);
-                        sem.release();
-
-                    } catch (IOException | InterruptedException e){
+                    } catch (IOException e){
                         System.out.println("Unsuccessful connect to server, please disconnect " +
                                 "client-side and retry" + e.getMessage());
                     }
+                    System.out.println("Thread returning to pool");
                 });
 
-                clientThreadCount++;
-
-                // create and start client thread for each new accepted socket
                 Thread clientThread = new Thread(() -> {
                     System.out.println("New client thread being created");
                     try{
-
-                        // each client will get their own writer and reader objects
                         PrintWriter clientWriter = new PrintWriter(clientSocket.getOutputStream(), true);
                         BufferedReader clientReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-                        // method to handle incoming requests and map to the correct RPC
-                        receiveMessage(clientSocket, clientWriter, clientReader, "client" + clientThreadCount);
+                        receiveMessage(clientSocket, clientWriter, clientReader);
                     } catch (IOException e){
                         System.out.println("SERVER ERROR: ISSUES CREATING INDIVIDUAL CLIENT THREAD");
                         e.printStackTrace();
                     }
-                }, Integer.toString(clientThreadCount));
+                });
                 clientThread.start();
-//
-//                // wait for threads to join
-//                clientThread.join();
-                clientThreadCount--;
             }
         } catch (Exception e) {
             System.out.println("Error starting server " + e.getMessage());
@@ -99,16 +81,16 @@ public class Server{
             System.out.println("Client socket not connected to server!" + clientSocket.getInetAddress());
         } else {
             clientWriter.println(1);
+            System.out.println("Client successfully connected to server!" + clientSocket.getInetAddress());
         }
     }
 
-    private static void receiveMessage(Socket clientSocket, PrintWriter clientWriter,
-                                       BufferedReader clientReader, String clientName) throws IOException {
+    private static void receiveMessage(Socket clientSocket, PrintWriter clientWriter, BufferedReader clientReader) throws IOException {
         try {
-//            System.out.println("receive message");
+            System.out.println("receive message");
 
             String clientMessage;
-            LoginRPC loginHandler = new LoginRPC(clientWriter, clientReader);
+            LoginRPC loginHandler = new LoginRPC();
 
             // continuously check for incoming messages and print to server
             while((clientMessage = clientReader.readLine()) != null){
@@ -130,7 +112,8 @@ public class Server{
                         sendMessage(clientSocket, " Server received invalid client request.", clientWriter, clientReader);
 
                 }
-                System.out.println("Message recieved from "+ clientName +"! " + clientMessage + " : ");
+                System.out.println("Message recieved from client! " +
+                        clientMessage + " : " + clientSocket.getInetAddress());
             }
         } catch (IOException e) {
             System.out.println("Client disconnected abruptly - " +
