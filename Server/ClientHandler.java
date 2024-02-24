@@ -81,7 +81,7 @@ public class ClientHandler implements Runnable, ServerInterface {
 
             // add user to global context user cache
             if(userCache.validateUsername(userName)){
-                userCache.addNewUser(new UserContext(socket.getLocalSocketAddress(), userName, password));
+                userCache.addNewUser(new UserContext(socket.getLocalSocketAddress().toString(), userName, password));
                 SendMessage("User successfully created!");
             } else {
                 SendMessage("User already exists!");

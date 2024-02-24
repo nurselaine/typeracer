@@ -39,10 +39,10 @@ public class UserCache {
 
     // update game status to not playing
     public void endGame(GameContext game){
-        List<UserContext> players = game.getPlayers();
-        players.forEach(player -> {
-            player.endGame();
-        });
+//        List<UserContext> players = game.getPlayers();
+//        players.forEach(player -> {
+//            player.endGame();
+//        });
     }
 
     public void joinWaitQueue(UserContext user){

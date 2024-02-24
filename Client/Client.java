@@ -1,5 +1,7 @@
 package Client;
 
+import Client.ui.Menu;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
@@ -12,6 +14,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Scanner;
 
 public class Client {
     public static void main(String[] args) {
@@ -19,14 +22,31 @@ public class Client {
         try {
 
             System.out.println("Client Socket");
+            // instantiate menu library
+            Menu menu = new Menu();
+            Scanner input = new Scanner(System.in); // for reading client input
+            boolean isLogginIn = false;
 
             // client creates new socket using host and port number that server is running
             // Once server accept the connection with client will socket object be created
             Socket soc = new Socket("localhost", 3001);
+
             Thread thread = receiveMessage(soc);
             thread.start();
 
             while(soc.isConnected()){
+
+                while(!isLogginIn){
+                    // print menu options for login options
+                    menu.nonValidatedUserMenu();
+                    System.out.print("> Your Option: ");
+                    String request = input.nextLine();
+
+                }
+
+                while(isLogginIn){
+
+                }
 
                 // System.in is an inputstream obj that takes a bytestream of data
                 // Using inputstream reader, it takes a bytestream and returns a character stream
