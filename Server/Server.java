@@ -27,38 +27,24 @@ public class Server{
         try {
             ServerSocketService socketServer = new ServerSocketService(PORT);
             // create thread pool with 4 threads
-            ExecutorService executorService = Executors.newFixedThreadPool(4);
 
 
             // Non-blocking socket that allows clients to be accepted and
-            while(socketServer.isAccepting()){
+            while(socketServer.isAccepting()) {
 
                 // socket accepts client request & creates client socket
                 Socket clientSocket = socketServer.acceptConnection();
 
                 // Use a thread from thread pool to notify client of connection status
                 // and listen to incoming client messages
-                executorService.execute(() -> {
-
-                    // create a client reader and writer objects for each new thread created
+                Thread clientThread = new Thread(() -> {
+                    System.out.println("New client thread being created");
                     try {
                         PrintWriter clientWriter = new PrintWriter(clientSocket.getOutputStream(), true);
                         BufferedReader clientReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                        ConnectRPC(clientSocket, clientWriter, clientReader);
-                    } catch (IOException e){
-                        System.out.println("Unsuccessful connect to server, please disconnect " +
-                                "client-side and retry" + e.getMessage());
-                    }
-                    System.out.println("Thread returning to pool");
-                });
-
-                Thread clientThread = new Thread(() -> {
-                    System.out.println("New client thread being created");
-                    try{
-                        PrintWriter clientWriter = new PrintWriter(clientSocket.getOutputStream(), true);
-                        BufferedReader clientReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                        ConnectRPC(clientSocket, clientWriter);
                         receiveMessage(clientSocket, clientWriter, clientReader);
-                    } catch (IOException e){
+                    } catch (IOException e) {
                         System.out.println("SERVER ERROR: ISSUES CREATING INDIVIDUAL CLIENT THREAD");
                         e.printStackTrace();
                     }
@@ -75,7 +61,7 @@ public class Server{
      * ConnectRPC will handle notifying clientside that client has been connected
      * succesfully and then transfer over to ClientHandler thread for auth RPCs
      * */
-    private static void ConnectRPC(Socket clientSocket, PrintWriter clientWriter, BufferedReader clientReader) {
+    private static void ConnectRPC(Socket clientSocket, PrintWriter clientWriter) {
         if (clientSocket == null) {
             clientWriter.println(0);
             System.out.println("Client socket not connected to server!" + clientSocket.getInetAddress());
