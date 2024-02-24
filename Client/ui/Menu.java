@@ -1,6 +1,14 @@
 package Client.ui;
 
+import java.util.Scanner;
+
 public class Menu {
+
+    private Scanner input;
+
+    public Menu(Scanner input){
+        this.input = input;
+    }
     public void nonValidatedUserMenu(){
         System.out.println("**********************\n" +
                            "*     LOGIN MENU     *\n" +
@@ -34,4 +42,29 @@ public class Menu {
                 "* 5. QUIT            *\n" +
                 "**********************\n"  );
     }
+
+    public String getMenuInput(boolean isValidated){
+//        if(!input.hasNextLine()){
+//            System.out.println("> Input unreadable. Please try again.");
+//        }
+        System.out.println("Get menu option method: ");
+        int menuOptions = isValidated ? 5 : 3;
+
+        // get user input
+        System.out.print("> ");
+        String menuInput = this.input.nextLine();
+        System.out.println("");
+
+        // continue to get menu option from user until valid option is entered
+        while(Integer.parseInt(menuInput) > menuOptions){
+            // for now we will assume input will be a number value
+            System.out.println("\n> Please enter options between 1 to " + menuOptions);
+            System.out.print("> ");
+            menuInput = this.input.nextLine();
+            System.out.println("");
+        }
+
+        return menuInput;
+    }
+
 }

@@ -1,5 +1,6 @@
 package Client;
 
+import Client.RPC.UserRPC;
 import Client.ui.Menu;
 
 import java.io.BufferedReader;
@@ -16,36 +17,57 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
+
 public class Client {
     public static void main(String[] args) {
 
         try {
 
             System.out.println("Client Socket");
-            // instantiate menu library
-            Menu menu = new Menu();
             Scanner input = new Scanner(System.in); // for reading client input
-            boolean isLogginIn = false;
+            // instantiate menu library
+            Menu menu = new Menu(input);
+            boolean isLoggedIn = false;
 
             // client creates new socket using host and port number that server is running
             // Once server accept the connection with client will socket object be created
             Socket soc = new Socket("localhost", 3001);
 
-            Thread thread = receiveMessage(soc);
-            thread.start();
+            // create client resources
+            BufferedReader serverReader = new BufferedReader(new InputStreamReader(soc.getInputStream()));
+            PrintWriter serverWriter = new PrintWriter(soc.getOutputStream(), true);
+            UserRPC userAPI = new UserRPC(input, serverWriter, serverReader);
+
+//            Thread thread = receiveMessage(soc);
+//            thread.start();
 
             while(soc.isConnected()){
 
-                while(!isLogginIn){
+                while(!isLoggedIn){
+                    System.out.println("Print non-validated menu: ");
                     // print menu options for login options
                     menu.nonValidatedUserMenu();
-                    System.out.print("> Your Option: ");
-                    String request = input.nextLine();
+                    String menuOption = menu.getMenuInput(false);
+
+                    // switch
+                    switch(menuOption){
+                        case "1": // New user
+                            System.out.println("Option 1 chosen");
+                            userAPI.getUsername();
+                            break;
+                        case "2": // Login
+                            break;
+                        case "3":
+                            break; // quit
+                        default:
+                            System.out.println("> Invalid menu option. Please try again.");
+                    }
 
                 }
 
-                while(isLogginIn){
-
+                while(isLoggedIn){
+                    menu.validatedUserMenu();
+                    menu.getMenuInput(true);
                 }
 
                 // System.in is an inputstream obj that takes a bytestream of data

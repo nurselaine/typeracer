@@ -1,16 +1,17 @@
 package Client.RPC;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
-public class userRPC {
+public class UserRPC {
 
     private Scanner input;
     private PrintWriter serverWriter;
     private BufferedReader serverReader;
 
-    public userRPC(Scanner input, PrintWriter serverWriter, BufferedReader serverReader){
+    public UserRPC(Scanner input, PrintWriter serverWriter, BufferedReader serverReader){
         this.input = input;
         serverReader = serverReader;
         serverWriter = serverWriter;
@@ -55,6 +56,24 @@ public class userRPC {
         return new String[]{username, password};
     }
 
+    public void getUsername(){
+        if(!input.hasNextLine()){
+            System.out.println("> Input unreadable. Please try again.");
+        }
+        System.out.print("> Username: ");
+        String username = this.input.nextLine();
+
+    }
+
+    public void getPassword(){
+        if(!input.hasNextLine()){
+            System.out.println("> Input unreadable. Please try again.");
+        }
+        System.out.print("> Password: ");
+        String password = this.input.nextLine();
+
+    }
+
     private boolean validateUsername(String username){
         // TODO: check if username has any spaces, has non-numeric or alphabet chars and is unique
         return true;
@@ -64,5 +83,11 @@ public class userRPC {
         // TODO: check if password has spaces, has non-numeric or alphabet chars and is unique
         return true;
     }
+
+    public String serverResponse() throws IOException {
+        String res = this.serverReader.readLine();
+        return res;
+    }
+
 
 }

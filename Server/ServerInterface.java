@@ -9,17 +9,17 @@ import java.io.*;
 
 public interface ServerInterface {
 
-    boolean ConnectRPC(Socket clientSocket);
+    boolean ConnectRPC();
 
     UserContext CreateUserRPC() throws IOException;
 
-    void ReceiveMessage(Socket clientSocket);
+    void ReceiveMessage();
 
     void SendMessage(String message) throws IOException;
 
-    void LoginRPC(Socket clientSocket) throws IOException;
+    void LoginRPC() throws IOException;
 
-    void DisconnectRPC(Socket clientSocket);
+    void DisconnectRPC();
 
-    void LogoutRPC(Socket clientSocket);
+    void LogoutRPC();
 }

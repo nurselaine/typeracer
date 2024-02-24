@@ -2,14 +2,12 @@ package Server;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import Server.Server_context.GlobalContext;
 import Server.Server_context.UserCache;
 import Server.Server_context.UserContext;
 
-public class ClientHandler implements Runnable, ServerInterface {
+public class ClientHandler implements ServerInterface {
     // this method accepts new incoming client connections and
     // creates a new socket object or returns null if connection was unsuccessful
 
@@ -19,9 +17,12 @@ public class ClientHandler implements Runnable, ServerInterface {
     private GlobalContext globalContext;
     private UserCache userCache;
 
+    public boolean clientStatus;
+
     public ClientHandler(Socket clientSocket, GlobalContext globalContext) throws IOException {
         this.socket = clientSocket;
-        ConnectRPC(clientSocket);
+        ConnectRPC();
+        this.clientStatus = true;
         this.globalContext = globalContext;
         this.userCache = globalContext.userCache;
         this.out = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -29,35 +30,15 @@ public class ClientHandler implements Runnable, ServerInterface {
     }
 
     @Override
-    public void run() {
+    public boolean ConnectRPC() {
         try {
-            while (true) {
-                String input = in.readLine();
-                if (input == null) {
-                    break;
-                }
-                out.println(input);
-            }
-        } catch (IOException e) {
-            System.out.println("Error handling client");
-        } finally {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                System.out.println("Couldn't close a socket");
-            }
-        }
-    }
-
-    @Override
-    public boolean ConnectRPC(Socket clientSocket) {
-        try {
-            this.out = new PrintWriter(clientSocket.getOutputStream(), true);
-            if (clientSocket == null) {
+            System.out.println();
+            this.out = new PrintWriter(socket.getOutputStream(), true);
+            if (socket == null) {
                 out.println(0);
             }
             out.println(1);
-            System.out.println("Client successfully connected to server!" + clientSocket.getInetAddress());
+            System.out.println("Client successfully connected to server!" + socket.getInetAddress());
             return true;
 
         } catch (IOException e) {
@@ -97,15 +78,29 @@ public class ClientHandler implements Runnable, ServerInterface {
         return null;
     }
 
+    public void ValidateUsernameRPC() throws IOException {
+        // read in a username
+        String username = this.in.readLine();
+
+        // validate username against userCache
+        boolean validUsername = userCache.userNameExists(username);
+        if(validUsername){
+            this.out.println(1); // ok username
+        } else {
+            this.out.println(0); // request new username
+        }
+    }
+
     @Override
-    public void ReceiveMessage(Socket clientSocket) {
+    public void ReceiveMessage() {
         try {
             String clientMessage;
-            while ((clientMessage = in.readLine()) != null) {
+            while ((clientMessage = in.readLine()) != null || socket.isConnected()) {
                 // depending on client message, route to specific RPC
+                System.out.println("client message: " + clientMessage);
                 switch (clientMessage) {
                     case "Login":
-                        LoginRPC(clientSocket);
+                        LoginRPC();
                         break;
                     case "New User":
                         CreateUserRPC();
@@ -115,6 +110,7 @@ public class ClientHandler implements Runnable, ServerInterface {
                     case "Game End":
                         break;
                     case "Disconnect":
+                        DisconnectRPC();
                         break;
                     default:
                         System.out.println("Unrecognized client message");
@@ -122,6 +118,9 @@ public class ClientHandler implements Runnable, ServerInterface {
             }
         } catch (IOException e) {
             System.out.println("Error receiving message from client");
+            this.clientStatus = false;
+        } finally {
+            DisconnectRPC();
         }
     }
 
@@ -131,7 +130,7 @@ public class ClientHandler implements Runnable, ServerInterface {
     }
 
     @Override
-    public void LoginRPC(Socket clientSocket) throws IOException{
+    public void LoginRPC() throws IOException{
         SendMessage("Enter user name: ");
         String userName = readMessage();
 
@@ -139,7 +138,7 @@ public class ClientHandler implements Runnable, ServerInterface {
         String password = readMessage();
 
         // check whether user is in the userCache
-        UserContext user = userCache.getUser(userName, clientSocket.getRemoteSocketAddress());
+        UserContext user = userCache.getUser(userName, socket.getRemoteSocketAddress());
         System.out.println("Validating user credentials");
         boolean isUser = false;
         if(user != null){
@@ -153,9 +152,12 @@ public class ClientHandler implements Runnable, ServerInterface {
     }
 
     @Override
-    public void DisconnectRPC(Socket clientSocket) {
+    public void DisconnectRPC() {
         try{
-            clientSocket.close();
+            socket.close();
+            this.in.close();
+            this.out.close();
+            this.clientStatus = false;
         } catch (IOException e){
             System.out.println("Error disconnecting client");
             e.printStackTrace();
@@ -163,7 +165,7 @@ public class ClientHandler implements Runnable, ServerInterface {
     }
 
     @Override
-    public void LogoutRPC(Socket clientSocket) {
+    public void LogoutRPC() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'LogoutRPC'");
     }

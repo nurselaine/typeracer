@@ -21,7 +21,6 @@ public class UserCache {
     public List<UserContext> getAllUsers(){
         return userList;
     }
-
     public void addNewUser(UserContext user){
         System.out.println("User cache added new user");
         userList.add(user);
@@ -58,5 +57,23 @@ public class UserCache {
     public boolean validateUsername(String username){
         if(username.getClass() != String.class || username.isEmpty()) return false;
         return userList.stream().anyMatch(player -> player.getUsername().equals(username));
+    }
+
+    public boolean validatePassword(String username, String password){
+        UserContext user = userList.stream().filter(player -> player.getUsername().equals(username))
+                .findFirst().orElse(null);
+        if(user == null) return false;
+        return user.getPassword().equals(password);
+    }
+
+    public boolean userNameExists(String username){
+        return userList.contains(username);
+    }
+
+    public boolean authenticateUser(String username, String password){
+        UserContext user = userList.stream().filter(player -> player.getUsername().equals(username))
+                .findFirst().orElse(null);
+        if(user == null) return false;
+        return user.getPassword().equals(password);
     }
 }

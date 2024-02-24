@@ -18,9 +18,13 @@ public class UserContext {
 
     // Represents cumulative wins user has
     private int totalWins;
-
     private long lastScore;
 
+    private STATUS userStatus;
+
+    /**
+     * Put enum in its own class so it can be available to all classes for status updates
+     * */
     // STATUS represents the user's current game condition
     // (connect, playing, waiting, disconnected)
     public enum STATUS {
@@ -31,7 +35,6 @@ public class UserContext {
         DISCONNECTED // no longer connected to server
     }
 
-    private STATUS userStatus;
 
     // Game status is an ID that is assigned when user enters a game
     private int gameID = -1;
