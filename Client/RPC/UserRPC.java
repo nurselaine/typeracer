@@ -13,35 +13,37 @@ public class UserRPC {
 
     public UserRPC(Scanner input, PrintWriter serverWriter, BufferedReader serverReader){
         this.input = input;
-        serverReader = serverReader;
-        serverWriter = serverWriter;
+        this.serverReader = serverReader;
+        this.serverWriter = serverWriter;
     }
 
-    public void handleRequest(String userInput){
-        switch(userInput){
-            case "1":
-                break;
-            case "2":
-                break;
-            case "3":
-                break;
-            default:
-                System.out.println("> Please select valid menu option");
-        }
-    }
+    public void newUser() throws IOException {
 
-    private void login(){
+        System.out.println("New user RPC");
+        String username = getUsername();
+        validateUsername(username);
+
+        // send New User RPC
+        String password = getPassword();
+        this.serverWriter.println("New User");
+        this.serverWriter.println(username);
+        this.serverWriter.println(password);
+        System.out.println("> New User Profile: " + username + " successfully created!");
+
+
+    }
+    private void login() throws IOException {
         String[] userCredentials = getUserCredentials();
         serverWriter.println("Login");
 
     }
 
-    private String[] getUserCredentials(){
+    private String[] getUserCredentials() throws IOException {
         System.out.println("****************************\n" +
                            "*  ENTER USER CREDENTIALS  *\n");
         System.out.print(  "*  USERNAME: ");
         String username = input.nextLine();
-        while(!validateUsername(username)){
+        while(validateUsername(username) == 0){
             System.out.println("*   BAD USER CREDENTIALS   *");
             System.out.println(  "\n*  RE-ENTER USERNAME: ");
             username = input.nextLine();
@@ -56,27 +58,41 @@ public class UserRPC {
         return new String[]{username, password};
     }
 
-    public void getUsername(){
-        if(!input.hasNextLine()){
-            System.out.println("> Input unreadable. Please try again.");
-        }
+    public String getUsername(){
         System.out.print("> Username: ");
         String username = this.input.nextLine();
-
+        return username;
     }
 
-    public void getPassword(){
-        if(!input.hasNextLine()){
-            System.out.println("> Input unreadable. Please try again.");
-        }
+    public String getPassword(){
         System.out.print("> Password: ");
         String password = this.input.nextLine();
-
+        return password;
     }
 
-    private boolean validateUsername(String username){
+    public int validateUsername(String username) {
         // TODO: check if username has any spaces, has non-numeric or alphabet chars and is unique
-        return true;
+        try {
+            this.serverWriter.println(username);
+            System.out.println("> validating username...");
+            serverWriter.println("Valid Username");
+            serverWriter.println(username);
+
+            String res = serverReader.readLine();
+            while(res == "0"){
+                System.out.println("> '" + username + "' taken. re-enter username");
+                username = getUsername();
+
+                System.out.println("> validating username...");
+                serverWriter.println("Valid User");
+                serverWriter.println(username);
+                res = serverReader.readLine();
+            }
+            return 1;
+        } catch (IOException e) {
+            System.out.println("Error occurred while creating username. Please try again.");
+        }
+        return 0;
     }
 
     private boolean validatePassword(){
@@ -89,5 +105,17 @@ public class UserRPC {
         return res;
     }
 
+    public void handleRequest(String userInput){
+        switch(userInput){
+            case "1":
+                break;
+            case "2":
+                break;
+            case "3":
+                break;
+            default:
+                System.out.println("> Please select valid menu option");
+        }
+    }
 
 }

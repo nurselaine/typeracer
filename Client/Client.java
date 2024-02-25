@@ -5,16 +5,8 @@ import Client.ui.Menu;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.io.*;
-import java.net.SocketAddress;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.SocketChannel;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Scanner;
 
 
@@ -33,15 +25,12 @@ public class Client {
             // Once server accept the connection with client will socket object be created
             Socket soc = new Socket("localhost", 3001);
 
-            // create client resources
-            BufferedReader serverReader = new BufferedReader(new InputStreamReader(soc.getInputStream()));
-            PrintWriter serverWriter = new PrintWriter(soc.getOutputStream(), true);
-            UserRPC userAPI = new UserRPC(input, serverWriter, serverReader);
-
-//            Thread thread = receiveMessage(soc);
-//            thread.start();
-
             while(soc.isConnected()){
+
+                // create client resources
+                BufferedReader serverReader = new BufferedReader(new InputStreamReader(soc.getInputStream()));
+                PrintWriter serverWriter = new PrintWriter(soc.getOutputStream(), true);
+                UserRPC userAPI = new UserRPC(input, serverWriter, serverReader);
 
                 while(!isLoggedIn){
                     System.out.println("Print non-validated menu: ");
@@ -50,14 +39,16 @@ public class Client {
                     String menuOption = menu.getMenuInput(false);
 
                     // switch
-                    switch(menuOption){
-                        case "1": // New user
+                    switch(Integer.parseInt(menuOption)){
+                        case 1: // New user
                             System.out.println("Option 1 chosen");
-                            userAPI.getUsername();
+//                            String username = userAPI.getUsername();
+//                            userAPI.validateUsername(username);
+                            userAPI.newUser();
                             break;
-                        case "2": // Login
+                        case 2: // Login
                             break;
-                        case "3":
+                        case 3:
                             break; // quit
                         default:
                             System.out.println("> Invalid menu option. Please try again.");

@@ -3,6 +3,7 @@ package Server;
 import java.io.*;
 import java.net.Socket;
 
+import Server.Server_RPC.LoginRPC;
 import Server.Server_context.GlobalContext;
 import Server.Server_context.UserCache;
 import Server.Server_context.UserContext;
@@ -16,6 +17,7 @@ public class ClientHandler implements ServerInterface {
     private PrintWriter out;
     private GlobalContext globalContext;
     private UserCache userCache;
+    private LoginRPC loginAPI;
 
     public boolean clientStatus;
 
@@ -27,6 +29,7 @@ public class ClientHandler implements ServerInterface {
         this.userCache = globalContext.userCache;
         this.out = new PrintWriter(clientSocket.getOutputStream(), true);
         this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        this.loginAPI = new LoginRPC(out, in);
     }
 
     @Override
@@ -50,15 +53,13 @@ public class ClientHandler implements ServerInterface {
 
     @Override
     public UserContext CreateUserRPC() throws IOException {
-
+        System.out.println("Create user RPC");
         UserContext userContext;
         try {
-            // get user name
-            SendMessage("Enter user name:");
+            // get and validate username
             String userName = readMessage();
 
             // get password
-            SendMessage("Enter password:");
             String password = readMessage();
 
             // add user to global context user cache
@@ -102,7 +103,12 @@ public class ClientHandler implements ServerInterface {
                     case "Login":
                         LoginRPC();
                         break;
+                    case "Valid Username":
+                        System.out.println("Validating username RPC");
+                        ValidateUsernameRPC();
+                        break;
                     case "New User":
+                        System.out.println("Routing to new user RPC");
                         CreateUserRPC();
                         break;
                     case "Waiting":
