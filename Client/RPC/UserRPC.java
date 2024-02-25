@@ -54,6 +54,7 @@ public class UserRPC {
 
     public void logout(){
         serverWriter.println("Logout");
+        System.out.println("> Successfully logged out!");
     }
 
     private String[] getUserCredentials() throws IOException {

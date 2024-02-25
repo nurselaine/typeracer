@@ -76,12 +76,10 @@ public class ClientHandler implements ServerInterface {
 
     public void ValidateUsernameRPC() throws IOException {
         // read in a username
-        System.out.println("Validate username RPC");
         String username = this.in.readLine();
         System.out.println(username);
         // returns true if username is found in userList
         boolean validUsername = userCache.validateUsername(username);
-        System.out.println("Username is found in system: " + validUsername);
         if(validUsername == false){
             System.out.println("Username is not in system");
             this.out.println(1); // ok username
