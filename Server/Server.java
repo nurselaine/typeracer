@@ -78,7 +78,6 @@ public class Server{
 
                     // create new user context and add to user cache
                     userCache.addNewUser(new UserContext(host, user_credentials[1], user_credentials[2]));
-                    System.out.println("Added previous users to userCache ");
                 }
             } catch (IOException e){
                 System.out.println("Unable to initialize user database");

@@ -47,6 +47,7 @@ public class Client {
                             isLoggedIn = userAPI.login();
                             break;
                         case 3:
+                            serverWriter.println("Disconnect");
                             soc.close();
                             System.out.println("Program ending. See you next time!");
                             return; // end program

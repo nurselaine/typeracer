@@ -85,7 +85,7 @@ public class UserRPC {
 
             String res = serverReader.readLine();
             System.out.println(res);
-            while(Integer.parseInt(res) == 1 || username.isEmpty()){
+            while(Integer.parseInt(res) == 0 || username.isEmpty()){
                 System.out.println("> '" + this.username + "' taken. re-enter username");
                 this.username = getUsername();
 

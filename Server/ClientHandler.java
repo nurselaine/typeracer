@@ -142,7 +142,7 @@ public class ClientHandler implements ServerInterface {
                 }
             }
         } catch (IOException e) {
-            System.out.println("Error receiving message from client");
+            System.out.println("Client socket lost connection.");
             this.clientStatus = false;
         } finally {
             DisconnectRPC();

@@ -22,7 +22,6 @@ public class UserCache {
         return userList;
     }
     public void addNewUser(UserContext user){
-        System.out.println("User cache added new user");
         userList.add(user);
     }
 
