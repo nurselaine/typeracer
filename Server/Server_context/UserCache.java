@@ -55,7 +55,7 @@ public class UserCache {
     }
 
     public boolean validateUsername(String username){
-        if(username.getClass() != String.class || username.isEmpty()) return false;
+        if(username.isEmpty()) return false;
         return userList.stream().anyMatch(player -> player.getUsername().equals(username));
     }
 

@@ -10,6 +10,7 @@ public class UserRPC {
     private Scanner input;
     private PrintWriter serverWriter;
     private BufferedReader serverReader;
+    private String username;
 
     public UserRPC(Scanner input, PrintWriter serverWriter, BufferedReader serverReader){
         this.input = input;
@@ -20,8 +21,8 @@ public class UserRPC {
     public void newUser() throws IOException {
 
         System.out.println("New user RPC");
-        String username = getUsername();
-        validateUsername(username);
+        this.username = getUsername();
+        validateUsername();
 
         // send New User RPC
         String password = getPassword();
@@ -47,8 +48,8 @@ public class UserRPC {
         System.out.println("****************************\n" +
                            "*  ENTER USER CREDENTIALS  *\n");
         System.out.print(  "*  USERNAME: ");
-        String username = input.nextLine();
-        while(validateUsername(username) == 0){
+        this.username = input.nextLine();
+        while(validateUsername() == 0){
             System.out.println("*   BAD USER CREDENTIALS   *");
             System.out.println(  "\n*  RE-ENTER USERNAME: ");
             username = input.nextLine();
@@ -65,7 +66,7 @@ public class UserRPC {
 
     public String getUsername(){
         System.out.print("> Username: ");
-        String username = this.input.nextLine();
+        this.username = this.input.nextLine();
         return username;
     }
 
@@ -75,22 +76,22 @@ public class UserRPC {
         return password;
     }
 
-    public int validateUsername(String username) {
+    public int validateUsername() {
         // TODO: check if username has any spaces, has non-numeric or alphabet chars and is unique
         try {
             System.out.println("> validating username...");
             serverWriter.println("Valid Username");
-            serverWriter.println(username);
+            serverWriter.println(this.username);
 
             String res = serverReader.readLine();
             System.out.println(res);
-            while(Integer.parseInt(res) == 0){
-                System.out.println("> '" + username + "' taken. re-enter username");
-                username = getUsername();
+            while(Integer.parseInt(res) == 1 || username.isEmpty()){
+                System.out.println("> '" + this.username + "' taken. re-enter username");
+                this.username = getUsername();
 
                 System.out.println("> validating username...");
                 serverWriter.println("Valid User");
-                serverWriter.println(username);
+                serverWriter.println(this.username);
                 res = serverReader.readLine();
             }
             return 1;

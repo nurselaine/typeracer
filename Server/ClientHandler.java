@@ -64,8 +64,7 @@ public class ClientHandler implements ServerInterface {
 
             // add use to user cache
             userCache.addNewUser(new UserContext(socket.getLocalSocketAddress().toString(), username, password));
-            UserContext user = userCache.getLastAdded();
-            System.out.println("Last added user: " + user);
+
             if(userCache.getLastAdded().getUsername().equals(username)){
                 System.out.println("User " + username + " successfully created!");
                 this.out.println(1);
@@ -96,13 +95,17 @@ public class ClientHandler implements ServerInterface {
 
     public void ValidateUsernameRPC() throws IOException {
         // read in a username
+        System.out.println("Validate username RPC");
         String username = this.in.readLine();
 
-        // validate username against userCache
+        // returns true if username is found in userList
         boolean validUsername = userCache.validateUsername(username);
-        if(!validUsername){
+        System.out.println("Is valid username: " + validUsername);
+        if(validUsername == false){
+            System.out.println("Username is not in system");
             this.out.println(1); // ok username
         } else {
+            System.out.println("Username already in use");
             this.out.println(0); // request new username
         }
     }
