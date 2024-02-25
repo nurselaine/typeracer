@@ -38,10 +38,18 @@ public class UserRPC {
             System.out.println("> New User Profile: " + username + " successfully created!");
         }
     }
-    private void login() throws IOException {
+    public boolean login() throws IOException {
         String[] userCredentials = getUserCredentials();
         serverWriter.println("Login");
-
+        serverWriter.println(userCredentials[0]);
+        serverWriter.println(userCredentials[1]);
+        boolean res = validateCredentials(userCredentials[1]);
+        if(res){
+            System.out.println("> Successfully logged in as " + this.username);
+            return true;
+        }
+        System.out.println("Incorrect username or password - Please retry Login.");
+        return false;
     }
 
     private String[] getUserCredentials() throws IOException {
@@ -49,18 +57,10 @@ public class UserRPC {
                            "*  ENTER USER CREDENTIALS  *\n");
         System.out.print(  "*  USERNAME: ");
         this.username = input.nextLine();
-        while(validateUsername() == 0){
-            System.out.println("*   BAD USER CREDENTIALS   *");
-            System.out.println(  "\n*  RE-ENTER USERNAME: ");
-            username = input.nextLine();
-        }
-        System.out.println("*  PASSWORD: \n");
+        System.out.println("");
+        System.out.print("*  PASSWORD: ");
         String password = input.nextLine();
-        while(!validatePassword()){
-            System.out.println("*   BAD USER CREDENTIALS   *");
-            System.out.println(  "\n*  RE-ENTER PASSWORD: ");
-            password = input.nextLine();
-        }
+        System.out.println("");
         return new String[]{username, password};
     }
 
@@ -101,9 +101,14 @@ public class UserRPC {
         return 0;
     }
 
-    private boolean validatePassword(){
+    private boolean validateCredentials(String password) throws IOException {
         // TODO: check if password has spaces, has non-numeric or alphabet chars and is unique
-        return true;
+        System.out.println("> Validating Credentials...");
+        String res = this.serverReader.readLine();
+        if(Integer.parseInt(res) == 1){
+            return true;
+        }
+        return false;
     }
 
     public String serverResponse() throws IOException {

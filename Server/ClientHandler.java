@@ -119,6 +119,7 @@ public class ClientHandler implements ServerInterface {
                 System.out.println("client message: " + clientMessage);
                 switch (clientMessage) {
                     case "Login":
+                        System.out.println("Client message: Login command");
                         LoginRPC();
                         break;
                     case "Valid Username":
@@ -155,11 +156,11 @@ public class ClientHandler implements ServerInterface {
 
     @Override
     public void LoginRPC() throws IOException{
-        SendMessage("Enter user name: ");
+        System.out.println("Login RPC !");
         String userName = readMessage();
-
-        SendMessage("Enter password: ");
+        System.out.println("client login username: " + userName);
         String password = readMessage();
+        System.out.println("client login password: " + password);
 
         // check whether user is in the userCache
         UserContext user = userCache.getUser(userName, socket.getRemoteSocketAddress());
@@ -169,9 +170,11 @@ public class ClientHandler implements ServerInterface {
             isUser = user.getUsername().equals(userName) && user.getPassword().equals(password);
         }
         if(isUser){
-            out.println("Login successful!");
+            out.println(1);
+            System.out.println(userName + " Login successful!");
         } else {
-            out.println("Login failed!");
+            out.println(0);
+            System.out.println("Bad user credentials");
         }
     }
 
