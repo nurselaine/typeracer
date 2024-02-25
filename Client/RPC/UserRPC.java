@@ -111,22 +111,4 @@ public class UserRPC {
         return false;
     }
 
-    public String serverResponse() throws IOException {
-        String res = this.serverReader.readLine();
-        return res;
-    }
-
-    public void handleRequest(String userInput){
-        switch(userInput){
-            case "1":
-                break;
-            case "2":
-                break;
-            case "3":
-                break;
-            default:
-                System.out.println("> Please select valid menu option");
-        }
-    }
-
 }

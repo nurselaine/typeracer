@@ -59,7 +59,27 @@ public class Client {
 
                 while(isLoggedIn){
                     menu.validatedUserMenu();
-                    menu.getMenuInput(true);
+                    String menuOption = menu.getMenuInput(true);
+
+                    switch(Integer.parseInt(menuOption)){
+                        case 1: // enter wait list
+                            userAPI.newUser();
+                            break;
+                        case 2: // check wait list time
+                            isLoggedIn = userAPI.login();
+                            break;
+                        case 3: // leave wait list
+                            break;
+                        case 4: // logout
+                            break;
+                        case 5: // quit
+                            serverWriter.println("Disconnect");
+                            soc.close();
+                            System.out.println("Program ending. See you next time!");
+                            return; // end program
+                        default:
+                            System.out.println("> Invalid menu option. Please try again.");
+                    }
                 }
 
                 // System.in is an inputstream obj that takes a bytestream of data
