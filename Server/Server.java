@@ -5,6 +5,7 @@ import java.net.*;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 
 import Client.Client;
 import Server.Server_context.GameSession;
@@ -22,6 +23,12 @@ public class Server{
 
     private static GlobalContext globalContext;
 
+    // binary semaphore to manage access to global context
+    public static Semaphore globalContextSem;
+
+    // binary semaphore to manage access to user cache
+    public static Semaphore userCacheSem;
+
     UserCache userCache;
 
     private GameSession gameSession;
@@ -35,6 +42,14 @@ public class Server{
         ss = new ServerSocketService(PORT);
 
         globalContext = new GlobalContext(userCache, gameSession);
+
+        // binary semaphore to manage access to global context
+        globalContextSem = new Semaphore(1);
+
+        // binary semaphore to manage access to user cache
+        userCacheSem = new Semaphore(1);
+        // binary semaphore to manage access to game session
+        // binary semaphore to manage access to game context
 
         start(ss);
 
@@ -51,7 +66,8 @@ public class Server{
 
             Thread clientThread = new Thread(() -> {
                 try {
-                    ClientHandler clientHandler = new ClientHandler(clientSocket, globalContext);
+                    ClientHandler clientHandler = new ClientHandler(clientSocket, globalContext,
+                            globalContextSem, userCacheSem);
                     while (clientHandler.clientStatus) {
                         clientHandler.ReceiveMessage();
                     }

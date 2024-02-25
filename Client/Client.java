@@ -71,6 +71,7 @@ public class Client {
                             isLoggedIn = userAPI.login();
                             break;
                         case 3: // leave wait list
+
                             break;
                         case 4: // logout
                             userAPI.logout();
@@ -93,53 +94,5 @@ public class Client {
         }
 
         System.out.println("Socket disconnected & client will now shutdown");
-    }
-
-    public static String getInput(){
-        try {
-            // System.in is an inputstream obj that takes a bytestream of data
-            // Using inputstream reader, it takes a bytestream and returns a character stream
-            // Lastly bufferedreader will be able to read the entire string from the input
-            BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print("Enter Message: ");
-            String userStr;
-            if((userStr = userInput.readLine())  != null){ // this method will capture user input
-                return userStr;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("IOException occurred while getting input from user");
-        }
-        return null;
-    }
-
-    public static void sendInput(String userStr, Socket soc){
-        try {
-            PrintWriter out = new PrintWriter(soc.getOutputStream(), true);
-            // send string to server
-            out.println(userStr);
-        } catch (IOException e){
-            System.out.println("Error sending message to server");
-        } catch (Exception e) {
-            System.out.println("Socket disconnected abruptly " + e.getMessage());
-        }
-    }
-
-    public static Thread receiveMessage(Socket soc){
-        Thread thread = new Thread(() -> {
-            try {
-                BufferedReader serverInputStream =
-                        new BufferedReader(new InputStreamReader(soc.getInputStream()));
-                String serverStr;
-
-                while((serverStr = serverInputStream.readLine()) != null){
-                    System.out.println("");
-                    System.out.println("Server Message: " + serverStr);
-                }
-            } catch (IOException e) {
-                System.out.println("Unable to receive message from server " + e.getMessage());
-            }
-        });
-        return thread;
     }
 }

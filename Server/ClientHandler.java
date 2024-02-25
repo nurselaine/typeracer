@@ -2,6 +2,7 @@ package Server;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.concurrent.Semaphore;
 
 import Server.Server_RPC.LoginRPC;
 import Server.Server_context.GlobalContext;
@@ -17,17 +18,21 @@ public class ClientHandler implements ServerInterface {
     private PrintWriter out;
     private GlobalContext globalContext;
     private UserCache userCache;
+    private Semaphore globalContextSem;
+    private Semaphore userCacheSem;
     private LoginRPC loginAPI;
     private UserContext user;
 
     public boolean clientStatus;
 
-    public ClientHandler(Socket clientSocket, GlobalContext globalContext) throws IOException {
+    public ClientHandler(Socket clientSocket, GlobalContext globalContext, Semaphore globalContextSem, Semaphore userCacheSem) throws IOException {
         this.socket = clientSocket;
         ConnectRPC();
         this.clientStatus = true;
         this.globalContext = globalContext;
         this.userCache = globalContext.userCache;
+        this.globalContextSem = globalContextSem;
+        this.userCacheSem = userCacheSem;
         this.out = new PrintWriter(clientSocket.getOutputStream(), true);
         this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         this.loginAPI = new LoginRPC(out, in);
@@ -53,8 +58,9 @@ public class ClientHandler implements ServerInterface {
     }
 
     @Override
-    public UserContext CreateUserRPC() throws IOException {
-        System.out.println("Create user RPC");
+    public UserContext CreateUserRPC() {
+        try {
+            System.out.println("Create user RPC");
             // get and validate username
             String username = readMessage();
 
@@ -62,7 +68,9 @@ public class ClientHandler implements ServerInterface {
             String password = readMessage();
 
             // add use to user cache
+            userCacheSem.acquire();
             userCache.addNewUser(new UserContext(socket.getLocalSocketAddress().toString(), username, password));
+            userCacheSem.release();
             if(userCache.getLastAdded().getUsername().equals(username)){
                 System.out.println("User " + username + " successfully created!");
                 this.out.println(1);
@@ -71,6 +79,10 @@ public class ClientHandler implements ServerInterface {
                 this.out.println(0);
             }
             saveUserCredentials(username, password);
+        } catch (InterruptedException e) {
+            System.out.println("ERROR: creating user profile RPC " + e.getMessage());
+            e.printStackTrace();
+        }
         return null;
     }
 
