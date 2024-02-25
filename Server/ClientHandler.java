@@ -57,19 +57,34 @@ public class ClientHandler implements ServerInterface {
         UserContext userContext;
         try {
             // get and validate username
-            String userName = readMessage();
+            String username = readMessage();
 
             // get password
             String password = readMessage();
 
-            // add user to global context user cache
-            if(userCache.validateUsername(userName)){
-                userCache.addNewUser(new UserContext(socket.getLocalSocketAddress().toString(), userName, password));
-                SendMessage("User successfully created!");
+            // add use to user cache
+            userCache.addNewUser(new UserContext(socket.getLocalSocketAddress().toString(), username, password));
+            UserContext user = userCache.getLastAdded();
+            System.out.println("Last added user: " + user);
+            if(userCache.getLastAdded().getUsername().equals(username)){
+                System.out.println("User " + username + " successfully created!");
+                this.out.println(1);
             } else {
-                SendMessage("User already exists!");
+                System.out.println("User " + username + " unable to be created!");
+                this.out.println(0);
             }
 
+            // save user credentials
+
+        // write user credentials to file to use for future server restarts
+        FileWriter fileWriter =
+                new FileWriter("C:\\Users\\Elain\\Projects\\typeracer\\Server\\utils\\user_database.txt", true);
+
+        // client credentials string
+        String credential = socket.getRemoteSocketAddress().toString() + " " + username + " " + password + "\n";
+        fileWriter.write(credential);
+
+        fileWriter.close();
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -84,8 +99,8 @@ public class ClientHandler implements ServerInterface {
         String username = this.in.readLine();
 
         // validate username against userCache
-        boolean validUsername = userCache.userNameExists(username);
-        if(validUsername){
+        boolean validUsername = userCache.validateUsername(username);
+        if(!validUsername){
             this.out.println(1); // ok username
         } else {
             this.out.println(0); // request new username

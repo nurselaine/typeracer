@@ -28,9 +28,14 @@ public class UserRPC {
         this.serverWriter.println("New User");
         this.serverWriter.println(username);
         this.serverWriter.println(password);
-        System.out.println("> New User Profile: " + username + " successfully created!");
 
-
+        String res = this.serverReader.readLine();
+        System.out.println(res);
+        if(Integer.parseInt(res) != 1){
+            System.out.println("> SERVER ERROR: Please try entering New User again. " + res);
+        } else {
+            System.out.println("> New User Profile: " + username + " successfully created!");
+        }
     }
     private void login() throws IOException {
         String[] userCredentials = getUserCredentials();
@@ -73,13 +78,13 @@ public class UserRPC {
     public int validateUsername(String username) {
         // TODO: check if username has any spaces, has non-numeric or alphabet chars and is unique
         try {
-            this.serverWriter.println(username);
             System.out.println("> validating username...");
             serverWriter.println("Valid Username");
             serverWriter.println(username);
 
             String res = serverReader.readLine();
-            while(res == "0"){
+            System.out.println(res);
+            while(Integer.parseInt(res) == 0){
                 System.out.println("> '" + username + "' taken. re-enter username");
                 username = getUsername();
 

@@ -41,9 +41,6 @@ public class Client {
                     // switch
                     switch(Integer.parseInt(menuOption)){
                         case 1: // New user
-                            System.out.println("Option 1 chosen");
-//                            String username = userAPI.getUsername();
-//                            userAPI.validateUsername(username);
                             userAPI.newUser();
                             break;
                         case 2: // Login

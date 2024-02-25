@@ -2,6 +2,7 @@ package Server;
 
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -9,6 +10,7 @@ import Client.Client;
 import Server.Server_context.GameSession;
 import Server.Server_context.GlobalContext;
 import Server.Server_context.UserCache;
+import Server.Server_context.UserContext;
 
 public class Server{
 
@@ -39,6 +41,9 @@ public class Server{
     }
 
     public void start(ServerSocketService ss) {
+
+        saveUserData();
+
         while (ss.isAccepting()) {
 
             Socket clientSocket = ss.acceptConnection();
@@ -56,6 +61,31 @@ public class Server{
             });
             clientThread.start();
         }
+    }
+
+    public void saveUserData(){
+        // on server start = read user database and create new user profile for each saved user
+        Thread reloadClient = new Thread(() -> {
+            File userDB = new File("C:\\Users\\Elain\\Projects\\typeracer\\Server\\utils\\user_database.txt");
+            try {
+                Scanner fileReader = new Scanner(userDB);
+                while(fileReader.hasNextLine()){
+                    String[] user_credentials = fileReader.nextLine().split(" ");
+
+                    // get socket id - use localhost for development
+                    int colon = user_credentials[0].indexOf(':');
+                    String host = user_credentials[0].substring(0, colon);
+
+                    // create new user context and add to user cache
+                    userCache.addNewUser(new UserContext(host, user_credentials[1], user_credentials[2]));
+                    System.out.println("Added previous users to userCache ");
+                }
+            } catch (IOException e){
+                System.out.println("Unable to initialize user database");
+                e.printStackTrace();
+            }
+        });
+        reloadClient.start();
     }
 
     public static void main(String[] args) {
