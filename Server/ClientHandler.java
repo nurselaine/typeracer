@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.concurrent.Semaphore;
 
+import Server.Server_RPC.GameRPC;
 import Server.Server_RPC.LoginRPC;
 import Server.Server_context.GlobalContext;
 import Server.Server_context.UserCache;
@@ -21,6 +22,7 @@ public class ClientHandler implements ServerInterface {
     private Semaphore globalContextSem;
     private Semaphore userCacheSem;
     private LoginRPC loginAPI;
+    private GameRPC gameAPI;
     private UserContext user;
 
     public boolean clientStatus;
@@ -36,6 +38,55 @@ public class ClientHandler implements ServerInterface {
         this.out = new PrintWriter(clientSocket.getOutputStream(), true);
         this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         this.loginAPI = new LoginRPC(out, in);
+        this.gameAPI = new GameRPC(out, in);
+    }
+
+    @Override
+    public void ReceiveMessage() {
+        try {
+            String clientMessage;
+            while ((clientMessage = in.readLine()) != null || socket.isConnected()) {
+                // depending on client message, route to specific RPC
+                System.out.println("client message: " + clientMessage);
+                switch (clientMessage) {
+                    case "Login":
+                        System.out.println("Client message: Login command");
+                        LoginRPC();
+                        break;
+                    case "Valid Username":
+                        System.out.println("Validating username RPC");
+                        ValidateUsernameRPC();
+                        break;
+                    case "New User":
+                        System.out.println("Routing to new user RPC");
+                        CreateUserRPC();
+                        break;
+                    case "Logout":
+                        LogoutRPC();
+                        break;
+                    case "Waiting":
+                        System.out.println("Join wait queue");
+                        JoinWaitingQueueRPC();
+                        break;
+                    case "Wait Time":
+                        System.out.println("Check wait queue time");
+                        CheckWaitQueueRPC();
+                        break;
+                    case "Game End":
+                        break;
+                    case "Disconnect":
+                        DisconnectRPC();
+                        break;
+                    default:
+                        System.out.println("Unrecognized client message");
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Client socket lost connection.");
+            this.clientStatus = false;
+        } finally {
+            DisconnectRPC();
+        }
     }
 
     @Override
@@ -55,6 +106,31 @@ public class ClientHandler implements ServerInterface {
                     "clientside and retry" + e.getMessage());
         }
         return false;
+    }
+
+    @Override
+    public void LoginRPC() throws IOException{
+        System.out.println("Login RPC !");
+        String userName = readMessage();
+        System.out.println("client login username: " + userName);
+        String password = readMessage();
+        System.out.println("client login password: " + password);
+
+        // check whether user is in the userCache
+        this.user = userCache.getUser(userName, socket.getRemoteSocketAddress());
+        System.out.println("Validating user credentials");
+        boolean isUser = false;
+        if(user != null){
+            isUser = user.getUsername().equals(userName) && user.getPassword().equals(password);
+        }
+        if(isUser){
+            this.user.updateStatus(UserContext.STATUS.LOGGEDIN);
+            out.println(1);
+            System.out.println(userName + " Login successful!");
+        } else {
+            out.println(0);
+            System.out.println("Bad user credentials");
+        }
     }
 
     @Override
@@ -102,75 +178,27 @@ public class ClientHandler implements ServerInterface {
     }
 
     @Override
-    public void ReceiveMessage() {
-        try {
-            String clientMessage;
-            while ((clientMessage = in.readLine()) != null || socket.isConnected()) {
-                // depending on client message, route to specific RPC
-                System.out.println("client message: " + clientMessage);
-                switch (clientMessage) {
-                    case "Login":
-                        System.out.println("Client message: Login command");
-                        LoginRPC();
-                        break;
-                    case "Valid Username":
-                        System.out.println("Validating username RPC");
-                        ValidateUsernameRPC();
-                        break;
-                    case "New User":
-                        System.out.println("Routing to new user RPC");
-                        CreateUserRPC();
-                        break;
-                    case "Logout":
-                        LogoutRPC();
-                        break;
-                    case "Waiting":
-                        break;
-                    case "Game End":
-                        break;
-                    case "Disconnect":
-                        DisconnectRPC();
-                        break;
-                    default:
-                        System.out.println("Unrecognized client message");
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Client socket lost connection.");
-            this.clientStatus = false;
-        } finally {
-            DisconnectRPC();
-        }
+    public void LogoutRPC() {
+        // TODO Auto-generated method stub
+        // update user status
+        this.user.updateStatus(UserContext.STATUS.CONNECTED);
+        removeFromWaitlistRPC();
+    }
+
+    public void JoinWaitingQueueRPC(){
+        int waitingQueueSize = gameAPI.joinWaitQueue(globalContext, user, globalContextSem);
+        System.out.println("wait queue size " + waitingQueueSize);
+        this.out.println(waitingQueueSize);
+    }
+
+    public void CheckWaitQueueRPC(){
+        int playersNeeded = gameAPI.checkWaitTime(globalContext);
+        this.out.println(playersNeeded);
     }
 
     @Override
     public void SendMessage(String message) throws IOException{
         out.println(message);
-    }
-
-    @Override
-    public void LoginRPC() throws IOException{
-        System.out.println("Login RPC !");
-        String userName = readMessage();
-        System.out.println("client login username: " + userName);
-        String password = readMessage();
-        System.out.println("client login password: " + password);
-
-        // check whether user is in the userCache
-        this.user = userCache.getUser(userName, socket.getRemoteSocketAddress());
-        System.out.println("Validating user credentials");
-        boolean isUser = false;
-        if(user != null){
-            isUser = user.getUsername().equals(userName) && user.getPassword().equals(password);
-        }
-        if(isUser){
-            this.user.updateStatus(UserContext.STATUS.LOGGEDIN);
-            out.println(1);
-            System.out.println(userName + " Login successful!");
-        } else {
-            out.println(0);
-            System.out.println("Bad user credentials");
-        }
     }
 
     @Override
@@ -181,17 +209,16 @@ public class ClientHandler implements ServerInterface {
             this.in.close();
             this.out.close();
             this.clientStatus = false;
+            removeFromWaitlistRPC();
         } catch (IOException e){
             System.out.println("Error disconnecting client");
             e.printStackTrace();
         }
     }
 
-    @Override
-    public void LogoutRPC() {
-        // TODO Auto-generated method stub
-        // update user status
-        this.user.updateStatus(UserContext.STATUS.CONNECTED);
+    private void removeFromWaitlistRPC(){
+        // remove client from waitlist
+        gameAPI.removeFromWaitQueue(globalContext, user);
     }
 
     public String readMessage() {

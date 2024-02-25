@@ -1,5 +1,6 @@
 package Client;
 
+import Client.RPC.GameRPC;
 import Client.RPC.UserRPC;
 import Client.ui.Menu;
 
@@ -28,6 +29,7 @@ public class Client {
             BufferedReader serverReader = new BufferedReader(new InputStreamReader(soc.getInputStream()));
             PrintWriter serverWriter = new PrintWriter(soc.getOutputStream(), true);
             UserRPC userAPI = new UserRPC(input, serverWriter, serverReader);
+            GameRPC gameAPI = new GameRPC(serverWriter, serverReader);
 
             String connected = serverReader.readLine(); // server is sending 1/0 from connectRPC when clienthanlder istnace is created on connection
             System.out.println("Connected to server: " + connected);
@@ -65,10 +67,10 @@ public class Client {
 
                     switch(Integer.parseInt(menuOption)){
                         case 1: // enter wait list
-                            userAPI.newUser();
+                            gameAPI.joinWaitingQueue();
                             break;
                         case 2: // check wait list time
-                            isLoggedIn = userAPI.login();
+                            gameAPI.checkWaitingTime();
                             break;
                         case 3: // leave wait list
 

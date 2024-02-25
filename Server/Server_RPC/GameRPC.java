@@ -10,35 +10,53 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Semaphore;
 
-public class GamePRC {
+public class GameRPC {
 
     private PrintWriter clientWriter;
     private BufferedReader clientReader;
 
-    public GamePRC (PrintWriter clientWriter, BufferedReader clientReader){
+    public GameRPC (PrintWriter clientWriter, BufferedReader clientReader){
         this.clientWriter = clientWriter;
         this.clientReader = clientReader;
     }
     // join waiting queue
-    public void joinWaitQueue(GlobalContext globalContext, UserContext user){
+    public int joinWaitQueue(GlobalContext globalContext, UserContext user, Semaphore globalContextSem){
         Queue<UserContext> waitQueue = globalContext.waitingQueue;
-        user.joinWaitQueue(); // update user status
-        if(waitQueue.size() % 4 != 0){
-            int remainPlayers = waitQueue.size() % 4;
-            if(remainPlayers == 1){
-                clientWriter.println("Waiting for " + remainPlayers + " player to join");
-            } else {
-                clientWriter.println("Waiting for " + remainPlayers + " players to join");
-            }
-        } else {
-            clientWriter.println("Game will begin in a few seconds...");
+        try{
+            globalContextSem.acquire();
+            user.joinWaitQueue(); // update user status
+            waitQueue.add(user);
+            globalContextSem.release();
+            return waitQueue.size();
+        } catch (InterruptedException e){
+            System.out.println("Client unable to join waiting queue " + e.getMessage());
+            e.printStackTrace();
         }
+        return -1;
+//        if(waitQueue.size() % 4 != 0){
+//            int remainPlayers = waitQueue.size() % 4;
+//            if(remainPlayers == 1){
+//                clientWriter.println("Waiting for " + remainPlayers + " player to join");
+//            } else {
+//                clientWriter.println("Waiting for " + remainPlayers + " players to join");
+//            }
+//        } else {
+//            clientWriter.println("Game will begin in a few seconds...");
+//        }
     }
 
-    public void checkWaitTime(){
+    public int checkWaitTime(GlobalContext globalContext){
+        Queue<UserContext> waitQueue = globalContext.waitingQueue;
+        int size = waitQueue.size();
+        int playersNeeded = 0;
+        if (size >= 4) {
+            size = size % 4;
+        }
+        playersNeeded = 4 - size;
 
+        return playersNeeded;
     }
 
     // start game
@@ -80,6 +98,14 @@ public class GamePRC {
     // endGame
     public void endGame(GameContext game){
 
+    }
+
+    public void removeFromWaitQueue(GlobalContext globalContext, UserContext user){
+        user.updateStatus(UserContext.STATUS.LOGGEDIN);
+        Queue<UserContext> waitQueue = globalContext.waitingQueue;
+        if(waitQueue.contains(user)){
+            waitQueue.remove(user);
+        }
     }
 
     // game score
