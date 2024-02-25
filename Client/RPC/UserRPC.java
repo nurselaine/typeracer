@@ -22,20 +22,20 @@ public class UserRPC {
 
         System.out.println("New user RPC");
         this.username = getUsername();
-        validateUsername();
+        if(validateUsername() == 1){
+            // send New User RPC
+            String password = getPassword();
+            this.serverWriter.println("New User");
+            this.serverWriter.println(username);
+            this.serverWriter.println(password);
 
-        // send New User RPC
-        String password = getPassword();
-        this.serverWriter.println("New User");
-        this.serverWriter.println(username);
-        this.serverWriter.println(password);
-
-        String res = this.serverReader.readLine();
-        System.out.println(res);
-        if(Integer.parseInt(res) != 1){
-            System.out.println("> SERVER ERROR: Please try entering New User again. " + res);
-        } else {
-            System.out.println("> New User Profile: " + username + " successfully created!");
+            String res = this.serverReader.readLine();
+            System.out.println(res);
+            if(Integer.parseInt(res) != 1){
+                System.out.println("> SERVER ERROR: Please try entering New User again. " + res);
+            } else {
+                System.out.println("> New User Profile: " + username + " successfully created!");
+            }
         }
     }
     public boolean login() throws IOException {
@@ -50,6 +50,10 @@ public class UserRPC {
         }
         System.out.println("Incorrect username or password - Please retry Login.");
         return false;
+    }
+
+    public void logout(){
+        serverWriter.println("Logout");
     }
 
     private String[] getUserCredentials() throws IOException {
@@ -84,13 +88,13 @@ public class UserRPC {
             serverWriter.println(this.username);
 
             String res = serverReader.readLine();
-            System.out.println(res);
+            System.out.println("server res: " + res);
             while(Integer.parseInt(res) == 0 || username.isEmpty()){
                 System.out.println("> '" + this.username + "' taken. re-enter username");
                 this.username = getUsername();
 
                 System.out.println("> validating username...");
-                serverWriter.println("Valid User");
+                serverWriter.println("Valid Username");
                 serverWriter.println(this.username);
                 res = serverReader.readLine();
             }

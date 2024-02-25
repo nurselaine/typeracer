@@ -32,6 +32,9 @@ public class Client {
                 PrintWriter serverWriter = new PrintWriter(soc.getOutputStream(), true);
                 UserRPC userAPI = new UserRPC(input, serverWriter, serverReader);
 
+                String connected = serverReader.readLine();
+                System.out.println("Connected to server: " + connected);
+
                 while(!isLoggedIn){
                     System.out.println("Print non-validated menu: ");
                     // print menu options for login options

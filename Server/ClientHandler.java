@@ -18,6 +18,7 @@ public class ClientHandler implements ServerInterface {
     private GlobalContext globalContext;
     private UserCache userCache;
     private LoginRPC loginAPI;
+    private UserContext user;
 
     public boolean clientStatus;
 
@@ -54,8 +55,6 @@ public class ClientHandler implements ServerInterface {
     @Override
     public UserContext CreateUserRPC() throws IOException {
         System.out.println("Create user RPC");
-        UserContext userContext;
-        try {
             // get and validate username
             String username = readMessage();
 
@@ -64,7 +63,6 @@ public class ClientHandler implements ServerInterface {
 
             // add use to user cache
             userCache.addNewUser(new UserContext(socket.getLocalSocketAddress().toString(), username, password));
-
             if(userCache.getLastAdded().getUsername().equals(username)){
                 System.out.println("User " + username + " successfully created!");
                 this.out.println(1);
@@ -72,24 +70,7 @@ public class ClientHandler implements ServerInterface {
                 System.out.println("User " + username + " unable to be created!");
                 this.out.println(0);
             }
-
-            // save user credentials
-
-        // write user credentials to file to use for future server restarts
-        FileWriter fileWriter =
-                new FileWriter("C:\\Users\\Elain\\Projects\\typeracer\\Server\\utils\\user_database.txt", true);
-
-        // client credentials string
-        String credential = socket.getRemoteSocketAddress().toString() + " " + username + " " + password + "\n";
-        fileWriter.write(credential);
-
-        fileWriter.close();
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-
-        }
+            saveUserCredentials(username, password);
         return null;
     }
 
@@ -97,10 +78,10 @@ public class ClientHandler implements ServerInterface {
         // read in a username
         System.out.println("Validate username RPC");
         String username = this.in.readLine();
-
+        System.out.println(username);
         // returns true if username is found in userList
         boolean validUsername = userCache.validateUsername(username);
-        System.out.println("Is valid username: " + validUsername);
+        System.out.println("Username is found in system: " + validUsername);
         if(validUsername == false){
             System.out.println("Username is not in system");
             this.out.println(1); // ok username
@@ -129,6 +110,9 @@ public class ClientHandler implements ServerInterface {
                     case "New User":
                         System.out.println("Routing to new user RPC");
                         CreateUserRPC();
+                        break;
+                    case "Logout":
+                        LogoutRPC();
                         break;
                     case "Waiting":
                         break;
@@ -163,13 +147,14 @@ public class ClientHandler implements ServerInterface {
         System.out.println("client login password: " + password);
 
         // check whether user is in the userCache
-        UserContext user = userCache.getUser(userName, socket.getRemoteSocketAddress());
+        this.user = userCache.getUser(userName, socket.getRemoteSocketAddress());
         System.out.println("Validating user credentials");
         boolean isUser = false;
         if(user != null){
             isUser = user.getUsername().equals(userName) && user.getPassword().equals(password);
         }
         if(isUser){
+            this.user.updateStatus(UserContext.STATUS.LOGGEDIN);
             out.println(1);
             System.out.println(userName + " Login successful!");
         } else {
@@ -181,6 +166,7 @@ public class ClientHandler implements ServerInterface {
     @Override
     public void DisconnectRPC() {
         try{
+            this.user.updateStatus(UserContext.STATUS.DISCONNECTED);
             socket.close();
             this.in.close();
             this.out.close();
@@ -194,7 +180,8 @@ public class ClientHandler implements ServerInterface {
     @Override
     public void LogoutRPC() {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'LogoutRPC'");
+        // update user status
+        this.user.updateStatus(UserContext.STATUS.CONNECTED);
     }
 
     public String readMessage() {
@@ -204,5 +191,21 @@ public class ClientHandler implements ServerInterface {
             System.out.println("Error reading message from client");
         }
         return null;
+    }
+
+    private void saveUserCredentials(String username, String password){
+        try {
+            // write user credentials to file to use for future server restarts
+            FileWriter fileWriter =
+                    new FileWriter("C:\\Users\\Elain\\Projects\\typeracer\\Server\\utils\\user_database.txt", true);
+
+            // client credentials string
+            String credential = socket.getRemoteSocketAddress().toString() + " " + username + " " + password + "\n";
+            fileWriter.write(credential);
+
+            fileWriter.close();
+        } catch (IOException e){
+            System.out.println("ERROR: unable to save user credential to database" + e.getMessage());
+        }
     }
 }
