@@ -2,6 +2,11 @@ package Server;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Collections;
 import java.util.concurrent.Semaphore;
 
 import Server.Server_RPC.GameRPC;
@@ -24,6 +29,9 @@ public class ClientHandler implements ServerInterface {
     private LoginRPC loginAPI;
     private GameRPC gameAPI;
     private UserContext user;
+
+    //path to database
+    private final Path path =  Paths.get("Server", "utils", "user_database.txt");
 
     public boolean clientStatus;
 
@@ -232,15 +240,10 @@ public class ClientHandler implements ServerInterface {
 
     private void saveUserCredentials(String username, String password){
         try {
-            // write user credentials to file to use for future server restarts
-            FileWriter fileWriter =
-                    new FileWriter("C:\\Users\\Elain\\Projects\\typeracer\\Server\\utils\\user_database.txt", true);
 
-            // client credentials string
             String credential = socket.getRemoteSocketAddress().toString() + " " + username + " " + password + "\n";
-            fileWriter.write(credential);
-
-            fileWriter.close();
+            Files.write(path, Collections.singletonList(credential), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            // client credentials string
         } catch (IOException e){
             System.out.println("ERROR: unable to save user credential to database" + e.getMessage());
         }

@@ -2,6 +2,9 @@ package Server;
 
 import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -82,9 +85,12 @@ public class Server{
     public void saveUserData(){
         // on server start = read user database and create new user profile for each saved user
         Thread reloadClient = new Thread(() -> {
-            File userDB = new File("C:\\Users\\Elain\\Projects\\typeracer\\Server\\utils\\user_database.txt");
+
+            // get the file path to the database
+            Path path = Paths.get("Server", "utils", "user_database.txt");
+
             try {
-                Scanner fileReader = new Scanner(userDB);
+                Scanner fileReader = new Scanner(Files.newInputStream(path));
                 while(fileReader.hasNextLine()){
                     String[] user_credentials = fileReader.nextLine().split(" ");
 

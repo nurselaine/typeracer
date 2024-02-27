@@ -6,6 +6,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Collection;
+import java.util.Collections;
 import java.io.*;
 
 public class LoginRPC {
@@ -13,9 +19,12 @@ public class LoginRPC {
     private PrintWriter clientWriter;
     private BufferedReader clientReader;
 
+    private Path path;
+
     public LoginRPC(PrintWriter clientWriter, BufferedReader clientReader){
         this.clientReader = clientReader;
         this.clientWriter = clientWriter;
+        Path path = Paths.get("Server", "utils", "user_database.txt");
     }
 
     public void newUserRPC(Socket clientSocket, UserCache userCache){
@@ -46,14 +55,12 @@ public class LoginRPC {
 
             // write user credentials to file to use for future server restarts
             try {
-                FileWriter fileWriter =
-                        new FileWriter("C:\\Users\\Elain\\Projects\\typeracer\\Server\\utils\\user_database.txt", true);
 
                 // client credentials string
                 String credential = socketAddress + " " + username + " " + password + "\n";
-                fileWriter.write(credential);
+                Files.write(path, Collections.singletonList(credential), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                //fileWriter.write(credential);
 
-                fileWriter.close();
             } catch (IOException e){
                 System.out.println("Unable to write user credentials to user database");
                 e.printStackTrace();
