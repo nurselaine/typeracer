@@ -10,7 +10,7 @@ import java.net.Socket;
 import java.io.*;
 import java.util.Scanner;
 
-// Hello world!
+//hello
 public class Client {
     public static void main(String[] args) {
 
