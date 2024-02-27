@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.concurrent.Semaphore;
 
 import Server.Server_RPC.GameRPC;
-import Server.Server_RPC.LoginRPC;
+//import Server.Server_RPC.LoginRPC;
 import Server.Server_context.GlobalContext;
 import Server.Server_context.UserCache;
 import Server.Server_context.UserContext;
@@ -26,7 +26,7 @@ public class ClientHandler implements ServerInterface {
     private UserCache userCache;
     private Semaphore globalContextSem;
     private Semaphore userCacheSem;
-    private LoginRPC loginAPI;
+    //private LoginRPC loginAPI;
     private GameRPC gameAPI;
     private UserContext user;
 
@@ -45,7 +45,7 @@ public class ClientHandler implements ServerInterface {
         this.userCacheSem = userCacheSem;
         this.out = new PrintWriter(clientSocket.getOutputStream(), true);
         this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        this.loginAPI = new LoginRPC(out, in);
+        //this.loginAPI = new LoginRPC(out, in);
         this.gameAPI = new GameRPC(out, in);
     }
 
