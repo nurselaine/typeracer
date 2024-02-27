@@ -10,7 +10,7 @@ import java.net.Socket;
 import java.io.*;
 import java.util.Scanner;
 
-
+// Hello world!
 public class Client {
     public static void main(String[] args) {
 
@@ -87,6 +87,9 @@ public class Client {
                         default:
                             System.out.println("> Invalid menu option. Please try again.");
                     }
+
+                    // check if game is ready to start
+                    // server will notify client
                 }
                 System.out.println("exited while loop for login");
             }
