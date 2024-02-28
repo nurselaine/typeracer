@@ -1,128 +1,82 @@
 package Server;
 
-import java.io.*;
-import java.net.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Scanner;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.util.Iterator;
+import java.util.Set;
 
-import Client.Client;
-import Server.Server_context.GameSession;
-import Server.Server_context.GlobalContext;
-import Server.Server_context.UserCache;
-import Server.Server_context.UserContext;
+public class Server {
 
-public class Server{
+    public static void main(String[]  args) throws IOException {
 
-    // port number to listen on
-    private int PORT;
+        // Selector is created
+        Selector selector = Selector.open();
 
-    // server socket service
-    private ServerSocketService ss;
+        // Create a server socket channel for stream-oriented listening sockets
+        ServerSocketChannel socket = ServerSocketChannel.open();
 
-    private static GlobalContext globalContext;
+        // insetsokcetaddress is the IP + port number
+        InetSocketAddress socketAddress = new InetSocketAddress("localhost", 3001);
 
-    // binary semaphore to manage access to global context
-    public static Semaphore globalContextSem;
+        // bind the socket to the address so the socket listens for connections to 3001
+        socket.bind(socketAddress);
 
-    // binary semaphore to manage access to user cache
-    public static Semaphore userCacheSem;
+        // assign channel to be non-blocking
+        socket.configureBlocking(false);
 
-    UserCache userCache;
+        int ops = socket.validOps();
 
-    private GameSession gameSession;
+        // token to register to a channel with a selector | select key is created each time a channel is registered with a selector
+        SelectionKey selectKey = socket.register(selector, ops, null);
 
-    // path to user databse
-    private final Path path = Paths.get("Server", "utils", "user_database.txt");
+        // loop indefinitely
+        while(true){
 
-    public Server(int PORT){
+            System.out.println("Server is waiting for new client connections");
 
-        this.PORT = PORT;
+            selector.select(); // selects set of keys whose channels are open to i/o operation
 
-        this.userCache = new UserCache();
+            Set<SelectionKey> keys = selector.selectedKeys();
+            Iterator<SelectionKey> iterator = keys.iterator();
 
-        ss = new ServerSocketService(PORT);
+            // Tests whether this key's channel is ready to be read
+            while(iterator.hasNext()){
 
-        globalContext = new GlobalContext(userCache, gameSession);
+                SelectionKey myKey = iterator.next();
+                if(myKey.isAcceptable()){
+                    SocketChannel client = socket.accept(); // accept client and create socket
 
-        // binary semaphore to manage access to global context
-        globalContextSem = new Semaphore(1);
+                    // adjust client to be non-blocking
+                    client.configureBlocking(false);
 
-        // binary semaphore to manage access to user cache
-        userCacheSem = new Semaphore(1);
-        // binary semaphore to manage access to game session
-        // binary semaphore to manage access to game context
+                    // Operation set but for read operations
+                    client.register(selector, SelectionKey.OP_READ);
+                    System.out.println("Connection accepted: " + client.getLocalAddress());
+                } else if (myKey.isReadable()) { // check whether key's channel can be read
 
-        start(ss);
+                    SocketChannel client = (SocketChannel) myKey.channel();
 
-    }
+                    // Byte container for data
+                    ByteBuffer buffer = ByteBuffer.allocate(256);
+                    client.read(buffer);
 
-    public void start(ServerSocketService ss) {
+                    String result = new String(buffer.array()).trim();
 
-        loadUserData();
+                    System.out.println("Message received " + result);
 
-        while (ss.isAccepting()) {
-
-            Socket clientSocket = ss.acceptConnection();
-
-
-            Thread clientThread = new Thread(() -> {
-                try {
-                    ClientHandler clientHandler = new ClientHandler(clientSocket, globalContext,
-                            globalContextSem, userCacheSem);
-                    while (clientHandler.clientStatus) {
-                        clientHandler.ReceiveMessage();
+                    if(result.equals("Hello world")){
+                        client.close();
+                        System.out.println("Closing connection. Server still up and running");
                     }
-                } catch (IOException e) {
-                    System.out.println("ERROR: creating client handler " + e.getMessage());
                 }
-            });
-            clientThread.start();
-        }
-    }
 
-    /*
-     * Load user data from the user database
-     */
-    public void loadUserData() {
-        // on server start = read user database and create new user profile for each
-        // saved user
-        Thread reloadClient = new Thread(() -> {
-
-            // get the file path to the database
-
-            try {
-                Scanner fileReader = new Scanner(Files.newInputStream(path));
-                while (fileReader.hasNextLine()) {
-
-                    String[] user_credentials = fileReader.nextLine().split(" ");
-
-                    if (user_credentials.length != 3) {
-                        throw new IOException("Invalid user database format");
-                    }
-
-                    // get socket id - use localhost for development
-                    int colon = user_credentials[0].indexOf(':');
-                    String host = user_credentials[0].substring(0, colon);
-
-                    // create new user context and add to user cache
-                    globalContext.addUser(new UserContext(host, user_credentials[1], user_credentials[2]));
-                }
-            } catch (IOException e) {
-                System.out.println("Unable to initialize user database");
-                e.printStackTrace();
+                iterator.remove();
             }
-        });
-        reloadClient.start();
-    }
-
-    public static void main(String[] args) {
-        System.out.println("multi-threaded server...");
-        int PORT = 3001;
-        Server server = new Server(PORT);
+        }
     }
 }
