@@ -2,10 +2,15 @@ package Server;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Collections;
 import java.util.concurrent.Semaphore;
 
 import Server.Server_RPC.GameRPC;
-import Server.Server_RPC.LoginRPC;
+//import Server.Server_RPC.LoginRPC;
 import Server.Server_context.GlobalContext;
 import Server.Server_context.UserCache;
 import Server.Server_context.UserContext;
@@ -21,9 +26,12 @@ public class ClientHandler implements ServerInterface {
     private UserCache userCache;
     private Semaphore globalContextSem;
     private Semaphore userCacheSem;
-    private LoginRPC loginAPI;
+    //private LoginRPC loginAPI;
     private GameRPC gameAPI;
     private UserContext user;
+
+    //path to database
+    private final Path path =  Paths.get("Server", "utils", "user_database.txt");
 
     public boolean clientStatus;
 
@@ -37,7 +45,7 @@ public class ClientHandler implements ServerInterface {
         this.userCacheSem = userCacheSem;
         this.out = new PrintWriter(clientSocket.getOutputStream(), true);
         this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        this.loginAPI = new LoginRPC(out, in);
+        //this.loginAPI = new LoginRPC(out, in);
         this.gameAPI = new GameRPC(out, in);
     }
 
@@ -179,8 +187,7 @@ public class ClientHandler implements ServerInterface {
 
     @Override
     public void LogoutRPC() {
-        // TODO Auto-generated method stub
-        // update user status
+
         this.user.updateStatus(UserContext.STATUS.CONNECTED);
         removeFromWaitlistRPC();
     }
@@ -232,15 +239,10 @@ public class ClientHandler implements ServerInterface {
 
     private void saveUserCredentials(String username, String password){
         try {
-            // write user credentials to file to use for future server restarts
-            FileWriter fileWriter =
-                    new FileWriter("C:\\Users\\Elain\\Projects\\typeracer\\Server\\utils\\user_database.txt", true);
 
+            String credential = socket.getRemoteSocketAddress().toString() + " " + username + " " + password;
+            Files.write(path, Collections.singletonList(credential), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
             // client credentials string
-            String credential = socket.getRemoteSocketAddress().toString() + " " + username + " " + password + "\n";
-            fileWriter.write(credential);
-
-            fileWriter.close();
         } catch (IOException e){
             System.out.println("ERROR: unable to save user credential to database" + e.getMessage());
         }

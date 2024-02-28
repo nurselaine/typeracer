@@ -2,6 +2,9 @@ package Server;
 
 import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,6 +36,9 @@ public class Server{
 
     private GameSession gameSession;
 
+    // path to user databse
+    private final Path path = Paths.get("Server", "utils", "user_database.txt");
+
     public Server(int PORT){
 
         this.PORT = PORT;
@@ -57,7 +63,7 @@ public class Server{
 
     public void start(ServerSocketService ss) {
 
-        saveUserData();
+        loadUserData();
 
         while (ss.isAccepting()) {
 
@@ -79,23 +85,34 @@ public class Server{
         }
     }
 
-    public void saveUserData(){
-        // on server start = read user database and create new user profile for each saved user
+    /*
+     * Load user data from the user database
+     */
+    public void loadUserData() {
+        // on server start = read user database and create new user profile for each
+        // saved user
         Thread reloadClient = new Thread(() -> {
-            File userDB = new File("C:\\Users\\Elain\\Projects\\typeracer\\Server\\utils\\user_database.txt");
+
+            // get the file path to the database
+
             try {
-                Scanner fileReader = new Scanner(userDB);
-                while(fileReader.hasNextLine()){
+                Scanner fileReader = new Scanner(Files.newInputStream(path));
+                while (fileReader.hasNextLine()) {
+
                     String[] user_credentials = fileReader.nextLine().split(" ");
+
+                    if (user_credentials.length != 3) {
+                        throw new IOException("Invalid user database format");
+                    }
 
                     // get socket id - use localhost for development
                     int colon = user_credentials[0].indexOf(':');
                     String host = user_credentials[0].substring(0, colon);
 
                     // create new user context and add to user cache
-                    userCache.addNewUser(new UserContext(host, user_credentials[1], user_credentials[2]));
+                    globalContext.addUser(new UserContext(host, user_credentials[1], user_credentials[2]));
                 }
-            } catch (IOException e){
+            } catch (IOException e) {
                 System.out.println("Unable to initialize user database");
                 e.printStackTrace();
             }

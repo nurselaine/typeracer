@@ -94,6 +94,9 @@ public class Client {
                 System.out.println("exited while loop for login");
             }
 
+            //cloose socket
+            soc.close();
+
         } catch (Exception e){
             e.printStackTrace();
         }
