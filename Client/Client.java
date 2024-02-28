@@ -28,7 +28,7 @@ public class Client {
             // create client resources
             BufferedReader serverReader = new BufferedReader(new InputStreamReader(soc.getInputStream()));
             PrintWriter serverWriter = new PrintWriter(soc.getOutputStream(), true);
-            UserRPC userAPI = new UserRPC(input, serverWriter, serverReader);
+            UserRPC userAPI = new UserRPC(soc, input, serverWriter, serverReader);
             GameRPC gameAPI = new GameRPC(serverWriter, serverReader);
 
             String connected = serverReader.readLine(); // server is sending 1/0 from connectRPC when clienthanlder istnace is created on connection

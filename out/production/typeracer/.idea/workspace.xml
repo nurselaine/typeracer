@@ -5,7 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a0849281-223c-4dcb-9927-4d9c458aecdb" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/typeracer.iml" beforeDir="false" afterPath="$PROJECT_DIR$/typeracer.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/MyUser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/RPC/UserRPC.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/RPC/UserRPC.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/ClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/ClientHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/utils/user_database.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Server/utils/user_database.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/typeracer/Server/utils/user_database.txt" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/typeracer/Server/utils/user_database.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,7 +41,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "jdk.selected.JAVA_MODULE": "21",
-    "last_opened_file_path": "C:/Users/Elain/Projects/typeracer",
+    "last_opened_file_path": "C:/Users/Elain/IdeaProjects/Leetcode_Prac",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
@@ -168,7 +173,7 @@
       <workItem from="1707778520735" duration="29171000" />
       <workItem from="1708130460879" duration="7628000" />
       <workItem from="1708649520781" duration="37232000" />
-      <workItem from="1708734090978" duration="13134000" />
+      <workItem from="1708734090978" duration="45596000" />
     </task>
     <servers />
   </component>
@@ -182,6 +187,16 @@
           <properties class="java.net.SocketException" package="java.net" />
           <option name="timeStamp" value="1" />
         </breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/Client/RPC/UserRPC.java</url>
+          <line>49</line>
+          <option name="timeStamp" value="11" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/Client/RPC/UserRPC.java</url>
+          <line>50</line>
+          <option name="timeStamp" value="12" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>

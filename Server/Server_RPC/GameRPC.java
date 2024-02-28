@@ -26,7 +26,6 @@ public class GameRPC {
         Queue<UserContext> waitQueue = globalContext.waitingQueue;
         try{
             globalContextSem.acquire();
-            user.joinWaitQueue(); // update user status
             waitQueue.add(user);
             globalContextSem.release();
             return waitQueue.size();
@@ -101,7 +100,6 @@ public class GameRPC {
     }
 
     public void removeFromWaitQueue(GlobalContext globalContext, UserContext user){
-        user.updateStatus(UserContext.STATUS.LOGGEDIN);
         Queue<UserContext> waitQueue = globalContext.waitingQueue;
         if(waitQueue.contains(user)){
             waitQueue.remove(user);

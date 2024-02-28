@@ -1,8 +1,9 @@
 package Client.RPC;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+import packages.MyUser;
+
+import java.io.*;
+import java.net.Socket;
 import java.util.Scanner;
 
 public class UserRPC {
@@ -10,12 +11,15 @@ public class UserRPC {
     private Scanner input;
     private PrintWriter serverWriter;
     private BufferedReader serverReader;
+
+    private ObjectOutputStream serializedOutput;
     private String username;
 
-    public UserRPC(Scanner input, PrintWriter serverWriter, BufferedReader serverReader){
+    public UserRPC(Socket clientSocket, Scanner input, PrintWriter serverWriter, BufferedReader serverReader) throws IOException {
         this.input = input;
         this.serverReader = serverReader;
         this.serverWriter = serverWriter;
+        this.serializedOutput = new ObjectOutputStream(clientSocket.getOutputStream());
     }
 
     public void newUser() throws IOException {
@@ -26,8 +30,10 @@ public class UserRPC {
             // send New User RPC
             String password = getPassword();
             this.serverWriter.println("New User");
-            this.serverWriter.println(username);
-            this.serverWriter.println(password);
+
+            MyUser newUser = new MyUser(username, password);
+            serializedOutput.writeObject(newUser);
+            serializedOutput.flush();
 
             String res = this.serverReader.readLine();
             System.out.println(res);
@@ -41,8 +47,10 @@ public class UserRPC {
     public boolean login() throws IOException {
         String[] userCredentials = getUserCredentials();
         serverWriter.println("Login");
-        serverWriter.println(userCredentials[0]);
-        serverWriter.println(userCredentials[1]);
+        MyUser newUser = new MyUser(userCredentials[0], userCredentials[1]);
+        System.out.println("creds: " + newUser.username + " " + newUser.password);
+        serializedOutput.writeObject(newUser);
+        serializedOutput.flush();
         boolean res = validateCredentials(userCredentials[1]);
         if(res){
             System.out.println("> Successfully logged in as " + this.username);
@@ -62,10 +70,8 @@ public class UserRPC {
                            "*  ENTER USER CREDENTIALS  *\n");
         System.out.print(  "*  USERNAME: ");
         this.username = input.nextLine();
-        System.out.println("");
         System.out.print("*  PASSWORD: ");
         String password = input.nextLine();
-        System.out.println("");
         return new String[]{username, password};
     }
 
