@@ -187,8 +187,7 @@ public class ClientHandler implements ServerInterface {
 
     @Override
     public void LogoutRPC() {
-        // TODO Auto-generated method stub
-        // update user status
+
         this.user.updateStatus(UserContext.STATUS.CONNECTED);
         removeFromWaitlistRPC();
     }
@@ -241,7 +240,7 @@ public class ClientHandler implements ServerInterface {
     private void saveUserCredentials(String username, String password){
         try {
 
-            String credential = socket.getRemoteSocketAddress().toString() + " " + username + " " + password + "\n";
+            String credential = socket.getRemoteSocketAddress().toString() + " " + username + " " + password;
             Files.write(path, Collections.singletonList(credential), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
             // client credentials string
         } catch (IOException e){
