@@ -29,7 +29,7 @@ public class UserRPC {
         this.username = getUsername();
 
         // validate username
-        validateUsername()
+        validateUsername();
 
         serverWriter.println(username);
 
