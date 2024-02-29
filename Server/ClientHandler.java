@@ -24,8 +24,6 @@ public class ClientHandler implements ServerInterface {
     private PrintWriter out;
     private GlobalContext globalContext;
     private UserCache userCache;
-    private Semaphore globalContextSem;
-    private Semaphore userCacheSem;
     private GameRPC gameAPI;
     private UserContext user;
 
@@ -34,17 +32,15 @@ public class ClientHandler implements ServerInterface {
 
     public boolean clientStatus;
 
-    public ClientHandler(Socket clientSocket, GlobalContext globalContext, Semaphore globalContextSem, Semaphore userCacheSem) throws IOException {
+    public ClientHandler(Socket clientSocket, GlobalContext globalContext) throws IOException {
         this.socket = clientSocket;
         this.clientStatus = true;
         this.globalContext = globalContext;
         this.userCache = globalContext.userCache;
-        this.globalContextSem = globalContextSem;
-        this.userCacheSem = userCacheSem;
         this.out = new PrintWriter(clientSocket.getOutputStream(), true);
         this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         ConnectRPC();
-        this.gameAPI = new GameRPC(out, in);
+        this.gameAPI = new GameRPC(out, in, globalContext);
     }
 
     @Override
@@ -78,6 +74,10 @@ public class ClientHandler implements ServerInterface {
                         System.out.println("Check wait queue time");
                         CheckWaitQueueRPC();
                         break;
+                    case "Leave Wait list":
+                        System.out.println("Leave wait queue");
+
+                        break;
                     case "Game End":
                         break;
                     case "Disconnect":
@@ -98,7 +98,6 @@ public class ClientHandler implements ServerInterface {
 
     @Override
     public boolean ConnectRPC() {
-
         if (socket == null) {
             this.clientStatus = false;
             return false;
@@ -144,9 +143,9 @@ public class ClientHandler implements ServerInterface {
             String password = readMessage();
 
             // add use to user cache
-            userCacheSem.acquire();
+            globalContext.userCacheSem.acquire();
             userCache.addNewUser(new UserContext(socket.getLocalSocketAddress().toString(), username, password));
-            userCacheSem.release();
+            globalContext.userCacheSem.release();
             if(userCache.getLastAdded().getUsername().equals(username)){
                 System.out.println("User " + username + " successfully created!");
                 this.out.println(1);
@@ -186,7 +185,7 @@ public class ClientHandler implements ServerInterface {
     }
 
     public void JoinWaitingQueueRPC(){
-        int waitingQueueSize = gameAPI.joinWaitQueue(globalContext, user, globalContextSem);
+        int waitingQueueSize = gameAPI.joinWaitQueue(globalContext, user);
         System.out.println("wait queue size " + waitingQueueSize);
         // Replies to client with the wait queue size
         this.out.println(waitingQueueSize);
@@ -217,10 +216,15 @@ public class ClientHandler implements ServerInterface {
 
     private void removeFromWaitlistRPC(){
         // remove client from waitlist
-        if(this.user != null){
-            gameAPI.removeFromWaitQueue(globalContext, user);
+        if(this.user == null) {
+            System.out.println("Client attempted to leave wait list without proper user validation...");
+            this.out.println(0);
         }
-        // TODO: send client feedback ?? maybe not
+            if(gameAPI.removeFromWaitQueue(globalContext, user)){
+                this.out.println(1); // client removed from wait queue succesfully
+            } else {
+                this.out.print(0); // client unable to be removed from waitlist
+            }
     }
 
     public String readMessage() {

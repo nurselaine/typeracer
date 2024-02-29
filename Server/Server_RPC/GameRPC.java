@@ -14,41 +14,36 @@ import java.util.concurrent.Semaphore;
 
 public class GameRPC {
 
-    private PrintWriter clientWriter;
-    private BufferedReader clientReader;
+    private PrintWriter out;
+    private BufferedReader in;
 
-    public GameRPC (PrintWriter clientWriter, BufferedReader clientReader){
-        this.clientWriter = clientWriter;
-        this.clientReader = clientReader;
+    private int MAX_PLAYERS = 4;
+
+    private GlobalContext globalContext;
+    private Queue<UserContext> waitQueue;
+
+    public GameRPC (PrintWriter clientWriter, BufferedReader clientReader, GlobalContext globalContext){
+        this.out = clientWriter;
+        this.in = clientReader;
+        this.globalContext = globalContext;
+        this.waitQueue = globalContext.waitingQueue;
     }
     // join waiting queue
-    public int joinWaitQueue(GlobalContext globalContext, UserContext user, Semaphore globalContextSem){
-        Queue<UserContext> waitQueue = globalContext.waitingQueue;
+    public int joinWaitQueue(GlobalContext globalContext, UserContext user){
         try{
-            globalContextSem.acquire();
+            globalContext.waitQueueSem.acquire();
             user.joinWaitQueue(); // update user status
             waitQueue.add(user);
-            globalContextSem.release();
+            globalContext.waitQueueSem.release();
             return waitQueue.size();
         } catch (InterruptedException e){
             System.out.println("Client unable to join waiting queue " + e.getMessage());
             e.printStackTrace();
         }
         return -1;
-//        if(waitQueue.size() % 4 != 0){
-//            int remainPlayers = waitQueue.size() % 4;
-//            if(remainPlayers == 1){
-//                clientWriter.println("Waiting for " + remainPlayers + " player to join");
-//            } else {
-//                clientWriter.println("Waiting for " + remainPlayers + " players to join");
-//            }
-//        } else {
-//            clientWriter.println("Game will begin in a few seconds...");
-//        }
     }
 
     public int checkWaitTime(GlobalContext globalContext){
-        Queue<UserContext> waitQueue = globalContext.waitingQueue;
         int size = waitQueue.size();
         int playersNeeded = 0;
         if (size >= 4) {
@@ -61,12 +56,19 @@ public class GameRPC {
 
     // start game
     public GameContext startGame(GlobalContext globalContext, GameSession gameSession){
-        Queue<UserContext> waitQueue = globalContext.waitingQueue;
+        // check if at least 4 players are in wait queue
         if(waitQueue.size() < 4) return null;
+
+        // remove 4 players from waiting queue
+
+
+        List<UserContext> players = new ArrayList<>();
 
         // create new thread to process game
         Thread gameThread = new Thread(() -> {
-            List<UserContext> players = new ArrayList<>();
+
+            // create new game context with all of the game players
+
             GameContext game = new GameContext(players);
             int gameID = game.gameID;
             gameSession.newGame(game);
@@ -74,24 +76,27 @@ public class GameRPC {
             String gameString = game.randomlyGenerateString();
             players.stream().forEach(player -> notifyGameStartCountdown(gameString));
         });
+        gameThread.start();
 
         return null; // return game to add to gameSessions in driver
     }
 
+    // this method is not going to be used
+    // count down will be initiated on clientside
     private void notifyGameStartCountdown(String gameString){
         int count = 3;
         String[] readySetGo = new String[]{"Ready", "Set", "Go!"};
         int rsgIndex = 0;
         try {
             while(count > 0){
-                clientWriter.println(readySetGo[rsgIndex++] + "...");
+                out.println(readySetGo[rsgIndex++] + "...");
                 wait(1000);
             }
             // send string
-            clientWriter.println(gameString);
+            out.println(gameString);
         } catch (InterruptedException e){
             System.out.println("GAME START ERROR: occured during countdown " + e.getMessage());
-            clientWriter.println("Error joining game. Please rejoin waiting queue");
+            out.println("Error joining game. Please rejoin waiting queue");
         }
     }
 
@@ -100,15 +105,20 @@ public class GameRPC {
 
     }
 
-    public void removeFromWaitQueue(GlobalContext globalContext, UserContext user){
-        user.updateStatus(UserContext.STATUS.LOGGEDIN);
-        Queue<UserContext> waitQueue = globalContext.waitingQueue;
+    public boolean removeFromWaitQueue(GlobalContext globalContext, UserContext user){
         if(waitQueue.contains(user)){
             waitQueue.remove(user);
+            user.updateStatus(UserContext.STATUS.LOGGEDIN);
+            return true;
         }
+        return false;
+    }
+
+    public void trackCompletion(){
+        // client will call this RPC each time a user completes typing
+        // it will track how many users are left and whether the timeout limit has been reached
+        //
     }
 
     // game score
-
-    // typing rpc
 }
