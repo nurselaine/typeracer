@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a0849281-223c-4dcb-9927-4d9c458aecdb" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/typeracer.iml" beforeDir="false" afterPath="$PROJECT_DIR$/typeracer.iml" afterDir="false" />
+    <list default="true" id="14ef1659-3368-404f-861c-c218c4b9175e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Client/ServerMessageHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Client.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,12 +21,17 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="MarkdownSettingsMigration">
-    <option name="stateVersion" value="1" />
-  </component>
-  <component name="ProjectId" id="2bONBvCfRFIfLdU8r4GBRR8mEkC" />
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="2d3Mtdj2lutKQyVNK6oh3gLDDac" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -34,91 +40,19 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "jdk.selected.JAVA_MODULE": "21",
-    "last_opened_file_path": "C:/Users/Elain/Projects/typeracer",
+    "git-widget-placeholder": "Handle-when-server-disconnects",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/zjw/IntelliJProjects/typeracer-debug",
     "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
+    "nodejs_package_manager_path": "npm",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RecentsManager">
-    <key name="CreateClassDialog.RecentsKey">
-      <recent name="Server" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\Elain\Projects\typeracer\Client" />
-      <recent name="C:\Users\Elain\Projects\typeracer\Server" />
-    </key>
-  </component>
-  <component name="RunManager" selected="Application.Server.Server">
-    <configuration name="Client" type="Application" factoryName="Application" temporary="true">
-      <option name="MAIN_CLASS_NAME" value="Client" />
-      <module name="typeracer" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Client2" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="Client.Client" />
-      <module name="typeracer" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Client3" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="Client.Client" />
-      <module name="typeracer" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Client4" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="Client.Client" />
-      <module name="typeracer" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Client5" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="Client.Client" />
-      <module name="typeracer" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Client.Client" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Client.Client" />
-      <module name="typeracer" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="Client.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Main" />
-      <module name="typeracer" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Server2" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Server2" />
-      <module name="typeracer" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Server.Server" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+  <component name="RunManager">
+    <configuration name="Server" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Server.Server" />
       <module name="typeracer" />
       <extension name="coverage">
@@ -131,44 +65,29 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <list>
-      <item itemvalue="Application.Client2" />
-      <item itemvalue="Application.Client3" />
-      <item itemvalue="Application.Client4" />
-      <item itemvalue="Application.Client5" />
-      <item itemvalue="Application.Main" />
-      <item itemvalue="Application.Server2" />
-      <item itemvalue="Application.Client.Client" />
-      <item itemvalue="Application.Server.Server" />
-      <item itemvalue="Application.Client" />
-    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.Server.Server" />
-        <item itemvalue="Application.Client.Client" />
-        <item itemvalue="Application.Main" />
-        <item itemvalue="Application.Server2" />
-        <item itemvalue="Application.Client" />
+        <item itemvalue="Application.Server" />
       </list>
     </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="jdk-21.0.2-openjdk-21.0.2-4caba194b151-322ed176" />
+      </set>
+    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="a0849281-223c-4dcb-9927-4d9c458aecdb" name="Changes" comment="" />
-      <created>1706082036537</created>
+      <changelist id="14ef1659-3368-404f-861c-c218c4b9175e" name="Changes" comment="" />
+      <created>1709232525093</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1706082036537</updated>
-      <workItem from="1706082038100" duration="5388000" />
-      <workItem from="1706341957858" duration="1911000" />
-      <workItem from="1706620350166" duration="1032000" />
-      <workItem from="1706821302155" duration="31000" />
-      <workItem from="1707246689746" duration="4979000" />
-      <workItem from="1707778520735" duration="29171000" />
-      <workItem from="1708130460879" duration="7628000" />
-      <workItem from="1708649520781" duration="37232000" />
-      <workItem from="1708734090978" duration="13134000" />
+      <updated>1709232525093</updated>
+      <workItem from="1709232526235" duration="1203000" />
+      <workItem from="1709244377560" duration="1830000" />
     </task>
     <servers />
   </component>
@@ -178,10 +97,11 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <breakpoint enabled="true" type="java-exception">
-          <properties class="java.net.SocketException" package="java.net" />
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$USER_HOME$/Library/Java/JavaVirtualMachines/openjdk-21.0.2/Contents/Home/lib/src.zip!/java.base/java/lang/Runnable.java</url>
+          <line>38</line>
           <option name="timeStamp" value="1" />
-        </breakpoint>
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>

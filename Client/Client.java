@@ -13,24 +13,33 @@ import java.util.Scanner;
 // Hello world!
 public class Client {
     public static void main(String[] args) {
-
         // TODO: Create a thread to manage incoming server messages
         // TODO: Create a method to handle server messages ?? maybe
+        Scanner input = null;
+        Socket soc = null;
+        PrintWriter serverWriter = null;
+        BufferedReader serverReader = null;
 
         try {
 
             System.out.println("Client Socket");
-            Scanner input = new Scanner(System.in); // for reading client input
+            input = new Scanner(System.in); // for reading client input
             // instantiate menu library
             Menu menu = new Menu(input);
             boolean isLoggedIn = false;
 
             // client creates new socket using host and port number that server is running
             // Once server accept the connection with client will socket object be created
-            Socket soc = new Socket("localhost", 3001);
+            soc = new Socket("localhost", 3001);
             // create client resources
-            BufferedReader serverReader = new BufferedReader(new InputStreamReader(soc.getInputStream()));
-            PrintWriter serverWriter = new PrintWriter(soc.getOutputStream(), true);
+            serverReader = new BufferedReader(new InputStreamReader(soc.getInputStream()));
+            serverWriter = new PrintWriter(soc.getOutputStream(), true);
+
+            // thread to handle server msg
+            ServerMessageHandler messageHandler = new ServerMessageHandler(serverReader);
+            Thread messageHandlerThread = new Thread(messageHandler);
+            messageHandlerThread.start();
+
             UserRPC userAPI = new UserRPC(input, serverWriter, serverReader);
             GameRPC gameAPI = new GameRPC(serverWriter, serverReader);
 
@@ -39,7 +48,7 @@ public class Client {
 
             while(soc.isConnected()){
 
-                while(isLoggedIn == false){
+                while(!isLoggedIn){
                     System.out.println("Print non-validated menu: ");
                     // print menu options for login options
                     menu.nonValidatedUserMenu();
@@ -107,8 +116,25 @@ public class Client {
         } catch (Exception e){
             // TODO: handle client disconnecting
             e.printStackTrace();
+        } finally {
+            // resource clean-up
+            try {
+                if (input != null) {
+                    input.close();
+                }
+                if (serverWriter != null) {
+                    serverWriter.close();
+                }
+                if (serverReader != null) {
+                    serverReader.close();
+                }
+                if (soc != null && !soc.isClosed()) {
+                    soc.close(); // Close Socket
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println("Resource cleaned up, now exiting...");
         }
-            // TODO: handle server socket closing and client still connected - shut client process down
-        System.out.println("Socket disconnected & client will now shutdown");
     }
 }
