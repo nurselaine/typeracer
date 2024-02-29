@@ -21,23 +21,29 @@ public class UserRPC {
     public void newUser() throws IOException {
 
         System.out.println("New user RPC");
-        this.username = getUsername();
-        if(validateUsername() == 1){
-            // send New User RPC
-            String password = getPassword();
-            this.serverWriter.println("New User");
-            this.serverWriter.println(username);
-            this.serverWriter.println(password);
 
-            String res = this.serverReader.readLine();
-            System.out.println(res);
-            if(Integer.parseInt(res) != 1){
-                System.out.println("> SERVER ERROR: Please try entering New User again. " + res);
-            } else {
-                System.out.println("> New User Profile: " + username + " successfully created!");
-            }
+        // send New User RPC
+        serverWriter.println("New User");
+
+        // get username from user
+        this.username = getUsername();
+
+        // validate username
+        validateUsername()
+
+        serverWriter.println(username);
+
+        String password = getPassword(); 
+
+        String res = this.serverReader.readLine();
+        System.out.println(res);
+        if(Integer.parseInt(res) == 0){
+            System.out.println("> SERVER ERROR: Please try entering New User again. " + res);
+        } else {
+            System.out.println("> New User Profile: " + username + " successfully created!");
         }
     }
+
     public boolean login() throws IOException {
         String[] userCredentials = getUserCredentials();
         serverWriter.println("Login");
@@ -81,9 +87,8 @@ public class UserRPC {
         return password;
     }
 
-    public int validateUsername() {
-        // TODO: check if username has any spaces, has non-numeric or alphabet chars and is unique
-        try {
+    public int validateUsername() throws IOException{
+    try {
             System.out.println("> validating username...");
             serverWriter.println("Valid Username");
             serverWriter.println(this.username);
@@ -104,7 +109,9 @@ public class UserRPC {
             System.out.println("Error occurred while creating username. Please try again.");
         }
         return 0;
+        
     }
+        // TODO: check if username has any spaces, has non-numeric or alphabet chars and is unique
 
     private boolean validateCredentials(String password) throws IOException {
         // TODO: check if password has spaces, has non-numeric or alphabet chars and is unique

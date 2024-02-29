@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 import Client.Client;
-import Server.Server_context.GameSession;
+import Server.Server_context.GameCache;
 import Server.Server_context.GlobalContext;
 import Server.Server_context.UserCache;
 import Server.Server_context.UserContext;
@@ -34,7 +34,7 @@ public class Server{
 
     UserCache userCache;
 
-    private GameSession gameSession;
+    private GameCache gameSession;
 
     // path to user databse
     private final Path path = Paths.get("Server", "utils", "user_database.txt");
@@ -72,8 +72,7 @@ public class Server{
 
             Thread clientThread = new Thread(() -> {
                 try {
-                    ClientHandler clientHandler = new ClientHandler(clientSocket, globalContext,
-                            globalContextSem, userCacheSem);
+                    ClientHandler clientHandler = new ClientHandler(clientSocket, globalContext);
                     while (clientHandler.clientStatus) {
                         clientHandler.ReceiveMessage();
                     }

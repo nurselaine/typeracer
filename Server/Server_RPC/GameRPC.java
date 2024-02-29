@@ -1,7 +1,7 @@
 package Server.Server_RPC;
 
-import Server.Server_context.GameContext;
-import Server.Server_context.GameSession;
+import Server.Server_context.Game;
+import Server.Server_context.GameCache;
 import Server.Server_context.GlobalContext;
 import Server.Server_context.UserContext;
 
@@ -60,14 +60,14 @@ public class GameRPC {
     }
 
     // start game
-    public GameContext startGame(GlobalContext globalContext, GameSession gameSession){
+    public Game startGame(GlobalContext globalContext, GameCache gameSession){
         Queue<UserContext> waitQueue = globalContext.waitingQueue;
         if(waitQueue.size() < 4) return null;
 
         // create new thread to process game
         Thread gameThread = new Thread(() -> {
             List<UserContext> players = new ArrayList<>();
-            GameContext game = new GameContext(players);
+            Game game = new Game(players);
             int gameID = game.gameID;
             gameSession.newGame(game);
             players.stream().forEach(player -> player.joinGame(gameID));
@@ -96,7 +96,7 @@ public class GameRPC {
     }
 
     // endGame
-    public void endGame(GameContext game){
+    public void endGame(Game game){
 
     }
 

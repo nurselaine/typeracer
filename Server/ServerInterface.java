@@ -11,7 +11,7 @@ public interface ServerInterface {
 
     boolean ConnectRPC();
 
-    UserContext CreateUserRPC() throws IOException;
+    void CreateUserRPC() throws IOException;
 
     void ReceiveMessage();
 

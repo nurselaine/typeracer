@@ -2,7 +2,7 @@ package Server.Server_context;
 
 import java.util.List;
 
-public class GameContext {
+public class Game {
 
     /**
      * Checker class that validates the incoming client typed string
@@ -49,7 +49,7 @@ public class GameContext {
     private String originalString;
 
     // Constructor
-    public GameContext(List<UserContext> players){
+    public Game(List<UserContext> players){
         this.gameID++;
         this.players = players;
         this.startTime = System.currentTimeMillis();

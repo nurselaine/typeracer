@@ -21,6 +21,8 @@ public class UserCache {
     public List<UserContext> getAllUsers(){
         return userList;
     }
+
+    
     public void addNewUser(UserContext user){
         userList.add(user);
     }
@@ -30,13 +32,13 @@ public class UserCache {
      * joining/playing/leaving game to reduce coupling between classes
      * */
     // update game status to playing
-    public void joinGame(GameContext game){
+    public void joinGame(Game game){
         List<UserContext> players = game.getPlayers();
         players.forEach(player -> player.joinGame(game.gameID));
     }
 
     // update game status to not playing
-    public void endGame(GameContext game){
+    public void endGame(Game game){
 //        List<UserContext> players = game.getPlayers();
 //        players.forEach(player -> {
 //            player.endGame();
@@ -53,9 +55,9 @@ public class UserCache {
         return user;
     }
 
-    public boolean validateUsername(String username){
+    public boolean isValidUserName(String username){
         if(username.isEmpty()) return false;
-        return userList.stream().anyMatch(player -> player.getUsername().equals(username));
+        return userList.stream().anyMatch(player -> player.getUsername().equals(username))? false : true;
     }
 
     public boolean validatePassword(String username, String password){
