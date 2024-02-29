@@ -77,7 +77,7 @@ public class Client {
                             gameAPI.checkWaitingTime();
                             break;
                         case 3: // leave wait list
-
+                            gameAPI.leaveWaitQueue();
                             break;
                         case 4: // logout
                             userAPI.logout();

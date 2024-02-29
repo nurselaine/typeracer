@@ -31,7 +31,7 @@ public class GameRPC {
 
     public void leaveWaitQueue(){
         try {
-            serverWriter.println("Leave Wait Queue");
+            serverWriter.println("Leave wait queue");
             String res = serverReader.readLine();
             if(Integer.parseInt(res) == 0){
                 System.out.println("> Successfully left wait queue.");
@@ -39,7 +39,8 @@ public class GameRPC {
                 System.out.println("> Unable to leave wait queue.");
             }
         } catch (IOException e) {
-
+            System.out.println("> Unable to leave wait queue. Issues with server connection..." + e.getMessage());
+            e.printStackTrace();
         }
     }
 

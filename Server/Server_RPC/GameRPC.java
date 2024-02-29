@@ -107,6 +107,7 @@ public class GameRPC {
 
     public boolean removeFromWaitQueue(GlobalContext globalContext, UserContext user){
         if(waitQueue.contains(user)){
+            System.out.println("Removing client from wait queue");
             waitQueue.remove(user);
             user.updateStatus(UserContext.STATUS.LOGGEDIN);
             return true;

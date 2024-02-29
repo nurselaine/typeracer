@@ -74,9 +74,9 @@ public class ClientHandler implements ServerInterface {
                         System.out.println("Check wait queue time");
                         CheckWaitQueueRPC();
                         break;
-                    case "Leave Wait list":
+                    case "Leave wait queue":
                         System.out.println("Leave wait queue");
-
+                        removeFromWaitListRPC();
                         break;
                     case "Game End":
                         break;
@@ -181,7 +181,7 @@ public class ClientHandler implements ServerInterface {
     public void LogoutRPC() {
 
         this.user.updateStatus(UserContext.STATUS.CONNECTED);
-        removeFromWaitlistRPC();
+        removeFromWaitListRPC();
     }
 
     public void JoinWaitingQueueRPC(){
@@ -206,25 +206,30 @@ public class ClientHandler implements ServerInterface {
             socket.close();
             this.in.close();
             this.out.close();
+            this.user = null; // reset client handler user attribute to null as they are not online
             this.clientStatus = false;
-            removeFromWaitlistRPC();
+            removeFromWaitListRPC();
         } catch (IOException e){
             System.out.println("Error disconnecting client");
             e.printStackTrace();
         }
     }
 
-    private void removeFromWaitlistRPC(){
-        // remove client from waitlist
+    private void removeFromWaitListRPC(){
+        // handle if request comes from null user - it will break server if we do not
         if(this.user == null) {
             System.out.println("Client attempted to leave wait list without proper user validation...");
-            this.out.println(0);
+            this.out.println(1);
         }
-            if(gameAPI.removeFromWaitQueue(globalContext, user)){
-                this.out.println(1); // client removed from wait queue succesfully
-            } else {
-                this.out.print(0); // client unable to be removed from waitlist
-            }
+
+        boolean userLeftSuccessfully = gameAPI.removeFromWaitQueue(globalContext, user);
+        if(userLeftSuccessfully){
+            System.out.println("Client successfully removed from waitlist");
+            this.out.println(0); // client removed from wait queue succesfully
+        } else {
+            System.out.println("Client unable to be removed from waitlist");
+            this.out.println(1); // client unable to be removed from waitlist
+        }
     }
 
     public String readMessage() {
