@@ -6,17 +6,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
-import Client.Client;
 import Server.Server_context.GameSession;
 import Server.Server_context.GlobalContext;
 import Server.Server_context.UserCache;
 import Server.Server_context.UserContext;
 
-public class Server{
+public class Server {
 
     // port number to listen on
     private int PORT;
@@ -36,7 +33,7 @@ public class Server{
 
     private GameSession gameSession;
 
-    // path to user databse
+    // path to user database
     private final Path path = Paths.get("Server", "utils", "user_database.txt");
 
     public Server(int PORT){
@@ -82,7 +79,10 @@ public class Server{
                 }
             });
             clientThread.start();
+
+            // TODO: handle when client disconnects
         }
+        // TODO: handle when server disconnects
     }
 
     /*

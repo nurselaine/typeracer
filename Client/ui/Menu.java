@@ -44,6 +44,7 @@ public class Menu {
     }
 
     public String getMenuInput(boolean isValidated){
+        // TODO: handle bad client input 
 //        if(!input.hasNextLine()){
 //            System.out.println("> Input unreadable. Please try again.");
 //        }

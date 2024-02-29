@@ -14,6 +14,9 @@ import java.util.Scanner;
 public class Client {
     public static void main(String[] args) {
 
+        // TODO: Create a thread to manage incoming server messages
+        // TODO: Create a method to handle server messages ?? maybe
+
         try {
 
             System.out.println("Client Socket");
@@ -56,6 +59,7 @@ public class Client {
                             System.out.println("Program ending. See you next time!");
                             return; // end program
                         default:
+                            // TODO: handle incorrect client input
                             System.out.println("> Invalid menu option. Please try again.");
                     }
 
@@ -85,6 +89,7 @@ public class Client {
                             System.out.println("Program ending. See you next time!");
                             return; // end program
                         default:
+                            // TODO: handle incorrect client input
                             System.out.println("> Invalid menu option. Please try again.");
                     }
 
@@ -94,13 +99,16 @@ public class Client {
                 System.out.println("exited while loop for login");
             }
 
-            //cloose socket
+            //cloose socket and cleanup resources
             soc.close();
+            serverWriter.close();
+            serverReader.close();
 
         } catch (Exception e){
+            // TODO: handle client disconnecting
             e.printStackTrace();
         }
-
+            // TODO: handle server socket closing and client still connected - shut client process down
         System.out.println("Socket disconnected & client will now shutdown");
     }
 }

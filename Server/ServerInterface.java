@@ -15,8 +15,6 @@ public interface ServerInterface {
 
     void ReceiveMessage();
 
-    void SendMessage(String message) throws IOException;
-
     void LoginRPC() throws IOException;
 
     void DisconnectRPC();
