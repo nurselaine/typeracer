@@ -201,7 +201,9 @@ public class ClientHandler implements ServerInterface {
     @Override
     public void DisconnectRPC() {
         try{
-            this.user.updateStatus(UserContext.STATUS.DISCONNECTED);
+            if(this.user != null){
+                this.user.updateStatus(UserContext.STATUS.DISCONNECTED);
+            }
             socket.close();
             this.in.close();
             this.out.close();
@@ -215,7 +217,9 @@ public class ClientHandler implements ServerInterface {
 
     private void removeFromWaitlistRPC(){
         // remove client from waitlist
-        gameAPI.removeFromWaitQueue(globalContext, user);
+        if(this.user != null){
+            gameAPI.removeFromWaitQueue(globalContext, user);
+        }
         // TODO: send client feedback ?? maybe not
     }
 
