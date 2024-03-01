@@ -67,16 +67,13 @@ public class ClientHandler implements ServerInterface {
                         System.out.println("Routing to new user RPC");
                         CreateUserRPC();
                         break;
+
+                    case "Join Wait Queue":
+                        //JoinWaitingQueueRPC();
+                        break;
+
                     case "Logout":
                         LogoutRPC();
-                        break;
-                    case "Waiting":
-                        System.out.println("Join wait queue");
-                        JoinWaitingQueueRPC();
-                        break;
-                    case "Wait Time":
-                        System.out.println("Check wait queue time");
-                        CheckWaitQueueRPC();
                         break;
                     case "Game End":
                         break;
@@ -185,12 +182,6 @@ public class ClientHandler implements ServerInterface {
         removeFromWaitlistRPC();
     }
 
-    public void JoinWaitingQueueRPC(){
-        int waitingQueueSize = gameAPI.joinWaitQueue(globalContext, user, globalContextSem);
-        System.out.println("wait queue size " + waitingQueueSize);
-        // Replies to client with the wait queue size
-        this.out.println(waitingQueueSize);
-    }
 
     public void CheckWaitQueueRPC(){
         int playersNeeded = gameAPI.checkWaitTime(globalContext);

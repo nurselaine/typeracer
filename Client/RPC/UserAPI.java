@@ -5,14 +5,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
-public class UserRPC {
+public class UserAPI {
 
     private Scanner input;
     private PrintWriter serverWriter;
     private BufferedReader serverReader;
     private String username;
 
-    public UserRPC(Scanner input, PrintWriter serverWriter, BufferedReader serverReader){
+    public UserAPI(Scanner input, PrintWriter serverWriter, BufferedReader serverReader){
         this.input = input;
         this.serverReader = serverReader;
         this.serverWriter = serverWriter;

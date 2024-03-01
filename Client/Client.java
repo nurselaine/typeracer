@@ -1,7 +1,7 @@
 package Client;
 
-import Client.RPC.GameRPC;
-import Client.RPC.UserRPC;
+import Client.RPC.GameAPI;
+import Client.RPC.UserAPI;
 import Client.ui.Menu;
 
 import java.io.BufferedReader;
@@ -12,103 +12,109 @@ import java.util.Scanner;
 
 // Hello world!
 public class Client {
-    public static void main(String[] args) {
 
-        // TODO: Create a thread to manage incoming server messages
-        // TODO: Create a method to handle server messages ?? maybe
+    public enum ClientState {
+        NOT_LOGGED_IN,
+        LOGGED_IN,
+        WAITING,
+        PLAYING
+    }
 
-        try {
+    private ClientState state;
+    private Scanner input;
+    Menu menu;
+    boolean isLoggedIn;
+    Socket soc;
+    BufferedReader serverReader;
+    PrintWriter serverWriter;
+    UserAPI userAPI;
+    GameAPI gameAPI;
+    String connected;
 
-            System.out.println("Client Socket");
-            Scanner input = new Scanner(System.in); // for reading client input
-            // instantiate menu library
-            Menu menu = new Menu(input);
-            boolean isLoggedIn = false;
-
-            // client creates new socket using host and port number that server is running
-            // Once server accept the connection with client will socket object be created
-            Socket soc = new Socket("localhost", 3001);
-            // create client resources
-            BufferedReader serverReader = new BufferedReader(new InputStreamReader(soc.getInputStream()));
-            PrintWriter serverWriter = new PrintWriter(soc.getOutputStream(), true);
-            UserRPC userAPI = new UserRPC(input, serverWriter, serverReader);
-            GameRPC gameAPI = new GameRPC(serverWriter, serverReader);
-
-            String connected = serverReader.readLine(); // server is sending 1/0 from connectRPC when clienthanlder istnace is created on connection
+    public Client(){
+        this.state = ClientState.NOT_LOGGED_IN;
+        this.input = new Scanner(System.in);
+        this.menu = new Menu(input, state);
+        try{
+            this.soc = new Socket("localhost", 3001);
+            this.serverReader = new BufferedReader(new InputStreamReader(soc.getInputStream()));
+            this.serverWriter = new PrintWriter(soc.getOutputStream(), true);
+            this.userAPI = new UserAPI(input, serverWriter, serverReader);
+            this.gameAPI = new GameAPI(serverWriter, serverReader);
+            this.connected = serverReader.readLine();
             System.out.println("Connected to server: " + connected);
-
-            while(soc.isConnected()){
-
-                while(isLoggedIn == false){
-                    System.out.println("Print non-validated menu: ");
-                    // print menu options for login options
-                    menu.nonValidatedUserMenu();
-                    String menuOption = menu.getMenuInput(false);
-
-                    // switch
-                    switch(Integer.parseInt(menuOption)){
-                        case 1: // New user
-                            userAPI.newUser();
-                            break;
-                        case 2: // Login
-                            isLoggedIn = userAPI.login();
-                            break;
-                        case 3:
-                            serverWriter.println("Disconnect");
-                            soc.close();
-                            System.out.println("Program ending. See you next time!");
-                            return; // end program
-                        default:
-                            // TODO: handle incorrect client input
-                            System.out.println("> Invalid menu option. Please try again.");
-                    }
-
-                }
-
-                while(isLoggedIn){
-                    menu.validatedUserMenu();
-                    String menuOption = menu.getMenuInput(true);
-
-                    switch(Integer.parseInt(menuOption)){
-                        case 1: // enter wait list
-                            gameAPI.joinWaitingQueue();
-                            break;
-                        case 2: // check wait list time
-                            gameAPI.checkWaitingTime();
-                            break;
-                        case 3: // leave wait list
-
-                            break;
-                        case 4: // logout
-                            userAPI.logout();
-                            isLoggedIn = false;
-                            break;
-                        case 5: // quit
-                            serverWriter.println("Disconnect");
-                            soc.close();
-                            System.out.println("Program ending. See you next time!");
-                            return; // end program
-                        default:
-                            // TODO: handle incorrect client input
-                            System.out.println("> Invalid menu option. Please try again.");
-                    }
-
-                    // check if game is ready to start
-                    // server will notify client
-                }
-                System.out.println("exited while loop for login");
-            }
-
-            //cloose socket and cleanup resources
-            soc.close();
-            serverWriter.close();
-            serverReader.close();
-
         } catch (Exception e){
-            // TODO: handle client disconnecting
             e.printStackTrace();
         }
-            // TODO: handle server socket closing and client still connected - shut client process down
-        System.out.println("Socket disconnected & client will now shutdown");
+    }
+
+    // main client loop to handle user input and draw menus
+    public void run()throws IOException{
+        while(soc.isConnected()){
+            Menu.run(state);
+            int menuOption = menu.getMenuInput();
+            submitRPC(menuOption);
+        }
+    }
+
+    /**
+     * This method handles the menu option selected by the user
+     * and submits the appropriate RPC to the server
+     * based on state the menu option selected will submit the 
+     * a differnet RPC to the server
+     * 
+     * @param menuOption the menu option selected by the user
+     * @throws IOException
+     */
+    private void submitRPC(int menuOption) throws IOException{
+        switch(state){
+            case NOT_LOGGED_IN:
+                if(menuOption == 1){
+                    userAPI.newUser();
+                } else if(menuOption == 2){
+                    isLoggedIn = userAPI.login();
+                } else if(menuOption == 3){
+                    serverWriter.println("Disconnect");
+                    soc.close();
+                    System.out.println("Program ending. See you next time!");
+                    return; // end program
+                } else {
+                    System.out.println("> Invalid menu option. Please try again.");
+                }
+                // handle non-validated user menu
+                break;
+            case LOGGED_IN:
+                if(menuOption == 1){
+                    gameAPI.joinWaitQueue();
+                } else if(menuOption == 2){
+                    gameAPI.checkWaitTime();
+                } else if(menuOption == 3){
+                    userAPI.logout();
+                    isLoggedIn = false;
+                } else if(menuOption == 4){
+                    serverWriter.println("Disconnect");
+                    soc.close();
+                    System.out.println("Program ending. See you next time!");
+                    return; // end program
+                } else {
+                    System.out.println("> Invalid menu option. Please try again.");
+                }
+                // handle validated user menu
+                break;
+            case WAITING:
+                // handle waiting user menu
+                break;
+            case PLAYING:
+                // handle playing user menu
+                break;
+            default:
+                // handle invalid state
+                break;
+        }
+    }
+
+    public static void main(String[] args) throws IOException{
+        Client client = new Client();
+        client.run();
     }
 }

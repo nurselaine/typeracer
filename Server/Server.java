@@ -112,10 +112,13 @@ public class Server {
                     // create new user context and add to user cache
                     globalContext.addUser(new UserContext(host, user_credentials[1], user_credentials[2]));
                 }
+                fileReader.close();
             } catch (IOException e) {
                 System.out.println("Unable to initialize user database");
                 e.printStackTrace();
             }
+
+            
         });
         reloadClient.start();
     }
