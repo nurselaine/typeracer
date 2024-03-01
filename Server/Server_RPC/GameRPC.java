@@ -1,7 +1,5 @@
 package Server.Server_RPC;
 
-import Server.Server_context.GameContext;
-import Server.Server_context.GameSession;
 import Server.Server_context.GlobalContext;
 import Server.Server_context.UserContext;
 
@@ -11,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
+import Server.Server_context.GameContext; // Import the missing GameContext class
 
 public class GameRPC {
 
@@ -20,31 +19,6 @@ public class GameRPC {
     public GameRPC (PrintWriter clientWriter, BufferedReader clientReader){
         this.clientWriter = clientWriter;
         this.clientReader = clientReader;
-    }
-    // join waiting queue
-    public int joinWaitQueue(GlobalContext globalContext, UserContext user, Semaphore globalContextSem){
-        Queue<UserContext> waitQueue = globalContext.waitingQueue;
-        try{
-            globalContextSem.acquire();
-            user.joinWaitQueue(); // update user status
-            waitQueue.add(user);
-            globalContextSem.release();
-            return waitQueue.size();
-        } catch (InterruptedException e){
-            System.out.println("Client unable to join waiting queue " + e.getMessage());
-            e.printStackTrace();
-        }
-        return -1;
-//        if(waitQueue.size() % 4 != 0){
-//            int remainPlayers = waitQueue.size() % 4;
-//            if(remainPlayers == 1){
-//                clientWriter.println("Waiting for " + remainPlayers + " player to join");
-//            } else {
-//                clientWriter.println("Waiting for " + remainPlayers + " players to join");
-//            }
-//        } else {
-//            clientWriter.println("Game will begin in a few seconds...");
-//        }
     }
 
     public int checkWaitTime(GlobalContext globalContext){
@@ -60,7 +34,7 @@ public class GameRPC {
     }
 
     // start game
-    public GameContext startGame(GlobalContext globalContext, GameSession gameSession){
+    public Game startGame(GlobalContext globalContext, GameSession gameSession){
         Queue<UserContext> waitQueue = globalContext.waitingQueue;
         if(waitQueue.size() < 4) return null;
 
@@ -69,7 +43,7 @@ public class GameRPC {
             List<UserContext> players = new ArrayList<>();
             GameContext game = new GameContext(players);
             int gameID = game.gameID;
-            gameSession.newGame(game);
+            gameSession.addGame(game);
             players.stream().forEach(player -> player.joinGame(gameID));
             String gameString = game.randomlyGenerateString();
             players.stream().forEach(player -> notifyGameStartCountdown(gameString));

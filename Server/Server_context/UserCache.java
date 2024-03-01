@@ -30,13 +30,13 @@ public class UserCache {
      * joining/playing/leaving game to reduce coupling between classes
      * */
     // update game status to playing
-    public void joinGame(GameContext game){
+    public void joinGame(Game game){
         List<UserContext> players = game.getPlayers();
         players.forEach(player -> player.joinGame(game.gameID));
     }
 
     // update game status to not playing
-    public void endGame(GameContext game){
+    public void endGame(Game game){
 //        List<UserContext> players = game.getPlayers();
 //        players.forEach(player -> {
 //            player.endGame();
@@ -48,6 +48,12 @@ public class UserCache {
     }
 
     public UserContext getUser(String username, SocketAddress socketId){
+        UserContext user = userList.stream().filter(player -> player.getUsername().equals(username))
+                .findFirst().orElse(null);
+        return user;
+    }
+
+    public UserContext getUser(String username){
         UserContext user = userList.stream().filter(player -> player.getUsername().equals(username))
                 .findFirst().orElse(null);
         return user;

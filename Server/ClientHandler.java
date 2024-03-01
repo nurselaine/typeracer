@@ -69,7 +69,7 @@ public class ClientHandler implements ServerInterface {
                         break;
 
                     case "Join Wait Queue":
-                        //JoinWaitingQueueRPC();
+                        joinWaitQueueRPC();
                         break;
 
                     case "Logout":
@@ -90,6 +90,15 @@ public class ClientHandler implements ServerInterface {
             this.clientStatus = false;
         } finally {
             DisconnectRPC();
+        }
+    }
+
+    public void joinWaitQueueRPC() {
+        try {
+            System.out.println("Join waiting queue RPC");
+            globalContext.joinWaitQueue(user.getUsername());
+        } catch (Exception e) {
+            System.out.println("ERROR: joining waiting queue RPC " + e.getMessage());
         }
     }
 

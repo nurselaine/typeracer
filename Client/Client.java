@@ -40,7 +40,7 @@ public class Client {
             this.serverReader = new BufferedReader(new InputStreamReader(soc.getInputStream()));
             this.serverWriter = new PrintWriter(soc.getOutputStream(), true);
             this.userAPI = new UserAPI(input, serverWriter, serverReader);
-            this.gameAPI = new GameAPI(serverWriter, serverReader);
+            this.gameAPI = new GameAPI(serverWriter, serverReader, state);
             this.connected = serverReader.readLine();
             System.out.println("Connected to server: " + connected);
         } catch (Exception e){
@@ -49,7 +49,7 @@ public class Client {
     }
 
     // main client loop to handle user input and draw menus
-    public void run()throws IOException{
+    public void run()throws Exception{
         while(soc.isConnected()){
             Menu.run(state);
             int menuOption = menu.getMenuInput();
@@ -64,9 +64,9 @@ public class Client {
      * a differnet RPC to the server
      * 
      * @param menuOption the menu option selected by the user
-     * @throws IOException
+     * @throws Exception 
      */
-    private void submitRPC(int menuOption) throws IOException{
+    private void submitRPC(int menuOption) throws Exception{
         switch(state){
             case NOT_LOGGED_IN:
                 if(menuOption == 1){
@@ -84,7 +84,7 @@ public class Client {
                 // handle non-validated user menu
                 break;
             case LOGGED_IN:
-                if(menuOption == 1){
+                if (menuOption == 1) {
                     gameAPI.joinWaitQueue();
                 } else if(menuOption == 2){
                     gameAPI.checkWaitTime();
@@ -113,7 +113,7 @@ public class Client {
         }
     }
 
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws Exception{
         Client client = new Client();
         client.run();
     }

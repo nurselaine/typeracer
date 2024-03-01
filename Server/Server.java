@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 import java.util.Scanner;
 import java.util.concurrent.Semaphore;
 
-import Server.Server_context.GameSession;
+import Server.Server_context.GameCache;
 import Server.Server_context.GlobalContext;
 import Server.Server_context.UserCache;
 import Server.Server_context.UserContext;
@@ -31,7 +31,7 @@ public class Server {
 
     UserCache userCache;
 
-    private GameSession gameSession;
+    private GameCache gameCache;
 
     // path to user database
     private final Path path = Paths.get("Server", "utils", "user_database.txt");
@@ -44,7 +44,7 @@ public class Server {
 
         ss = new ServerSocketService(PORT);
 
-        globalContext = new GlobalContext(userCache, gameSession);
+        globalContext = new GlobalContext(userCache, gameCache);
 
         // binary semaphore to manage access to global context
         globalContextSem = new Semaphore(1);

@@ -1,8 +1,9 @@
 package Server.Server_context;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class GameContext {
+public class Game {
 
     /**
      * Checker class that validates the incoming client typed string
@@ -18,7 +19,8 @@ public class GameContext {
      * */
 
     // game identifier
-    public static int gameID = 0;
+    private int gameID = 0;
+    private static AtomicInteger atomicInteger; // Fix: Add identifier and assign a value
 
     // players in game
     private List<UserContext> players;
@@ -49,11 +51,12 @@ public class GameContext {
     private String originalString;
 
     // Constructor
-    public GameContext(List<UserContext> players){
+    public Game(List<UserContext> players){
         this.gameID++;
         this.players = players;
         this.startTime = System.currentTimeMillis();
         this.originalString = randomlyGenerateString();
+        this.gameID = atomicInteger.getAndIncrement();
     }
 
     // Generate a random string for players to type

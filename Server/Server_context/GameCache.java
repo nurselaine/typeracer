@@ -3,15 +3,15 @@ package Server.Server_context;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameSession {
+public class GameCache {
 
-    public List<GameContext> gameList;
+    public List<Game> gameList;
 
-    public GameSession(){
+    public GameCache(){
         gameList = new ArrayList<>();
     }
 
-    public void newGame(GameContext game){
+    public void addGame(Game game){
         gameList.add(game);
     }
 
@@ -19,7 +19,7 @@ public class GameSession {
         return gameList.size();
     }
 
-    public GameContext getGame(int gameID){
+    public Game getGame(int gameID){
         return gameList.get(gameID);
     }
 
