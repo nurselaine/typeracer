@@ -76,5 +76,11 @@ public class GameContext {
         return this.gameID;
     }
 
+    // TODO: create an RPC to check how many players have finished
+    // expect each client to send a confirmation that they are done
+    // playing (typing) their string
+    // input: client times
+
+    // TODO: Create RPC to notify ALL players of their score and place
 
 }

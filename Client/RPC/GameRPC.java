@@ -29,6 +29,20 @@ public class GameRPC {
         }
     }
 
+    public void leaveWaitQueue(){
+        try {
+            serverWriter.println("Leave Wait Queue");
+            String res = serverReader.readLine();
+            if(Integer.parseInt(res) == 0){
+                System.out.println("> Successfully left wait queue.");
+            } else {
+                System.out.println("> Unable to leave wait queue.");
+            }
+        } catch (IOException e) {
+
+        }
+    }
+
     public void checkWaitingTime(){
         try {
             serverWriter.println("Wait Time");

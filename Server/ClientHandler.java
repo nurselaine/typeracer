@@ -26,7 +26,6 @@ public class ClientHandler implements ServerInterface {
     private UserCache userCache;
     private Semaphore globalContextSem;
     private Semaphore userCacheSem;
-    //private LoginRPC loginAPI;
     private GameRPC gameAPI;
     private UserContext user;
 
@@ -37,7 +36,6 @@ public class ClientHandler implements ServerInterface {
 
     public ClientHandler(Socket clientSocket, GlobalContext globalContext, Semaphore globalContextSem, Semaphore userCacheSem) throws IOException {
         this.socket = clientSocket;
-        ConnectRPC();
         this.clientStatus = true;
         this.globalContext = globalContext;
         this.userCache = globalContext.userCache;
@@ -45,7 +43,7 @@ public class ClientHandler implements ServerInterface {
         this.userCacheSem = userCacheSem;
         this.out = new PrintWriter(clientSocket.getOutputStream(), true);
         this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        //this.loginAPI = new LoginRPC(out, in);
+        ConnectRPC();
         this.gameAPI = new GameRPC(out, in);
     }
 
@@ -87,6 +85,7 @@ public class ClientHandler implements ServerInterface {
                         break;
                     default:
                         System.out.println("Unrecognized client message");
+                        // TODO: code -1000 to let clientside know that input was bad
                 }
             }
         } catch (IOException e) {
@@ -99,27 +98,20 @@ public class ClientHandler implements ServerInterface {
 
     @Override
     public boolean ConnectRPC() {
-        try {
-            System.out.println();
-            this.out = new PrintWriter(socket.getOutputStream(), true);
-            if (socket == null) {
-                out.println(0);
-            }
-            out.println(1);
-            System.out.println("Client successfully connected to server!" + socket.getInetAddress());
-            return true;
 
-        } catch (IOException e) {
-            System.out.println("Unsuccessful connect to server, please disconnect " +
-                    "clientside and retry" + e.getMessage());
+        if (socket == null) {
+            this.clientStatus = false;
+            return false;
         }
-        return false;
+        out.println(1);
+        System.out.println("Client successfully connected to server!" + socket.getInetAddress());
+        return true;
     }
 
     @Override
     public void LoginRPC() throws IOException{
         System.out.println("Login RPC !");
-        String userName = readMessage();
+        String userName = readMessage(); //
         System.out.println("client login username: " + userName);
         String password = readMessage();
         System.out.println("client login password: " + password);
@@ -131,7 +123,7 @@ public class ClientHandler implements ServerInterface {
         if(user != null){
             isUser = user.getUsername().equals(userName) && user.getPassword().equals(password);
         }
-        if(isUser){
+        if(isUser && user.getStatus() != UserContext.STATUS.LOGGEDIN){
             this.user.updateStatus(UserContext.STATUS.LOGGEDIN);
             out.println(1);
             System.out.println(userName + " Login successful!");
@@ -162,6 +154,7 @@ public class ClientHandler implements ServerInterface {
                 System.out.println("User " + username + " unable to be created!");
                 this.out.println(0);
             }
+            // save credentials to user_database.txt
             saveUserCredentials(username, password);
         } catch (InterruptedException e) {
             System.out.println("ERROR: creating user profile RPC " + e.getMessage());
@@ -195,23 +188,22 @@ public class ClientHandler implements ServerInterface {
     public void JoinWaitingQueueRPC(){
         int waitingQueueSize = gameAPI.joinWaitQueue(globalContext, user, globalContextSem);
         System.out.println("wait queue size " + waitingQueueSize);
+        // Replies to client with the wait queue size
         this.out.println(waitingQueueSize);
     }
 
     public void CheckWaitQueueRPC(){
         int playersNeeded = gameAPI.checkWaitTime(globalContext);
+        // sending client the # of players in the wait queue
         this.out.println(playersNeeded);
-    }
-
-    @Override
-    public void SendMessage(String message) throws IOException{
-        out.println(message);
     }
 
     @Override
     public void DisconnectRPC() {
         try{
-            this.user.updateStatus(UserContext.STATUS.DISCONNECTED);
+            if(this.user != null){
+                this.user.updateStatus(UserContext.STATUS.DISCONNECTED);
+            }
             socket.close();
             this.in.close();
             this.out.close();
@@ -225,7 +217,10 @@ public class ClientHandler implements ServerInterface {
 
     private void removeFromWaitlistRPC(){
         // remove client from waitlist
-        gameAPI.removeFromWaitQueue(globalContext, user);
+        if(this.user != null){
+            gameAPI.removeFromWaitQueue(globalContext, user);
+        }
+        // TODO: send client feedback ?? maybe not
     }
 
     public String readMessage() {
