@@ -27,4 +27,8 @@ public class ServerMessageHandler implements Runnable {
            System.exit(1);
        }
     }
+
+    public void stop () {
+        running = false;
+    }
 }

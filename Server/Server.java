@@ -55,7 +55,6 @@ public class Server {
         // binary semaphore to manage access to game context
 
         start(ss);
-
     }
 
     public void start(ServerSocketService ss) {
@@ -64,25 +63,35 @@ public class Server {
 
         while (ss.isAccepting()) {
 
-            Socket clientSocket = ss.acceptConnection();
+            try {
+                Socket clientSocket = ss.acceptConnection();
 
-
-            Thread clientThread = new Thread(() -> {
-                try {
-                    ClientHandler clientHandler = new ClientHandler(clientSocket, globalContext,
-                            globalContextSem, userCacheSem);
-                    while (clientHandler.clientStatus) {
-                        clientHandler.ReceiveMessage();
+                Thread clientThread = new Thread(() -> {
+                    try {
+                        ClientHandler clientHandler = new ClientHandler(clientSocket, globalContext,
+                                globalContextSem, userCacheSem);
+                        while (clientHandler.clientStatus) {
+                            clientHandler.ReceiveMessage();
+                        }
+                    } catch (IOException e) {
+                        System.out.println("ERROR: creating client handler " + e.getMessage());
+                    } finally {
+                        // TODO: handle when client disconnects
+                        System.out.println("Client disconnected.");
                     }
-                } catch (IOException e) {
-                    System.out.println("ERROR: creating client handler " + e.getMessage());
-                }
-            });
-            clientThread.start();
+                });
+                clientThread.start();
 
-            // TODO: handle when client disconnects
+            } catch (Exception e) {
+                if (!ss.running()) {
+                    System.out.println("Server shutting down...");
+                } else {
+                    System.out.println("ERROR: Accepting client connection " + e.getMessage());
+                }
+            }
         }
         // TODO: handle when server disconnects
+        ss.stop();
     }
 
     /*

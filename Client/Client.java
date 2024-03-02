@@ -35,16 +35,16 @@ public class Client {
             serverReader = new BufferedReader(new InputStreamReader(soc.getInputStream()));
             serverWriter = new PrintWriter(soc.getOutputStream(), true);
 
-            // thread to handle server msg
-            ServerMessageHandler messageHandler = new ServerMessageHandler(serverReader);
-            Thread messageHandlerThread = new Thread(messageHandler);
-            messageHandlerThread.start();
-
             UserRPC userAPI = new UserRPC(input, serverWriter, serverReader);
             GameRPC gameAPI = new GameRPC(serverWriter, serverReader);
 
             String connected = serverReader.readLine(); // server is sending 1/0 from connectRPC when clienthanlder istnace is created on connection
             System.out.println("Connected to server: " + connected);
+
+            // thread to handle server msg
+            ServerMessageHandler messageHandler = new ServerMessageHandler(serverReader);
+            Thread serverMessageHandlerThread = new Thread(messageHandler);
+            serverMessageHandlerThread.start();
 
             while(soc.isConnected()){
 
@@ -108,7 +108,7 @@ public class Client {
                 System.out.println("exited while loop for login");
             }
 
-            //cloose socket and cleanup resources
+            //close socket and cleanup resources
             soc.close();
             serverWriter.close();
             serverReader.close();
@@ -129,7 +129,7 @@ public class Client {
                     serverReader.close();
                 }
                 if (soc != null && !soc.isClosed()) {
-                    soc.close(); // Close Socket
+                    soc.close();
                 }
             } catch (Exception e) {
                 e.printStackTrace();

@@ -8,10 +8,12 @@ public class ServerSocketService {
 
     public ServerSocket ss;
     public int PORT;
+    private volatile boolean running = false;
     public ServerSocketService(int PORT){
         try{
             this.PORT = PORT;
             ss = new ServerSocket(PORT);
+            running = true;
         } catch (Exception e){
             System.out.println("Unable to create server socket service :(");
             e.printStackTrace();
@@ -36,5 +38,19 @@ public class ServerSocketService {
         return ss.isBound();
     }
 
+    public boolean running() {
+        return running;
+    }
 
+    public void stop() {
+        running = false;
+        try {
+            if (ss != null && !ss.isClosed()) {
+                ss.close();
+            }
+        } catch (IOException e) {
+            System.out.println("Error: closing server socket");
+            e.printStackTrace();
+        }
+    }
 }
