@@ -19,7 +19,10 @@ public class Game {
      * */
 
     // game identifier
-    private int gameID = 0;
+    private int gameID;
+
+    //id counter
+    private static int idCounter = 0;
     private static AtomicInteger atomicInteger; // Fix: Add identifier and assign a value
 
     // players in game
@@ -56,7 +59,15 @@ public class Game {
         this.players = players;
         this.startTime = System.currentTimeMillis();
         this.originalString = randomlyGenerateString();
-        this.gameID = atomicInteger.getAndIncrement();
+        gameID = idCounter++;
+    }
+
+    // Start game
+    public void startGame(){
+        // Notify all players that game is starting
+        // Notify all players of the string to type
+        // Notify all players of the countdown
+
     }
 
     // Generate a random string for players to type
@@ -64,6 +75,7 @@ public class Game {
         // use this as test string for now
         return "I like to code.";
     }
+
 
     // Return list of players in game
     public List<UserContext> getPlayers(){

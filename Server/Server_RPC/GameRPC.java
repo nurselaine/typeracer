@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
-import Server.Server_context.GameContext; // Import the missing GameContext class
+import Server.Server_context.Game; // Import the missing GameContext class
+import Server.Server_context.GameCache;
 
 public class GameRPC {
 
@@ -34,19 +35,17 @@ public class GameRPC {
     }
 
     // start game
-    public Game startGame(GlobalContext globalContext, GameSession gameSession){
+    public Game startGame(GlobalContext globalContext, GameCache gameCache){
         Queue<UserContext> waitQueue = globalContext.waitingQueue;
         if(waitQueue.size() < 4) return null;
 
         // create new thread to process game
         Thread gameThread = new Thread(() -> {
             List<UserContext> players = new ArrayList<>();
-            GameContext game = new GameContext(players);
-            int gameID = game.gameID;
-            gameSession.addGame(game);
+            Game game = new Game(players);
+            int gameID = game.getGameID();
+            gameCache.addGame(game);
             players.stream().forEach(player -> player.joinGame(gameID));
-            String gameString = game.randomlyGenerateString();
-            players.stream().forEach(player -> notifyGameStartCountdown(gameString));
         });
 
         return null; // return game to add to gameSessions in driver

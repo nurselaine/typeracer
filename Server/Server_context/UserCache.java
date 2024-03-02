@@ -32,7 +32,7 @@ public class UserCache {
     // update game status to playing
     public void joinGame(Game game){
         List<UserContext> players = game.getPlayers();
-        players.forEach(player -> player.joinGame(game.gameID));
+        players.forEach(player -> player.joinGame(game.getGameID()));
     }
 
     // update game status to not playing

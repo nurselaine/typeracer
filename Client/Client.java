@@ -72,7 +72,7 @@ public class Client {
                 if(menuOption == 1){
                     userAPI.newUser();
                 } else if(menuOption == 2){
-                    isLoggedIn = userAPI.login();
+                    state = userAPI.login() ? ClientState.LOGGED_IN : ClientState.NOT_LOGGED_IN;
                 } else if(menuOption == 3){
                     serverWriter.println("Disconnect");
                     soc.close();

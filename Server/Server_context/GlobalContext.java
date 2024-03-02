@@ -78,10 +78,11 @@ public class GlobalContext {
             gameCache.addGame(game); 
             
             players.stream().forEach(player -> player.joinGame(game.getGameID()));
-            String gameString = game.randomlyGenerateString();
-
             
+            game.startGame();
         });
+
+        gameThread.start();
     }
 
     public void setHighestScore(double score) {
