@@ -15,6 +15,8 @@ public interface ServerInterface {
 
     void ReceiveMessage();
 
+    void removeFromWaitListRPC();
+
     void LoginRPC() throws IOException;
 
     void DisconnectRPC();

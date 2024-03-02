@@ -47,8 +47,8 @@ public class ClientHandler implements ServerInterface {
         this.gameAPI = new GameRPC(out, in);
     }
 
-    @Override
-    public void ReceiveMessage() {
+   // @Override
+    /*public void ReceiveMessage() {
         try {
             String clientMessage;
             while ((clientMessage = in.readLine()) != null || socket.isConnected()) {
@@ -94,7 +94,84 @@ public class ClientHandler implements ServerInterface {
         } finally {
             DisconnectRPC();
         }
+    }*/
+    @Override
+    public void ReceiveMessage() {
+        try {
+            String clientMessage;
+            while ((clientMessage = in.readLine()) != null || socket.isConnected()) {
+                System.out.println("Client message: " + clientMessage);
+                switch (clientMessage) {
+                    case "Login":
+                        System.out.println("Client message: Login command");
+                        LoginRPC();
+                        break;
+                    case "Valid Username":
+                        System.out.println("Validating username RPC");
+                        ValidateUsernameRPC();
+                        break;
+                    case "New User":
+                        System.out.println("Routing to new user RPC");
+                        CreateUserRPC();
+                        break;
+                    case "Logout":
+                        LogoutRPC();
+                        break;
+                    case "Waiting":
+                        System.out.println("Join wait queue");
+                        JoinWaitingQueueRPC();
+                        break;
+                    case "Wait Time":
+                        System.out.println("Check wait queue time");
+                        CheckWaitQueueRPC();
+                        break;
+                    case "Leave wait queue":
+                        System.out.println("Leave wait queue");
+                        removeFromWaitListRPC();
+                        break;
+                    case "Game End":
+                        // Handle game end scenario
+                        break;
+                    case "Disconnect":
+                        DisconnectRPC();
+                        break;
+                    default:
+                        System.out.println("Unrecognized client message");
+                        out.println("Error: Unrecognized command. Please re-type one of the available input options.");
+                        // No need to disconnect, let the client correct the input
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Client socket lost connection.");
+            this.clientStatus = false;
+        } finally {
+            if (!this.clientStatus) {
+                DisconnectRPC();
+            }
+        }
     }
+
+    @Override
+    public void removeFromWaitListRPC() {
+        // Check if the user is valid and has been added to the waiting queue
+        if (this.user == null) {
+            System.out.println("Client attempted to leave wait list without proper user validation...");
+            out.println("Error: User not validated or not in wait queue.");
+            return;
+        }
+
+        // Attempt to remove the user from the waiting queue
+        boolean userLeftSuccessfully = gameAPI.removeFromWaitQueue(globalContext, user);
+        if (userLeftSuccessfully) {
+            System.out.println("Client successfully removed from waitlist");
+            out.println("Successfully removed from wait queue.");
+        } else {
+            System.out.println("Client unable to be removed from waitlist");
+            out.println("Error: Unable to remove from wait queue.");
+        }
+    }
+
+
 
     @Override
     public boolean ConnectRPC() {

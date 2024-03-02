@@ -100,12 +100,13 @@ public class GameRPC {
 
     }
 
-    public void removeFromWaitQueue(GlobalContext globalContext, UserContext user){
+    public boolean removeFromWaitQueue(GlobalContext globalContext, UserContext user){
         user.updateStatus(UserContext.STATUS.LOGGEDIN);
         Queue<UserContext> waitQueue = globalContext.waitingQueue;
         if(waitQueue.contains(user)){
             waitQueue.remove(user);
         }
+        return false;
     }
 
     // game score
