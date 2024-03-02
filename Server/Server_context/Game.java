@@ -26,14 +26,14 @@ public class Game {
     private static AtomicInteger atomicInteger; // Fix: Add identifier and assign a value
 
     // players in game
-    private List<UserContext> players;
+    private List<User> players;
 
     /**
      * After timeout period of no interaction - kick player out of game session
      * and put player back into LOGIN status
      * */
     // players inactive/disconnected players
-    private List<UserContext> ghostPlayers;
+    private List<User> ghostPlayers;
 
     // game start time
     private long startTime;
@@ -54,7 +54,7 @@ public class Game {
     private String originalString;
 
     // Constructor
-    public Game(List<UserContext> players){
+    public Game(List<User> players){
         this.gameID++;
         this.players = players;
         this.startTime = System.currentTimeMillis();
@@ -78,12 +78,12 @@ public class Game {
 
 
     // Return list of players in game
-    public List<UserContext> getPlayers(){
+    public List<User> getPlayers(){
         return players;
     }
 
     // Add players that have been disconnected from game/server
-    public void stopWatchingPlayer(UserContext user){
+    public void stopWatchingPlayer(User user){
 
     }
 

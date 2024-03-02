@@ -12,16 +12,16 @@ public class UserCache {
      * then read the file and add back all clients into dictionary
      * */
 
-    private List<UserContext> userList;
+    private List<User> userList;
 
     public UserCache(){
         userList = new ArrayList<>();
     }
 
-    public List<UserContext> getAllUsers(){
+    public List<User> getAllUsers(){
         return userList;
     }
-    public void addNewUser(UserContext user){
+    public void addNewUser(User user){
         userList.add(user);
     }
 
@@ -31,7 +31,7 @@ public class UserCache {
      * */
     // update game status to playing
     public void joinGame(Game game){
-        List<UserContext> players = game.getPlayers();
+        List<User> players = game.getPlayers();
         players.forEach(player -> player.joinGame(game.getGameID()));
     }
 
@@ -43,18 +43,18 @@ public class UserCache {
 //        });
     }
 
-    public void joinWaitQueue(UserContext user){
+    public void joinWaitQueue(User user){
         user.joinWaitQueue();
     }
 
-    public UserContext getUser(String username, SocketAddress socketId){
-        UserContext user = userList.stream().filter(player -> player.getUsername().equals(username))
+    public User getUser(String username, SocketAddress socketId){
+        User user = userList.stream().filter(player -> player.getUsername().equals(username))
                 .findFirst().orElse(null);
         return user;
     }
 
-    public UserContext getUser(String username){
-        UserContext user = userList.stream().filter(player -> player.getUsername().equals(username))
+    public User getUser(String username){
+        User user = userList.stream().filter(player -> player.getUsername().equals(username))
                 .findFirst().orElse(null);
         return user;
     }
@@ -65,20 +65,20 @@ public class UserCache {
     }
 
     public boolean validatePassword(String username, String password){
-        UserContext user = userList.stream().filter(player -> player.getUsername().equals(username))
+        User user = userList.stream().filter(player -> player.getUsername().equals(username))
                 .findFirst().orElse(null);
         if(user == null) return false;
         return user.getPassword().equals(password);
     }
 
     public boolean authenticateUser(String username, String password){
-        UserContext user = userList.stream().filter(player -> player.getUsername().equals(username))
+        User user = userList.stream().filter(player -> player.getUsername().equals(username))
                 .findFirst().orElse(null);
         if(user == null) return false;
         return user.getPassword().equals(password);
     }
 
-    public UserContext getLastAdded(){
+    public User getLastAdded(){
         return userList.get(userList.size() - 1);
     }
 }

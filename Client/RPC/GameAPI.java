@@ -28,6 +28,9 @@ public class GameAPI{
         // parse response from server
         String res = this.clientReader.readLine(); 
 
+        // update client UI
+        this.state = ClientState.WAITING;
+
         // Start a new thread to handle the response
         Thread responseThread = new Thread(() -> {
             try {

@@ -7,6 +7,7 @@ public class GameCache {
 
     public List<Game> gameList;
 
+
     public GameCache(){
         gameList = new ArrayList<>();
     }

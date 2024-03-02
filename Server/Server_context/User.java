@@ -2,7 +2,7 @@ package Server.Server_context;
 
 import java.net.SocketAddress;
 
-public class UserContext {
+public class User {
 
     // unique user identifier
     private String username;
@@ -40,7 +40,7 @@ public class UserContext {
     private int gameID = -1;
 
     //
-    public UserContext(String socketID, String username, String password){
+    public User(String socketID, String username, String password){
         this.socketID = socketID;
         this.username = username;
         this.password = password;
@@ -93,4 +93,23 @@ public class UserContext {
     }
 
     public void updateStatus(STATUS status) { this.userStatus = status; }
+
+    /**
+     * Override equals method to compare user objects
+     */
+    @Override
+    public boolean equals(Object obj){
+        if(obj == this) return true;
+        if(!(obj instanceof User)) return false;
+        User user = (User) obj;
+        return username == user.username 
+            && password == user.password 
+            && socketID == user.socketID;
+    }     
+
+    public void setSentinelValue(){
+        this.username = "invalid";
+        this.password = "invalid";
+        this.socketID = "invalid";
+    }
 }

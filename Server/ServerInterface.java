@@ -2,7 +2,7 @@ package Server;
 
 import java.net.Socket;
 
-import Server.Server_context.UserContext;
+import Server.Server_context.User;
 
 import java.io.*;
 
@@ -11,7 +11,7 @@ public interface ServerInterface {
 
     boolean ConnectRPC();
 
-    UserContext CreateUserRPC() throws IOException;
+    void CreateUserRPC() throws IOException;
 
     void ReceiveMessage();
 

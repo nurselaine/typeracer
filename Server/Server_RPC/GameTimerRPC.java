@@ -1,13 +1,13 @@
 package Server.Server_RPC;
 
-import Server.Server_context.UserContext;
+import Server.Server_context.User;
 
 import java.time.Duration;
 import java.time.Instant;
 
 public class GameTimerRPC {
 
-    UserContext user;
+    User user;
 
     Instant startTime;
 
@@ -24,7 +24,7 @@ public class GameTimerRPC {
      *
      * ?? Game context will use this new class to send users result of game
      * */
-    public GameTimerRPC(UserContext user){
+    public GameTimerRPC(User user){
         this.user = user;
         this.startTime = Instant.now();
         this.totalTime = timeout; // this will be default for users that do not finish typing
@@ -38,7 +38,7 @@ public class GameTimerRPC {
         return cumulativeTime < timeout;
     }
 
-    public void gameEnd(UserContext user){
+    public void gameEnd(User user){
         this.endTime = Instant.now();
         this.totalTime = calculatePlayerTime();
         user.endGame(totalTime);

@@ -11,7 +11,7 @@ import java.util.concurrent.Semaphore;
 import Server.Server_context.GameCache;
 import Server.Server_context.GlobalContext;
 import Server.Server_context.UserCache;
-import Server.Server_context.UserContext;
+import Server.Server_context.User;
 
 public class Server {
 
@@ -69,8 +69,7 @@ public class Server {
 
             Thread clientThread = new Thread(() -> {
                 try {
-                    ClientHandler clientHandler = new ClientHandler(clientSocket, globalContext,
-                            globalContextSem, userCacheSem);
+                    ClientHandler clientHandler = new ClientHandler(clientSocket, globalContext);
                     while (clientHandler.clientStatus) {
                         clientHandler.ReceiveMessage();
                     }
@@ -110,7 +109,11 @@ public class Server {
                     String host = user_credentials[0].substring(0, colon);
 
                     // create new user context and add to user cache
-                    globalContext.addUser(new UserContext(host, user_credentials[1], user_credentials[2]));
+                    try {
+                        globalContext.addUser(new User(host, user_credentials[1], user_credentials[2]));
+                    } catch (Exception e) {
+                        System.out.println("Error adding user to user cache");
+                    }
                 }
                 fileReader.close();
             } catch (IOException e) {

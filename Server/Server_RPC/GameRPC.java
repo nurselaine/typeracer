@@ -1,7 +1,7 @@
 package Server.Server_RPC;
 
 import Server.Server_context.GlobalContext;
-import Server.Server_context.UserContext;
+import Server.Server_context.User;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -23,7 +23,7 @@ public class GameRPC {
     }
 
     public int checkWaitTime(GlobalContext globalContext){
-        Queue<UserContext> waitQueue = globalContext.waitingQueue;
+        Queue<User> waitQueue = globalContext.waitingQueue;
         int size = waitQueue.size();
         int playersNeeded = 0;
         if (size >= 4) {
@@ -36,12 +36,12 @@ public class GameRPC {
 
     // start game
     public Game startGame(GlobalContext globalContext, GameCache gameCache){
-        Queue<UserContext> waitQueue = globalContext.waitingQueue;
+        Queue<User> waitQueue = globalContext.waitingQueue;
         if(waitQueue.size() < 4) return null;
 
         // create new thread to process game
         Thread gameThread = new Thread(() -> {
-            List<UserContext> players = new ArrayList<>();
+            List<User> players = new ArrayList<>();
             Game game = new Game(players);
             int gameID = game.getGameID();
             gameCache.addGame(game);
@@ -73,9 +73,9 @@ public class GameRPC {
 
     }
 
-    public void removeFromWaitQueue(GlobalContext globalContext, UserContext user){
-        user.updateStatus(UserContext.STATUS.LOGGEDIN);
-        Queue<UserContext> waitQueue = globalContext.waitingQueue;
+    public void removeFromWaitQueue(GlobalContext globalContext, User user){
+        user.updateStatus(User.STATUS.LOGGEDIN);
+        Queue<User> waitQueue = globalContext.waitingQueue;
         if(waitQueue.contains(user)){
             waitQueue.remove(user);
         }
