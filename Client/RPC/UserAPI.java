@@ -84,6 +84,7 @@ public class UserAPI {
     public int validateUsername() {
         // TODO: check if username has any spaces, has non-numeric or alphabet chars and is unique
         try {
+            // send username to server
             System.out.println("> validating username...");
             serverWriter.println("Valid Username");
             serverWriter.println(this.username);

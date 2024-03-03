@@ -65,8 +65,6 @@ public class Server {
         while (ss.isAccepting()) {
 
             Socket clientSocket = ss.acceptConnection();
-
-
             Thread clientThread = new Thread(() -> {
                 try {
                     ClientHandler clientHandler = new ClientHandler(clientSocket, globalContext);
@@ -120,7 +118,6 @@ public class Server {
                 System.out.println("Unable to initialize user database");
                 e.printStackTrace();
             }
-
             
         });
         reloadClient.start();

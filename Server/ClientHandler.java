@@ -9,6 +9,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 import java.util.concurrent.Semaphore;
 
+import Client.Client;
 import Server.Server_RPC.GameRPC;
 //import Server.Server_RPC.LoginRPC;
 import Server.Server_context.GlobalContext;
@@ -67,6 +68,10 @@ public class ClientHandler implements ServerInterface {
                         joinWaitQueueRPC();
                         break;
 
+                    case "Leave Wait Queue":
+                        removeFromWaitlistRPC();
+                        break;
+
                     case "Logout":
                         LogoutRPC();
                         break;
@@ -91,7 +96,15 @@ public class ClientHandler implements ServerInterface {
     public void joinWaitQueueRPC() {
         try {
             System.out.println("Join waiting queue RPC");
-            globalContext.joinWaitQueue(user.getUsername());
+            boolean isAdded = globalContext.joinWaitQueue(user);
+            if(isAdded){
+                System.out.println("User added to wait queue");
+                out.println(1);
+            } else {
+                System.out.println("User already in wait queue");
+                out.println(0);
+            }
+
         } catch (Exception e) {
             System.out.println("ERROR: joining waiting queue RPC " + e.getMessage());
         }
@@ -118,7 +131,7 @@ public class ClientHandler implements ServerInterface {
         System.out.println("client login password: " + password);
 
         boolean isUser = false;
-        
+
         try {
             isUser = globalContext.authenticateUser(userName, password);
         } catch (InterruptedException e) {
@@ -215,7 +228,19 @@ public class ClientHandler implements ServerInterface {
 
     private void removeFromWaitlistRPC(){
         // remove client from waitlist
-        gameAPI.removeFromWaitQueue(globalContext, user);
+        try {
+            boolean isRemoved = globalContext.removeFromWaitlist(user);
+            if(isRemoved){
+                System.out.println("User removed from wait queue");
+                this.out.println(1);
+            } else {
+                System.out.println("User not in wait queue");
+                this.out.println(0);
+            }
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         // TODO: send client feedback ?? maybe not
     }
 

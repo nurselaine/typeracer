@@ -20,7 +20,7 @@ public class Menu {
     }
 
 
-    public static void run(ClientState state){
+    public void run(ClientState state){
         switch (state) {
             case NOT_LOGGED_IN:
                 nonValidatedUserMenu();
@@ -34,7 +34,6 @@ public class Menu {
             default:
             break;
         }
-
     }
 
     public static void nonValidatedUserMenu(){
@@ -70,31 +69,36 @@ public class Menu {
     }
 
 
-    public int getMenuInput(){
+    public int getMenuInput(ClientState state){
         System.out.println("Get menu option method: ");
 
         // get user input
         System.out.print("> ");
-        String menuInput = this.input.nextLine();
+        int menuInput = Integer.parseInt(this.input.nextLine());
 
         System.out.println("");
 
         // continue to get menu option from user until valid option is entered
-        while(Integer.parseInt(menuInput) > getNumOfMenuOptions()){
-            // for now we will assume input will be a number value
-            System.out.println("\n> Please enter options between 1 to " + getNumOfMenuOptions());
+        while(menuInput < 1 || menuInput > getNumOfMenuOptions(state)){
+
+            // draw the menu again
+            run(state);
+
+            // prompt user to enter a valid option
+            System.out.println("\n> Please enter options between 1 to " + getNumOfMenuOptions(state));
+
             System.out.print("> ");
-            menuInput = this.input.nextLine();
+            menuInput = Integer.parseInt(this.input.nextLine());
             System.out.println("");
         }
 
-        return Integer.parseInt(menuInput);
+        return (menuInput);
     }
 
     // helper fucntion to get the number of menu
     // options based on the client state
     // is a helper function used in getMenuInput()
-    private int getNumOfMenuOptions(){
+    private int getNumOfMenuOptions(ClientState state){
         switch (state) {
             case NOT_LOGGED_IN:
                 return numOptionsNotLoggedIn;

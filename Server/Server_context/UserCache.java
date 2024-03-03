@@ -11,7 +11,7 @@ public class UserCache {
      * for user credentials and every time server starts up
      * then read the file and add back all clients into dictionary
      * */
-
+    
     private List<User> userList;
 
     public UserCache(){
@@ -21,30 +21,9 @@ public class UserCache {
     public List<User> getAllUsers(){
         return userList;
     }
+
     public void addNewUser(User user){
         userList.add(user);
-    }
-
-    /**
-     * Create a new class to handle game funcationaly and user state updates when
-     * joining/playing/leaving game to reduce coupling between classes
-     * */
-    // update game status to playing
-    public void joinGame(Game game){
-        List<User> players = game.getPlayers();
-        players.forEach(player -> player.joinGame(game.getGameID()));
-    }
-
-    // update game status to not playing
-    public void endGame(Game game){
-//        List<UserContext> players = game.getPlayers();
-//        players.forEach(player -> {
-//            player.endGame();
-//        });
-    }
-
-    public void joinWaitQueue(User user){
-        user.joinWaitQueue();
     }
 
     public User getUser(String username, SocketAddress socketId){

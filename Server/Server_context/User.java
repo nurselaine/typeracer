@@ -60,10 +60,6 @@ public class User {
         this.userStatus = STATUS.LOGGEDIN;
     }
 
-    public void joinWaitQueue(){
-        this.userStatus = STATUS.WAITING;
-    }
-
     public void disconnectUser(){
         this.userStatus = STATUS.DISCONNECTED;
     }

@@ -4,6 +4,8 @@ import Client.RPC.GameAPI;
 import Client.RPC.UserAPI;
 import Client.ui.Menu;
 
+import Server.Server_context.User;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.Socket;
@@ -30,6 +32,7 @@ public class Client {
     UserAPI userAPI;
     GameAPI gameAPI;
     String connected;
+    User user;
 
     public Client(){
         this.state = ClientState.NOT_LOGGED_IN;
@@ -51,8 +54,9 @@ public class Client {
     // main client loop to handle user input and draw menus
     public void run()throws Exception{
         while(soc.isConnected()){
-            Menu.run(state);
-            int menuOption = menu.getMenuInput();
+            //mapUserStateToClienState();
+            menu.run(state);
+            int menuOption = menu.getMenuInput(state);
             submitRPC(menuOption);
         }
     }
@@ -85,12 +89,15 @@ public class Client {
                 break;
             case LOGGED_IN:
                 if (menuOption == 1) {
-                    gameAPI.joinWaitQueue();
+                    if(gameAPI.joinWaitQueue()){
+                        setClientState(state.WAITING);
+                    }
                 } else if(menuOption == 2){
                     gameAPI.checkWaitTime();
                 } else if(menuOption == 3){
                     userAPI.logout();
-                    isLoggedIn = false;
+                    state = ClientState.NOT_LOGGED_IN;
+                    
                 } else if(menuOption == 4){
                     serverWriter.println("Disconnect");
                     soc.close();
@@ -102,6 +109,23 @@ public class Client {
                 // handle validated user menu
                 break;
             case WAITING:
+                //leave wait queue
+                if(menuOption == 1){
+                    if(gameAPI.leaveWaitQueue())
+                        setClientState(state.LOGGED_IN);
+                } else if(menuOption == 2){
+                    gameAPI.checkWaitTime();
+                } else if(menuOption == 3){
+                    userAPI.logout();
+                    state = ClientState.NOT_LOGGED_IN;
+                } else if(menuOption == 4){
+                    serverWriter.println("Disconnect");
+                    soc.close();
+                    System.out.println("Program ending. See you next time!");
+                    return; // end program
+                } else {
+                    System.out.println("> Invalid menu option. Please try again.");
+                }
                 // handle waiting user menu
                 break;
             case PLAYING:
@@ -113,8 +137,37 @@ public class Client {
         }
     }
 
+    public ClientState getStatus(){
+        return state;
+    }
+
     public static void main(String[] args) throws Exception{
         Client client = new Client();
         client.run();
+    }
+
+    private void mapUserStateToClienState(){
+        if(user == null){
+            state = ClientState.NOT_LOGGED_IN;
+            return;
+        }
+        switch(user.getStatus()){
+            case LOGGEDIN:
+                state = ClientState.LOGGED_IN;
+                break;
+            case WAITING:
+                state = ClientState.WAITING;
+                break;
+            case PLAYING:
+                state = ClientState.PLAYING;
+                break;
+            default:
+                state = ClientState.NOT_LOGGED_IN;
+                break;
+        }
+    }
+
+    public void setClientState(ClientState state){
+        this.state = state;
     }
 }
