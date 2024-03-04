@@ -89,6 +89,7 @@ public class UserCache {
         User user = userList.stream().filter(player -> player.getUsername().equals(username))
                 .findFirst().orElse(null);
         user.updateStatus(STATUS.DISCONNECTED);
+        user.setClinetHandler(null);
     }
 
     public boolean canEnterWaitList(User user){

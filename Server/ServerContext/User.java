@@ -20,6 +20,9 @@ public class User {
 
     private STATUS userStatus;
 
+    // 
+    private ClientHandler clientHandler;
+
     /**
      * Put enum in its own class so it can be available to all classes for status updates
      * */
@@ -44,6 +47,7 @@ public class User {
         this.username = "invalid";
         this.password = "invalid";
         this.socketID = "invalid";
+        this.clientHandler = null;
         this.userStatus = STATUS.DISCONNECTED;
     }
 
@@ -72,6 +76,10 @@ public class User {
         this.userStatus = status;
     }
 
+    public void setClinetHandler(ClientHandler clientHandler){
+        this.clientHandler = clientHandler;
+    }   
+
     /**
      * Override equals method to compare user objects
      */
@@ -88,5 +96,6 @@ public class User {
         this.username = "invalid";
         this.password = "invalid";
         this.socketID = "invalid";
+        this.clientHandler = null;
     }
 }

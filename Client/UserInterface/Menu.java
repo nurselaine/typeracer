@@ -8,7 +8,7 @@ public class Menu {
 
     int numOptionsNotLoggedIn = 3;
     int numOptionsLoggedIn = 4;
-    int numOptionsWaiting = 4;
+    int numOptionsWaiting = 5;
     ClientState state; 
 
     private Scanner input;
@@ -63,10 +63,11 @@ public class Menu {
         System.out.println("**********************\n" +
                         "*      GAME MENU     *\n" +
                         "**********************\n" +
-                        "* 1. LEVE WAIT LIST  *\n" +
-                        "* 2. CHECK WAIT TIME *\n" +
-                        "* 3. LOGOUT          *\n" +
-                        "* 4. QUIT            *\n" +
+                        "* 1. LEAVE WAIT LIST *\n" +
+                        "* 2. ENTER GAME      *\n" +
+                        "* 3. CHECK WAIT TIME *\n" +
+                        "* 4. LOGOUT          *\n" +
+                        "* 5. QUIT            *\n" +
                         "**********************\n"  );
     }
 

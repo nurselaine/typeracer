@@ -112,6 +112,7 @@ public class GlobalContext {
             clientHandler.sendMessage("3");
             User user = userCache.getUser(userName);
             clientHandler.setUser(user);
+            user.setClinetHandler(clientHandler);
             return user;
         }
 
@@ -155,14 +156,40 @@ public class GlobalContext {
 
         // add user to waiting queue and send message to client that user is in wait
         // list
+        
         waitingQueue.add(user);
         user.updateStatus(STATUS.WAITING);
         clientHandler.sendMessage("1");
     }
 
+    public void addToWaitingQueue(User user) {
+        waitingQueue.add(user);
+        if(waitingQueue.size() >= 4){
+
+        }
+    }
+
+    
+    // public void startNewGame() {
+    //     Game game = new Game();
+    //     gameCache.addGame(game);
+    
+    //     User[] players = new User[4];
+
+    //     for(int i = 0; i < 4; i++){
+    //         players[i] = (User) waitingQueue.poll();
+    //     }
+
+    //     game.setPlayers(players);
+
+        
+    // }
 
     public void leaveWaitList(ClientHandler clientHandler) {
         System.out.println("Leaving user from wait list");
+
+        // send 0 to tell the wating thread in client to stop
+        clientHandler.sendMessage("0");
         String username = clientHandler.getUsername();
 
         User user = userCache.getUser(username);

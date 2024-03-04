@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.ObjectInputFilter.Status;
 import java.util.Scanner;
+import java.util.concurrent.CompletableFuture;
 
 public class API {
     private Scanner input;
@@ -160,6 +161,7 @@ public class API {
 
         if (response.equals("1")) {
             System.out.println("User entered into wait list");
+
             return true;
         }
 
@@ -184,5 +186,30 @@ public class API {
 
         System.out.println("User is not in wait list");
         return false;
+    }
+
+
+    /**
+     * wait for game to start on server
+     * @return
+     */
+    public CompletableFuture<Void> waitForGameStart() {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                String response = receiveMessage();
+                if (response.equals("GameStart")) {
+
+                    System.out.println("Game is reeady to start");
+                }
+
+                else{
+                    System.out.println("left wait list");
+                }
+
+            } catch (Exception e) {
+                // Handle exception
+            }
+            return null;
+        });
     }
 }
