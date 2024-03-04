@@ -1,5 +1,0 @@
-/127.0.0.1:42496 asdf asdf
-/127.0.0.1:42496 erqwert wertwert
-/127.0.0.1:63030 Elaine Huynh
-/127.0.0.1:63272 Michael TOrkamen
-/127.0.0.1:53592 Elaine2 Huynh

@@ -1,8 +1,6 @@
-package Server.Server_context;
+package Server.ServerContext;
 
-import java.net.SocketAddress;
-
-public class UserContext {
+public class User {
 
     // unique user identifier
     private String username;
@@ -35,37 +33,23 @@ public class UserContext {
         DISCONNECTED // no longer connected to server
     }
 
-
-    // Game status is an ID that is assigned when user enters a game
-    private int gameID = -1;
-
-    //
-    public UserContext(String socketID, String username, String password){
+    public User(String socketID, String username, String password){
         this.socketID = socketID;
         this.username = username;
         this.password = password;
-        this.userStatus = STATUS.CONNECTED;
+        this.userStatus = STATUS.DISCONNECTED;
     }
 
-    public void joinGame(int gameID){
-        this.gameID = gameID;
-        this.userStatus = STATUS.PLAYING;
-        this.gameCount++;
+    public User(){
+        this.username = "invalid";
+        this.password = "invalid";
+        this.socketID = "invalid";
+        this.userStatus = STATUS.DISCONNECTED;
     }
-
-    public void login(){ this.userStatus = STATUS.LOGGEDIN; }
 
     public void endGame(long score){
         this.lastScore = score;
         this.userStatus = STATUS.LOGGEDIN;
-    }
-
-    public void joinWaitQueue(){
-        this.userStatus = STATUS.WAITING;
-    }
-
-    public void disconnectUser(){
-        this.userStatus = STATUS.DISCONNECTED;
     }
 
     public void updateTotalWin(){
@@ -84,13 +68,25 @@ public class UserContext {
         return this.userStatus;
     }
 
-    public int getGameCount(){
-        return this.gameCount;
+    public void updateStatus(STATUS status) {
+        this.userStatus = status;
     }
 
-    public int getTotalWins(){
-        return this.totalWins;
-    }
+    /**
+     * Override equals method to compare user objects
+     */
+    @Override
+    public boolean equals(Object obj){
+        if(obj == this) return true;
+        if(!(obj instanceof User)) return false;
+        User user = (User) obj;
+        return username == user.username 
+            && password == user.password; 
+    }     
 
-    public void updateStatus(STATUS status) { this.userStatus = status; }
+    public void setSentinelValue(){
+        this.username = "invalid";
+        this.password = "invalid";
+        this.socketID = "invalid";
+    }
 }
