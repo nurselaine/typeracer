@@ -71,6 +71,7 @@ public class Client {
      * @throws Exception 
      */
     private void submitRPC(int menuOption) throws Exception{
+        System.out.println(menuOption);
         switch(state){
             case NOT_LOGGED_IN:
                 switch(menuOption){
@@ -80,6 +81,8 @@ public class Client {
 
                     case 2:
                         //submit login request to server and update client state if successful
+                        System.out.println("Calling login handler");
+                        
                         this.state = userAPI.login() ? 
                         ClientState.LOGGED_IN : ClientState.NOT_LOGGED_IN;
                         break;
@@ -90,7 +93,7 @@ public class Client {
                         break;
 
                     default:
-                        System.out.println("Invalid command");
+                        System.out.println("Invalid command\n");
                         break;
                 }
                 break;
@@ -114,7 +117,7 @@ public class Client {
                         break;
 
                     default:
-                        System.out.println("Invalid command");
+                        System.out.println("Invalid command\n");
                         break;
                 }
                 break;
@@ -135,7 +138,7 @@ public class Client {
                     case 4:
                         break;
                     default:
-                        System.out.println("Invalid command");
+                        System.out.println("Invalid command\n");
                         break;
                 }
                 break;
