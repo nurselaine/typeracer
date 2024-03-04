@@ -92,7 +92,7 @@ public class Menu {
         if(menuInputValidation.length() != 1 && !menuInputValidation.matches("[0-9]+")){
             return -1;
         }
-        int menuInput = Integer.parseInt(this.input.nextLine());
+        int menuInput = Integer.parseInt(menuInputValidation);
 
         System.out.println("");
 
@@ -112,6 +112,7 @@ public class Menu {
 
         return (menuInput);
     }
+    // hello??
 
     // helper fucntion to get the number of menu
     // options based on the client state
@@ -131,5 +132,3 @@ public class Menu {
 }
 
 // TODO: Disconnect the client properly - ensure to set clienthandler to null & see logout user for example
-// TODO: Fix client side improper input bug
-// 
