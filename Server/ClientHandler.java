@@ -240,8 +240,11 @@ public class ClientHandler implements ServerInterface {
     }
 
     public void StartGameRPC() {
+        System.out.println("START GAME RPC");
         this.out.println("Start Game"); // testing client thread
 
+        // send string to play game
+        this.out.println("I love to code");
 //        try {
 //            // check if at least 4 players are in wait queue
 //            if(globalContext.waitingQueue.size() < 2) {

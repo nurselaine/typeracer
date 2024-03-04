@@ -51,12 +51,12 @@ public class GameRPC {
     public int checkWaitTime(GlobalContext globalContext){
         int size = waitQueue.size();
         int playersNeeded = 0;
-        if (size == 4) {
+        if (size == 2) {
             return 0;
-        } else if (size > 4){
-            size = size % 4;
+        } else if (size > 2){
+            size = size % 2;
         }
-        playersNeeded = 4 - size;
+        playersNeeded = 2 - size;
 
         return playersNeeded;
     }

@@ -8,6 +8,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.io.*;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -85,7 +87,6 @@ public class Client {
 
                             // open client to check # of players left
                             int playersLeft = gameAPI.checkWaitingTime();
-                            System.out.println("Player's left: " + playersLeft);
                             while(playersLeft > 0){
                                 int updatedPlayers = gameAPI.checkWaitingTime();
                                 if(playersLeft != updatedPlayers){
@@ -98,6 +99,26 @@ public class Client {
                             System.out.println("Game is Starting now");
                             serverWriter.println("Start Game");
                             serverReader.readLine();
+                            String gameStr = serverReader.readLine();
+                            System.out.println("> Start typing!");
+                            System.out.println("> " + gameStr);
+
+                            Instant timeStart = Instant.now();
+                            Instant timeEnd = Instant.now();
+
+                            String userStr = "";
+                            while(!userStr.equals(gameStr)){
+                                System.out.println("Press ENTER when done typing: ");
+                                System.out.print("> ");
+                                userStr = input.nextLine();
+                                if(userStr.equals(gameStr)){
+                                    timeEnd = Instant.now();
+                                } else {
+                                    System.out.println("> Typo found! Please try again!! Times running out :(");
+                                }
+                            }
+
+                            System.out.println("Total time " + Duration.between(timeStart, timeEnd).toString());
                             break;
 //                        case 2: // check wait list time
 //                            gameAPI.checkWaitingTime();
