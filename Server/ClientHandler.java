@@ -29,6 +29,8 @@ public class ClientHandler implements ServerInterface {
     private GameRPC gameAPI;
     private UserContext user;
 
+    private List<UserContext> gamePlayer;
+
     //path to database
     private final Path path =  Paths.get("Server", "utils", "user_database.txt");
 
@@ -79,12 +81,11 @@ public class ClientHandler implements ServerInterface {
                         System.out.println("Check wait queue time");
                         CheckWaitQueueRPC();
                         break;
+                    case "Start Game":
+                        StartGameRPC();
                     case "Leave wait queue":
                         System.out.println("Leave wait queue");
                         removeFromWaitListRPC();
-                        break;
-                    case "Start Game":
-                        StartGameRPC();
                         break;
                     case "Game End":
                         break;
@@ -125,7 +126,10 @@ public class ClientHandler implements ServerInterface {
         System.out.println("client login password: " + password);
 
         // check whether user is in the userCache
-        this.user = userCache.getUser(userName, socket.getRemoteSocketAddress());
+        UserContext possibleUser = userCache.getUser(userName, socket.getRemoteSocketAddress());
+        if(possibleUser != null){
+            this.user = possibleUser;
+        }
         System.out.println("Validating user credentials");
         boolean isUser = false;
         if(user != null){
@@ -211,31 +215,22 @@ public class ClientHandler implements ServerInterface {
             int playersInQueue = gameAPI.checkWaitTime(globalContext);
             System.out.println(this.user.getUsername() + "CHECK WAIT QUEUE SIZE: " + playersInQueue);
 
-            if(playersInQueue >= 2){ // 2 for testing purposes
+            if(playersInQueue >= 4){ // 2 for testing purposes
 
                 // create message queue to notify 4 clients from queue start
                 globalContext.waitQueueSem.acquire();
                 System.out.println("Sending message to all players in next game: ");
-                    UserContext[] messageQ = new UserContext[2]; // 2 for testing purposes
-                    for(int i = 0; i < messageQ.length; i++){
+                this.out.println(400);
+                    this.gamePlayer = new ArrayList<>();
+                    for(int i = 0; i < this.gamePlayer.size(); i++){
 
                         // remove each client from wait queue
-                        messageQ[i] =  globalContext.waitingQueue.remove();
-//                        System.out.println("Messaging player: " + messageQ[i].getUsername());
+                        this.gamePlayer.add(globalContext.waitingQueue.remove());
 
-                    }
-
-                    for(int i = 0; i < messageQ.length; i++){
-                        System.out.println("Players in messageQ: " + messageQ[i].getUsername());
-                        // message each client game start status
-                        messageQ[i].startGameCode(this.out);
+                        // send game code to all clients
+                        this.gamePlayer.get(i).startGameCode();
                     }
                 globalContext.waitQueueSem.release();
-
-//                // get players from wait queue
-//                StartGameRPC(); // TODO: refactor so startgame rpc does not need to be called within check wait queue rpc
-
-//                this.out.println("start");
             } else {
                 // sending client the # of players in the wait queue
                 this.out.println(playersInQueue);
@@ -285,18 +280,11 @@ public class ClientHandler implements ServerInterface {
         System.out.println("START GAME RPC");
 //        this.out.println("Start Game"); // testing client thread
 
-        // send string to play game
-//        this.out.println("I love to code");
+//         send string to play game
+        this.out.println("I love to code");
         try {
-            // remove 4 players from waiting queue and add to players array
-            List<UserContext> players = new ArrayList<>();
-            globalContext.waitQueueSem.acquire();
-            for(int i = 0; i < 2; i++){ // 2 for testing purposes
-                players.add(globalContext.waitingQueue.remove());
-            }
-            globalContext.waitQueueSem.release();
             // start game thread
-            gameAPI.startGame(players);
+            gameAPI.startGame(this.gamePlayer);
         } catch (InterruptedException e){
             System.err.println("ERROR: start game RPC error - " + e.getMessage());
             e.printStackTrace();

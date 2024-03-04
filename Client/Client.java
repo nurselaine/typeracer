@@ -37,7 +37,7 @@ public class Client {
             PrintWriter serverWriter = new PrintWriter(soc.getOutputStream(), true);
             UserRPC userAPI = new UserRPC(input, serverWriter, serverReader);
             GameRPC gameAPI = new GameRPC(serverWriter, serverReader, input);
-            System.out.println("HELLOOOOOO");
+
             String connected = serverReader.readLine(); // server is sending 1/0 from connectRPC when clienthanlder istnace is created on connection
             System.out.println("Connected to server: " + connected);
 
@@ -85,20 +85,12 @@ public class Client {
                     switch(Integer.parseInt(menuOption)){
                         case 1: // enter wait list & start game when enough players join wait list
                             gameAPI.joinWaitingQueue();
-
-                            // open client to check # of players in queue
-                            int players = gameAPI.checkWaitingTime(inGame);
-                            while(!inGame){
-                                int updatedPlayers = gameAPI.checkWaitingTime(inGame);
-
-                                if(players != updatedPlayers){
-                                    players = gameAPI.checkWaitingTime(inGame);
-                                }
-//                                TimeUnit.SECONDS.sleep(5);
+                            if(gameAPI.checkWaitingTime()){
+                                // add start game RPC
+                                gameAPI.startGame();
+                            } else {
+                                System.out.println("> Error starting game... Please rejoin wait list.");
                             }
-
-                            // add start game RPC
-                            gameAPI.startGame();
 
                             break;
                         case 2: // logout

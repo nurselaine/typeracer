@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 public class GameRPC {
 
@@ -50,36 +51,31 @@ public class GameRPC {
         }
     }
 
-    public int checkWaitingTime(boolean inGame){
+    public boolean checkWaitingTime(){
         try {
             serverWriter.println("Wait Time");
-            String res = serverReader.readLine();
-            while(Integer.parseInt(res) != 400){
-                res = serverReader.readLine();
+            String res;
+            String updateClient = "";
+            while((res = serverReader.readLine()) != null && Integer.parseInt(res) != 400){
+                if(!res.equals(updateClient)){
+                    System.out.println(res + " players in the wait queue.");
+                    updateClient = res;
+                }
+                serverWriter.println("Wait Time");
             }
-            System.out.println("Game starting!");
-//            if (Integer.parseInt(res) == 400) {
-//                inGame = true;
-//                return -1;
-//            } else {
-//                int playerNeeded = Integer.parseInt(res);
-//                System.out.println("Players in queue " + playerNeeded);
-//                return playerNeeded;
-////                System.out.println("> Awaiting " + playerNeeded + " other players to join queue...");
-////                System.out.println("> Unable to check queue time. Please try again.");
-//            }
+            return true;
         } catch (IOException e){
             System.out.println("ERROR: unable to join waiting queue " + e.getMessage());
             e.printStackTrace();
         }
-        return -1;
+        System.out.println("CHECK WAIT TIME OVER");
+        return false;
     }
 
     public void startGame() throws IOException {
-        System.out.println("Game is Starting now");
+        System.out.println("Game is Starting now...");
         this.serverWriter.println("Start Game");
         // get game string from server
-        this.serverReader.readLine();
         this.gameStr = serverReader.readLine();
 
         // prompt user to start typing

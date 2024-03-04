@@ -128,7 +128,7 @@ public class UserContext {
         return this.lastScore;
     }
 
-    public void startGameCode(PrintWriter out){
+    public void startGameCode(){
 
         this.out.println(400);
     }

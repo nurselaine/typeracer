@@ -37,9 +37,11 @@ public class GameRPC {
     public int joinWaitQueue(UserContext user){
         try{
             waitQueueSem.acquire();
+            System.out.println("ADDING USER TO WAIT QUEUE");
                 waitQueue.add(user);
             waitQueueSem.release();
             user.joinWaitQueue(); // update user status
+            System.out.println("WAIT QUEUE SIZE : " + waitQueue.size());
             return waitQueue.size();
         } catch (InterruptedException e){
             System.out.println("Client unable to join waiting queue " + e.getMessage());
@@ -80,14 +82,13 @@ public class GameRPC {
                         // create new game context with players
             GameContext game = new GameContext(players);
             System.out.println("Game created and started!");
-            System.out.println("Players: " + players.get(0) + " " + players.get(1));
-//            System.out.println("Players: " + players.get(0) + " " + players.get(1) + " " + players.get(2) + " " + players.get(3));
-            int gameID = game.gameID;
+            players.stream().forEach(player -> player.joinGame(game.gameID));
 //            gameSession.newGame(game);
 
-            // generate game string and send to client
+            // generate game string and send to each client
             String gameString = game.randomlyGenerateString();
-            this.out.println(gameString);
+            System.out.println("Send game string to each player...");
+            players.stream().forEach(player -> player.out.println(gameString));
             System.out.println("game string " + gameString);
 
             return players;
@@ -98,15 +99,15 @@ public class GameRPC {
                 future.cancel(true); // cancel task if its not done
                 System.err.println("Game execution timed out");
             }
-        }, game.TIMEOUT, TimeUnit.SECONDS);
+        }, 300, TimeUnit.SECONDS);
 
-        try {
-            // get future object of the players list
-            future.get();
-        } catch (InterruptedException | ExecutionException e) {
-            System.err.println("ERROR: Game unable to retrieve players updated scores " + e.getMessage());
-            e.printStackTrace();
-        }
+//        try {
+//            // get future object of the players list
+//            future.get();
+//        } catch (InterruptedException | ExecutionException e) {
+//            System.err.println("ERROR: Game unable to retrieve players updated scores " + e.getMessage());
+//            e.printStackTrace();
+//        }
 
         return null; // return game to add to gameSessions in driver
     }
