@@ -65,6 +65,7 @@ public class ClientHandler {
                 case "LeaveWaitList":
                     globalContext.leaveWaitList(this);
                     break;
+
                 default:
                     System.out.println("Invalid command");
                     break;

@@ -9,11 +9,11 @@ public class Menu {
     int numOptionsNotLoggedIn = 3;
     int numOptionsLoggedIn = 4;
     int numOptionsWaiting = 5;
-    ClientState state; 
+    ClientState state;
 
     private Scanner input;
 
-    public Menu(Scanner input, ClientState state){
+    public Menu(Scanner input, ClientState state) {
         this.input = input;
         this.state = state;
     }
@@ -38,61 +38,62 @@ public class Menu {
         }
     }
 
-    public static void nonValidatedUserMenu(){
+    public static void nonValidatedUserMenu() {
         System.out.println("**********************\n" +
-                           "*     LOGIN MENU     *\n" +
-                           "**********************\n" +
-                           "*     1. NEW USER    *\n" +
-                           "*     2. LOGIN       *\n" +
-                           "*     3. QUIT        *\n" +
-                           "**********************\n"  );
+                "*     LOGIN MENU     *\n" +
+                "**********************\n" +
+                "*     1. NEW USER    *\n" +
+                "*     2. LOGIN       *\n" +
+                "*     3. QUIT        *\n" +
+                "**********************\n");
     }
 
-    public static void validatedUserNotWaiting(){
+    public static void validatedUserNotWaiting() {
         System.out.println("**********************\n" +
-                        "*      GAME MENU     *\n" +
-                        "**********************\n" +
-                        "* 1. ENTER WAIT LIST *\n" +
-                        "* 2. CHECK WAIT TIME *\n" +
-                        "* 3. LOGOUT          *\n" +
-                        "* 4. QUIT            *\n" +
-                        "**********************\n"  );
+                "*      GAME MENU     *\n" +
+                "**********************\n" +
+                "* 1. ENTER WAIT LIST *\n" +
+                "* 2. CHECK WAIT TIME *\n" +
+                "* 3. LOGOUT          *\n" +
+                "* 4. QUIT            *\n" +
+                "**********************\n");
     }
 
-    public static void validatedUserWaiting(){
+    public static void validatedUserWaiting() {
         System.out.println("**********************\n" +
-                        "*      GAME MENU     *\n" +
-                        "**********************\n" +
-                        "* 1. LEAVE WAIT LIST *\n" +
-                        "* 2. ENTER GAME      *\n" +
-                        "* 3. CHECK WAIT TIME *\n" +
-                        "* 4. LOGOUT          *\n" +
-                        "* 5. QUIT            *\n" +
-                        "**********************\n"  );
+                "*      GAME MENU     *\n" +
+                "**********************\n" +
+                "* 1. LEAVE WAIT LIST *\n" +
+                "* 2. ENTER GAME      *\n" +
+                "* 3. CHECK WAIT TIME *\n" +
+                "* 4. LOGOUT          *\n" +
+                "* 5. QUIT            *\n" +
+                "**********************\n");
     }
 
-    public static void inGameMenu(){
+    public static void inGameMenu() {
         System.out.println("**********************\n" +
-                        "*      Game jksdfjasd;js           *\n" +
-                        "**********************\n" +
-                        "* 1. ENTER WAIT LIST *\n" +
-                        "* 2. CHECK WAIT TIME *\n" +
-                        "* 3. LOGOUT          *\n" +
-                        "* 4. QUIT            *\n" +
-                        "**********************\n"  );
+                "*      Game jksdfjasd;js           *\n" +
+                "**********************\n" +
+                "* 1. ENTER WAIT LIST *\n" +
+                "* 2. CHECK WAIT TIME *\n" +
+                "* 3. LOGOUT          *\n" +
+                "* 4. QUIT            *\n" +
+                "**********************\n");
     }
 
-    public int getMenuInput(ClientState state){
+    public int getMenuInput(ClientState state) {
         System.out.println("Get menu option method: ");
 
         // get user input
         System.out.print("> ");
+
         int menuInput = Integer.parseInt(this.input.nextLine());
 
         System.out.println("");
 
         // continue to get menu option from user until valid option is entered
-        while(menuInput < 1 || menuInput > getNumOfMenuOptions(state)){
+        while (menuInput < 1 || menuInput > getNumOfMenuOptions(state)) {
 
             // draw the menu again
             run(state);
@@ -111,7 +112,7 @@ public class Menu {
     // helper fucntion to get the number of menu
     // options based on the client state
     // is a helper function used in getMenuInput()
-    private int getNumOfMenuOptions(ClientState state){
+    private int getNumOfMenuOptions(ClientState state) {
         switch (state) {
             case NOT_LOGGED_IN:
                 return numOptionsNotLoggedIn;
@@ -124,4 +125,3 @@ public class Menu {
         }
     }
 }
-

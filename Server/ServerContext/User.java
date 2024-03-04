@@ -80,6 +80,10 @@ public class User {
         this.clientHandler = clientHandler;
     }   
 
+    public ClientHandler getClientHandler(){
+        return clientHandler;
+    }
+
     /**
      * Override equals method to compare user objects
      */
