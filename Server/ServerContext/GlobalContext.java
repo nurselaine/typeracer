@@ -169,7 +169,7 @@ public class GlobalContext {
         }
     }
 
-    
+
     // public void startNewGame() {
     //     Game game = new Game();
     //     gameCache.addGame(game);
@@ -190,6 +190,7 @@ public class GlobalContext {
 
         // send 0 to tell the wating thread in client to stop
         clientHandler.sendMessage("0");
+
         String username = clientHandler.getUsername();
 
         User user = userCache.getUser(username);
@@ -206,6 +207,7 @@ public class GlobalContext {
 
         // remove user from waiting queue and send message to client that user is not in
         // wait list
+        user.updateStatus(STATUS.LOGGEDIN);
         waitingQueue.remove(user);
         clientHandler.sendMessage("1");
     }
