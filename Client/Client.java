@@ -8,7 +8,10 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.io.*;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 // Hello world!
 public class Client {
@@ -24,6 +27,7 @@ public class Client {
             // instantiate menu library
             Menu menu = new Menu(input);
             boolean isLoggedIn = false;
+            boolean inGame = false;
 
             // client creates new socket using host and port number that server is running
             // Once server accept the connection with client will socket object be created
@@ -32,7 +36,7 @@ public class Client {
             BufferedReader serverReader = new BufferedReader(new InputStreamReader(soc.getInputStream()));
             PrintWriter serverWriter = new PrintWriter(soc.getOutputStream(), true);
             UserRPC userAPI = new UserRPC(input, serverWriter, serverReader);
-            GameRPC gameAPI = new GameRPC(serverWriter, serverReader);
+            GameRPC gameAPI = new GameRPC(serverWriter, serverReader, input);
 
             String connected = serverReader.readLine(); // server is sending 1/0 from connectRPC when clienthanlder istnace is created on connection
             System.out.println("Connected to server: " + connected);
@@ -40,10 +44,19 @@ public class Client {
             while(soc.isConnected()){
 
                 while(isLoggedIn == false){
+
+
                     System.out.println("Print non-validated menu: ");
                     // print menu options for login options
                     menu.nonValidatedUserMenu();
                     String menuOption = menu.getMenuInput(false);
+
+                    Thread gameStartListener = new Thread(() -> {
+                       if(menuOption.equals("Start Game")){
+                           System.out.println("Client game startin!");
+                       }
+                    });
+                    gameStartListener.start();
 
                     // switch
                     switch(Integer.parseInt(menuOption)){
@@ -70,20 +83,21 @@ public class Client {
                     String menuOption = menu.getMenuInput(true);
 
                     switch(Integer.parseInt(menuOption)){
-                        case 1: // enter wait list
+                        case 1: // enter wait list & start game when enough players join wait list
                             gameAPI.joinWaitingQueue();
-                            break;
-                        case 2: // check wait list time
-                            gameAPI.checkWaitingTime();
-                            break;
-                        case 3: // leave wait list
+                            if(gameAPI.checkWaitingTime()){
+                                // add start game RPC
+                                gameAPI.startGame();
+                            } else {
+                                System.out.println("> Error starting game... Please rejoin wait list.");
+                            }
 
                             break;
-                        case 4: // logout
+                        case 2: // logout
                             userAPI.logout();
                             isLoggedIn = false;
                             break;
-                        case 5: // quit
+                        case 3: // quit
                             serverWriter.println("Disconnect");
                             soc.close();
                             System.out.println("Program ending. See you next time!");

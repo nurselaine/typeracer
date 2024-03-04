@@ -24,10 +24,8 @@ public class Menu {
                         "*      GAME MENU     *\n" +
                         "**********************\n" +
                         "* 1. ENTER WAIT LIST *\n" +
-                        "* 2. CHECK WAIT TIME *\n" +
-                        "* 3. LEAVE WAIT LIST *\n" +
-                        "* 4. LOGOUT          *\n" +
-                        "* 5. QUIT            *\n" +
+                        "* 2. LOGOUT          *\n" +
+                        "* 3. QUIT            *\n" +
                         "**********************\n"  );
     }
 
@@ -44,10 +42,7 @@ public class Menu {
     }
 
     public String getMenuInput(boolean isValidated){
-        // TODO: handle bad client input 
-//        if(!input.hasNextLine()){
-//            System.out.println("> Input unreadable. Please try again.");
-//        }
+        // TODO: handle bad client input
         System.out.println("Get menu option method: ");
         int menuOptions = isValidated ? 5 : 3;
 

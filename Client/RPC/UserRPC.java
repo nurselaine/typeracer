@@ -43,6 +43,7 @@ public class UserRPC {
         serverWriter.println("Login");
         serverWriter.println(userCredentials[0]);
         serverWriter.println(userCredentials[1]);
+        System.out.println(userCredentials[0] + " " + userCredentials[1]);
         boolean res = validateCredentials(userCredentials[1]);
         if(res){
             System.out.println("> Successfully logged in as " + this.username);

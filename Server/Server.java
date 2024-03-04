@@ -29,6 +29,9 @@ public class Server {
     // binary semaphore to manage access to user cache
     public static Semaphore userCacheSem;
 
+    // binary semaphore to manage access to waiting queue
+    public static Semaphore waitQueueSem;
+
     UserCache userCache;
 
     private GameSession gameSession;
@@ -46,21 +49,13 @@ public class Server {
 
         globalContext = new GlobalContext(userCache, gameSession);
 
-        // binary semaphore to manage access to global context
-        globalContextSem = new Semaphore(1);
-
-        // binary semaphore to manage access to user cache
-        userCacheSem = new Semaphore(1);
-        // binary semaphore to manage access to game session
-        // binary semaphore to manage access to game context
-
         start(ss);
 
     }
 
     public void start(ServerSocketService ss) {
 
-        loadUserData();
+//        loadUserData();
 
         while (ss.isAccepting()) {
 
@@ -69,8 +64,7 @@ public class Server {
 
             Thread clientThread = new Thread(() -> {
                 try {
-                    ClientHandler clientHandler = new ClientHandler(clientSocket, globalContext,
-                            globalContextSem, userCacheSem);
+                    ClientHandler clientHandler = new ClientHandler(clientSocket, globalContext);
                     while (clientHandler.clientStatus) {
                         clientHandler.ReceiveMessage();
                     }
@@ -109,8 +103,10 @@ public class Server {
                     int colon = user_credentials[0].indexOf(':');
                     String host = user_credentials[0].substring(0, colon);
 
+
+
                     // create new user context and add to user cache
-                    globalContext.addUser(new UserContext(host, user_credentials[1], user_credentials[2]));
+                    globalContext.addUser(new UserContext(host, user_credentials[1], user_credentials[2], null, null));
                 }
             } catch (IOException e) {
                 System.out.println("Unable to initialize user database");

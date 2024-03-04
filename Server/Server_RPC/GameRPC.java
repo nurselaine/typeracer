@@ -8,91 +8,108 @@ import Server.Server_context.UserContext;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.*;
 
 public class GameRPC {
 
-    private PrintWriter clientWriter;
-    private BufferedReader clientReader;
+    private PrintWriter out;
+    private BufferedReader in;
 
-    public GameRPC (PrintWriter clientWriter, BufferedReader clientReader){
-        this.clientWriter = clientWriter;
-        this.clientReader = clientReader;
+    private final int MAX_PLAYERS = 4;
+
+    private GlobalContext globalContext;
+    private Queue<UserContext> waitQueue;
+    private Semaphore waitQueueSem;
+
+    private GameContext game;
+
+    public GameRPC (PrintWriter clientWriter, BufferedReader clientReader, GlobalContext globalContext){
+        this.out = clientWriter;
+        this.in = clientReader;
+        this.globalContext = globalContext;
+        this.waitQueue = globalContext.waitingQueue;
+        this.waitQueueSem = globalContext.waitQueueSem;
     }
     // join waiting queue
-    public int joinWaitQueue(GlobalContext globalContext, UserContext user, Semaphore globalContextSem){
-        Queue<UserContext> waitQueue = globalContext.waitingQueue;
+    public int joinWaitQueue(UserContext user){
         try{
-            globalContextSem.acquire();
+            waitQueueSem.acquire();
+            System.out.println("ADDING USER TO WAIT QUEUE");
+                waitQueue.add(user);
+            waitQueueSem.release();
             user.joinWaitQueue(); // update user status
-            waitQueue.add(user);
-            globalContextSem.release();
+            System.out.println("WAIT QUEUE SIZE : " + waitQueue.size());
             return waitQueue.size();
         } catch (InterruptedException e){
             System.out.println("Client unable to join waiting queue " + e.getMessage());
             e.printStackTrace();
         }
         return -1;
-//        if(waitQueue.size() % 4 != 0){
-//            int remainPlayers = waitQueue.size() % 4;
-//            if(remainPlayers == 1){
-//                clientWriter.println("Waiting for " + remainPlayers + " player to join");
-//            } else {
-//                clientWriter.println("Waiting for " + remainPlayers + " players to join");
-//            }
-//        } else {
-//            clientWriter.println("Game will begin in a few seconds...");
-//        }
     }
 
-    public int checkWaitTime(GlobalContext globalContext){
-        Queue<UserContext> waitQueue = globalContext.waitingQueue;
+    // returns # of users in game queue
+    public int checkWaitTime(GlobalContext globalContext) throws InterruptedException {
+        waitQueueSem.acquire();
         int size = waitQueue.size();
-        int playersNeeded = 0;
-        if (size >= 4) {
-            size = size % 4;
-        }
-        playersNeeded = 4 - size;
+        waitQueueSem.release();
 
-        return playersNeeded;
+
+//        int playersNeeded = 0;
+//        if (size == 2) {
+//            return 0;
+//        } else if (size > 2){
+//            size = size % 2;
+//        }
+//        playersNeeded = 2 - size;
+
+        return size;
     }
 
     // start game
-    public GameContext startGame(GlobalContext globalContext, GameSession gameSession){
-        Queue<UserContext> waitQueue = globalContext.waitingQueue;
-        if(waitQueue.size() < 4) return null;
+    public GameContext startGame(List<UserContext> players) throws InterruptedException {
 
-        // create new thread to process game
-        Thread gameThread = new Thread(() -> {
-            List<UserContext> players = new ArrayList<>();
+        // use a future with timeout parameter
+
+        ExecutorService pool = Executors.newSingleThreadExecutor();
+        ScheduledExecutorService timeoutExecuter = Executors.newSingleThreadScheduledExecutor();
+
+        // returns future object for players list with updated player user context
+        // user context should have game scores once thread pool terminates or finishes executing
+        Future<List<UserContext>> future = pool.submit(() -> {
+                        // create new game context with players
             GameContext game = new GameContext(players);
-            int gameID = game.gameID;
-            gameSession.newGame(game);
-            players.stream().forEach(player -> player.joinGame(gameID));
+            System.out.println("Game created and started!");
+            players.stream().forEach(player -> player.joinGame(game.gameID));
+//            gameSession.newGame(game);
+
+            // generate game string and send to each client
             String gameString = game.randomlyGenerateString();
-            players.stream().forEach(player -> notifyGameStartCountdown(gameString));
+            System.out.println("Send game string to each player...");
+            players.stream().forEach(player -> player.out.println(gameString));
+            System.out.println("game string " + gameString);
+
+            return players;
         });
 
-        return null; // return game to add to gameSessions in driver
-    }
-
-    private void notifyGameStartCountdown(String gameString){
-        int count = 3;
-        String[] readySetGo = new String[]{"Ready", "Set", "Go!"};
-        int rsgIndex = 0;
-        try {
-            while(count > 0){
-                clientWriter.println(readySetGo[rsgIndex++] + "...");
-                wait(1000);
+        timeoutExecuter.schedule(() -> {
+            if(!future.isDone()){
+                future.cancel(true); // cancel task if its not done
+                System.err.println("Game execution timed out");
             }
-            // send string
-            clientWriter.println(gameString);
-        } catch (InterruptedException e){
-            System.out.println("GAME START ERROR: occured during countdown " + e.getMessage());
-            clientWriter.println("Error joining game. Please rejoin waiting queue");
-        }
+        }, 300, TimeUnit.SECONDS);
+
+//        try {
+//            // get future object of the players list
+//            future.get();
+//        } catch (InterruptedException | ExecutionException e) {
+//            System.err.println("ERROR: Game unable to retrieve players updated scores " + e.getMessage());
+//            e.printStackTrace();
+//        }
+
+        return null; // return game to add to gameSessions in driver
     }
 
     // endGame
@@ -100,15 +117,21 @@ public class GameRPC {
 
     }
 
-    public void removeFromWaitQueue(GlobalContext globalContext, UserContext user){
-        user.updateStatus(UserContext.STATUS.LOGGEDIN);
-        Queue<UserContext> waitQueue = globalContext.waitingQueue;
+    public boolean removeFromWaitQueue(UserContext user){
         if(waitQueue.contains(user)){
+            System.out.println("Removing client from wait queue");
             waitQueue.remove(user);
+            user.updateStatus(UserContext.STATUS.LOGGEDIN);
+            return true;
         }
+        return false;
+    }
+
+    public void trackCompletion(){
+        // client will call this RPC each time a user completes typing
+        // it will track how many users are left and whether the timeout limit has been reached
+        //
     }
 
     // game score
-
-    // typing rpc
 }

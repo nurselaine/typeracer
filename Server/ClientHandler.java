@@ -6,7 +6,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import Server.Server_RPC.GameRPC;
@@ -24,27 +26,28 @@ public class ClientHandler implements ServerInterface {
     private PrintWriter out;
     private GlobalContext globalContext;
     private UserCache userCache;
-    private Semaphore globalContextSem;
-    private Semaphore userCacheSem;
     private GameRPC gameAPI;
     private UserContext user;
+
+    private List<UserContext> gamePlayer;
 
     //path to database
     private final Path path =  Paths.get("Server", "utils", "user_database.txt");
 
     public boolean clientStatus;
 
-    public ClientHandler(Socket clientSocket, GlobalContext globalContext, Semaphore globalContextSem, Semaphore userCacheSem) throws IOException {
+    public ClientHandler(Socket clientSocket, GlobalContext globalContext) throws IOException {
         this.socket = clientSocket;
         this.clientStatus = true;
         this.globalContext = globalContext;
         this.userCache = globalContext.userCache;
-        this.globalContextSem = globalContextSem;
-        this.userCacheSem = userCacheSem;
         this.out = new PrintWriter(clientSocket.getOutputStream(), true);
         this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         ConnectRPC();
-        this.gameAPI = new GameRPC(out, in);
+        String clientSocketID = clientSocket.getRemoteSocketAddress().toString();
+        // adding user context without name and password until authentication
+        this.user = new UserContext(clientSocketID, "", "", this.in, this.out);
+        this.gameAPI = new GameRPC(out, in, globalContext);
     }
 
     @Override
@@ -78,6 +81,12 @@ public class ClientHandler implements ServerInterface {
                         System.out.println("Check wait queue time");
                         CheckWaitQueueRPC();
                         break;
+                    case "Start Game":
+                        StartGameRPC();
+                    case "Leave wait queue":
+                        System.out.println("Leave wait queue");
+                        removeFromWaitListRPC();
+                        break;
                     case "Game End":
                         break;
                     case "Disconnect":
@@ -85,7 +94,6 @@ public class ClientHandler implements ServerInterface {
                         break;
                     default:
                         System.out.println("Unrecognized client message");
-                        // TODO: code -1000 to let clientside know that input was bad
                 }
             }
         } catch (IOException e) {
@@ -98,11 +106,11 @@ public class ClientHandler implements ServerInterface {
 
     @Override
     public boolean ConnectRPC() {
-
         if (socket == null) {
             this.clientStatus = false;
             return false;
         }
+
         out.println(1);
         System.out.println("Client successfully connected to server!" + socket.getInetAddress());
         return true;
@@ -117,7 +125,10 @@ public class ClientHandler implements ServerInterface {
         System.out.println("client login password: " + password);
 
         // check whether user is in the userCache
-        this.user = userCache.getUser(userName, socket.getRemoteSocketAddress());
+        UserContext possibleUser = userCache.getUser(userName, socket.getRemoteSocketAddress());
+        if(possibleUser != null){
+            this.user = possibleUser;
+        }
         System.out.println("Validating user credentials");
         boolean isUser = false;
         if(user != null){
@@ -144,9 +155,14 @@ public class ClientHandler implements ServerInterface {
             String password = readMessage();
 
             // add use to user cache
-            userCacheSem.acquire();
-            userCache.addNewUser(new UserContext(socket.getLocalSocketAddress().toString(), username, password));
-            userCacheSem.release();
+            globalContext.userCacheSem.acquire();
+            System.out.println("Adding client to user cache");
+                // update user context information
+                this.user.updateUsername(username);
+                this.user.updatePassword(password);
+                userCache.addNewUser(this.user);
+
+            globalContext.userCacheSem.release();
             if(userCache.getLastAdded().getUsername().equals(username)){
                 System.out.println("User " + username + " successfully created!");
                 this.out.println(1);
@@ -155,7 +171,7 @@ public class ClientHandler implements ServerInterface {
                 this.out.println(0);
             }
             // save credentials to user_database.txt
-            saveUserCredentials(username, password);
+//            saveUserCredentials(username, password);
         } catch (InterruptedException e) {
             System.out.println("ERROR: creating user profile RPC " + e.getMessage());
             e.printStackTrace();
@@ -182,41 +198,166 @@ public class ClientHandler implements ServerInterface {
     public void LogoutRPC() {
 
         this.user.updateStatus(UserContext.STATUS.CONNECTED);
-        removeFromWaitlistRPC();
+        removeFromWaitListRPC();
     }
 
     public void JoinWaitingQueueRPC(){
-        int waitingQueueSize = gameAPI.joinWaitQueue(globalContext, user, globalContextSem);
+        int waitingQueueSize = gameAPI.joinWaitQueue(user);
         System.out.println("wait queue size " + waitingQueueSize);
         // Replies to client with the wait queue size
         this.out.println(waitingQueueSize);
     }
 
-    public void CheckWaitQueueRPC(){
-        int playersNeeded = gameAPI.checkWaitTime(globalContext);
-        // sending client the # of players in the wait queue
-        this.out.println(playersNeeded);
+    public void CheckWaitQueueRPC() {
+
+        // do not allow client to check queue if client is already playing game - this can be caused because
+        // of old client side polling to check wait queue
+        if(this.user.getStatus() == UserContext.STATUS.PLAYING) return;
+
+        try {
+            int playersInQueue = gameAPI.checkWaitTime(globalContext);
+            System.out.println(this.user.getUsername() + "CHECK WAIT QUEUE SIZE: " + playersInQueue);
+
+            if(playersInQueue >= 2){ // 2 for testing purposes
+
+                // create message queue to notify 4 clients from queue start
+                globalContext.waitQueueSem.acquire();
+                System.out.println("Sending message to all players in next game: ");
+                    this.gamePlayer = new ArrayList<>();
+                    for(int i = 0; i < 2; i++){ // 2 for testing purposes
+
+                        // remove each client from wait queue
+                        this.gamePlayer.add(globalContext.waitingQueue.remove());
+
+                        // send game code to all clients
+                        this.gamePlayer.get(i).startGameCode();
+
+                        // update status - goal is to move this into start game RPC
+                        this.gamePlayer.get(i).updateStatus(UserContext.STATUS.PLAYING);
+                    }
+                globalContext.waitQueueSem.release();
+
+                // STARTING GAME
+                StartGameRPC();
+            } else {
+
+                // sending client the # of players in the wait queue
+                this.out.println(playersInQueue);
+            }
+        } catch ( InterruptedException e){
+            System.err.println("ERROR: check wait queue RPC - " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void DisconnectRPC() {
         try{
-            this.user.updateStatus(UserContext.STATUS.DISCONNECTED);
+            if(this.user != null){
+                this.user.updateStatus(UserContext.STATUS.DISCONNECTED);
+            }
             socket.close();
             this.in.close();
             this.out.close();
+            this.user = null; // reset client handler user attribute to null as they are not online
             this.clientStatus = false;
-            removeFromWaitlistRPC();
+            removeFromWaitListRPC();
         } catch (IOException e){
             System.out.println("Error disconnecting client");
             e.printStackTrace();
         }
     }
 
-    private void removeFromWaitlistRPC(){
-        // remove client from waitlist
-        gameAPI.removeFromWaitQueue(globalContext, user);
-        // TODO: send client feedback ?? maybe not
+    private void removeFromWaitListRPC(){
+        // handle if request comes from null user - it will break server if we do not
+        if(this.user == null) {
+            System.out.println("Client attempted to leave wait list without proper user validation...");
+            this.out.println(1);
+        }
+
+        boolean userLeftSuccessfully = gameAPI.removeFromWaitQueue(user);
+        if(userLeftSuccessfully){
+            System.out.println("Client successfully removed from waitlist");
+            this.out.println(0); // client removed from wait queue succesfully
+        } else {
+            System.out.println("Client unable to be removed from waitlist");
+            this.out.println(1); // client unable to be removed from waitlist
+        }
+    }
+
+    public void StartGameRPC() {
+        System.out.println("START GAME RPC");
+//        this.out.println("Start Game"); // testing client thread
+
+//         send string to play game
+        for(int i = 0; i < this.gamePlayer.size(); i++){
+            this.gamePlayer.get(i).out.println("I love to code");
+        }
+
+        // TODO: get all player scores when each player finishes OR give them TIMEOUT as score if 300 seconds pass
+        System.out.println("WAITING FOR EACH PLAYER TO FINISH AND SEND BACK SCORE");
+
+        // reading in scores from each player
+        // TODO: Issue with first client to join game start - an extra wait time rpc is called and causes
+        // the client's game score to not be read in by the server
+        try {
+            this.gamePlayer.get(0).inLock.acquire();
+            System.out.println("Player " + this.gamePlayer.get(0).getUsername() + " " + this.gamePlayer.get(0).readMessage());
+            this.gamePlayer.get(0).inLock.release();
+            this.gamePlayer.get(1).inLock.acquire();
+            System.out.println("Player " + this.gamePlayer.get(1).getUsername() + " " + this.gamePlayer.get(1).readMessage());
+            this.gamePlayer.get(1).inLock.release();
+        } catch (InterruptedException e){
+            System.out.println("testing out semaphor lock on client input stream error");
+        }
+
+//        Thread player1Score = new Thread(() -> {
+//            try {
+//                this.gamePlayer.get(0).inLock.acquire();
+//                while(this.gamePlayer.get(0).readMessage() == null){
+//                    double lastScore = Double.parseDouble(this.gamePlayer.get(1).readMessage());
+//                    gamePlayer.get(0).updateLastScore(lastScore);
+//                }
+//                this.gamePlayer.get(0).inLock.release();
+//            } catch (InterruptedException e) {
+//                System.err.println("ERROR: client play game thread issue with client buffered reader semaphore " + e.getMessage());
+//                e.printStackTrace();
+//            }
+//        });
+//        Thread player2Score = new Thread(() -> {
+//            try {
+//                this.gamePlayer.get(1).inLock.acquire();
+//                    // loop until the client messages back with results
+//                    while(this.gamePlayer.get(1).readMessage() == null){
+//                        double lastScore = Double.parseDouble(this.gamePlayer.get(1).readMessage());
+//                        gamePlayer.get(1).updateLastScore(lastScore);
+//                    }
+//                this.gamePlayer.get(1).inLock.release();
+//            } catch (InterruptedException e) {
+//                System.err.println("ERROR: client play game thread issue with client buffered reader semaphore " + e.getMessage());
+//                e.printStackTrace();
+//            }
+//        });
+//        Thread player3Score = new Thread(() -> {
+//            this.gamePlayer.get(3).readMessage();
+//        });
+//        Thread player4Score = new Thread(() -> {
+//            this.gamePlayer.get(4).readMessage();
+//        });
+//        player1Score.start();
+//        player2Score.start();
+
+        // check if server recieved clients lastest scores
+//        this.gamePlayer.stream().forEach(player -> System.out.println(player.getUsername() + " " + player.getLastScore()));
+
+        // will incorporate game thread once normal game works
+//        try {
+//            // start game thread
+//            gameAPI.startGame(this.gamePlayer);
+//        } catch (InterruptedException e){
+//            System.err.println("ERROR: start game RPC error - " + e.getMessage());
+//            e.printStackTrace();
+//        }
     }
 
     public String readMessage() {

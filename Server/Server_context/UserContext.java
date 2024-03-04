@@ -1,6 +1,13 @@
 package Server.Server_context;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.Buffer;
+import java.util.concurrent.Semaphore;
 
 public class UserContext {
 
@@ -18,9 +25,13 @@ public class UserContext {
 
     // Represents cumulative wins user has
     private int totalWins;
-    private long lastScore;
+    private double lastScore;
 
     private STATUS userStatus;
+
+    public BufferedReader in;
+    public PrintWriter out;
+    public Semaphore inLock;
 
     /**
      * Put enum in its own class so it can be available to all classes for status updates
@@ -40,17 +51,23 @@ public class UserContext {
     private int gameID = -1;
 
     //
-    public UserContext(String socketID, String username, String password){
+    public UserContext(String socketID, String username, String password, BufferedReader in, PrintWriter out){
         this.socketID = socketID;
         this.username = username;
         this.password = password;
         this.userStatus = STATUS.CONNECTED;
+        this.in = in;
+        this.out = out;
+        this.inLock = new Semaphore(1);
     }
 
     public void joinGame(int gameID){
-        this.gameID = gameID;
-        this.userStatus = STATUS.PLAYING;
-        this.gameCount++;
+        // only users in wait queue can join game
+        if(userStatus == STATUS.WAITING){
+            this.gameID = gameID;
+            this.userStatus = STATUS.PLAYING;
+            this.gameCount++;
+        }
     }
 
     public void login(){ this.userStatus = STATUS.LOGGEDIN; }
@@ -76,8 +93,19 @@ public class UserContext {
         return username;
     }
 
+    public void updateUsername(String username){
+        this.username = username;
+    }
+
     public String getPassword(){
         return password;
+    }
+    public void updatePassword(String password){
+        this.password = password;
+    }
+
+    public String getSocketID(){
+        return this.socketID;
     }
 
     public STATUS getStatus(){
@@ -93,4 +121,27 @@ public class UserContext {
     }
 
     public void updateStatus(STATUS status) { this.userStatus = status; }
+
+    // using words/min as score
+    public void updateLastScore(double score){
+        this.lastScore = score;
+    }
+
+    public double getLastScore(){
+        return this.lastScore;
+    }
+
+    public void startGameCode(){
+
+        this.out.println(400);
+    }
+
+    public String readMessage() {
+        try {
+            return in.readLine().toString();
+        } catch (IOException e) {
+            System.out.println("Error reading message from client");
+        }
+        return null;
+    }
 }
