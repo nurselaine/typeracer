@@ -157,9 +157,10 @@ public class GlobalContext {
         // add user to waiting queue and send message to client that user is in wait
         // list
         
-        waitingQueue.add(user);
         user.updateStatus(STATUS.WAITING);
+        addToWaitingQueue(user);
         clientHandler.sendMessage("1");
+
     }
 
     public void addToWaitingQueue(User user) {
