@@ -5,10 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a0849281-223c-4dcb-9927-4d9c458aecdb" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Client/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/RPC/GameRPC.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/RPC/GameRPC.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server/ClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/ClientHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/typeracer/Server/utils/user_database.txt" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/typeracer/Server/utils/user_database.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/Server_RPC/GameRPC.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/Server_RPC/GameRPC.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/Server_context/GameContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/Server_context/GameContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/Server_context/UserContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/Server_context/UserContext.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,7 +39,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;jdk.selected.JAVA_MODULE&quot;: &quot;21&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Elain/IdeaProjects/Leetcode_Prac&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Elain/Projects/typeracer&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
@@ -172,6 +172,8 @@
       <workItem from="1708130460879" duration="7628000" />
       <workItem from="1708649520781" duration="37232000" />
       <workItem from="1708734090978" duration="60977000" />
+      <workItem from="1709234482017" duration="363000" />
+      <workItem from="1709501865160" duration="1196000" />
     </task>
     <servers />
   </component>

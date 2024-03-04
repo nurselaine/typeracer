@@ -44,13 +44,15 @@ public class GameRPC {
         }
     }
 
-    public void checkWaitingTime(){
+    public int checkWaitingTime(){
         try {
             serverWriter.println("Wait Time");
             String res = serverReader.readLine();
             if (res != null) {
                 int playerNeeded = Integer.parseInt(res);
-                System.out.println("> Awaiting " + playerNeeded + " other players to join queue...");
+                System.out.println("Players needed " + playerNeeded);
+                return playerNeeded;
+//                System.out.println("> Awaiting " + playerNeeded + " other players to join queue...");
             } else {
                 System.out.println("> Unable to check queue time. Please try again.");
             }
@@ -58,6 +60,7 @@ public class GameRPC {
             System.out.println("ERROR: unable to join waiting queue " + e.getMessage());
             e.printStackTrace();
         }
+        return -1;
     }
 
 }

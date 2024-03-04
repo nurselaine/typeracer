@@ -48,9 +48,12 @@ public class UserContext {
     }
 
     public void joinGame(int gameID){
-        this.gameID = gameID;
-        this.userStatus = STATUS.PLAYING;
-        this.gameCount++;
+        // only users in wait queue can join game
+        if(userStatus == STATUS.WAITING){
+            this.gameID = gameID;
+            this.userStatus = STATUS.PLAYING;
+            this.gameCount++;
+        }
     }
 
     public void login(){ this.userStatus = STATUS.LOGGEDIN; }

@@ -6,7 +6,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import Server.Server_RPC.GameRPC;
@@ -77,6 +79,9 @@ public class ClientHandler implements ServerInterface {
                     case "Leave wait queue":
                         System.out.println("Leave wait queue");
                         removeFromWaitListRPC();
+                        break;
+                    case "Start Game":
+                        StartGameRPC();
                         break;
                     case "Game End":
                         break;
@@ -185,14 +190,16 @@ public class ClientHandler implements ServerInterface {
     }
 
     public void JoinWaitingQueueRPC(){
-        int waitingQueueSize = gameAPI.joinWaitQueue(globalContext, user);
+        int waitingQueueSize = gameAPI.joinWaitQueue(user);
         System.out.println("wait queue size " + waitingQueueSize);
         // Replies to client with the wait queue size
         this.out.println(waitingQueueSize);
     }
 
     public void CheckWaitQueueRPC(){
+
         int playersNeeded = gameAPI.checkWaitTime(globalContext);
+        System.out.println("CHECK WAIT QUEUE SIZE: " + playersNeeded);
         // sending client the # of players in the wait queue
         this.out.println(playersNeeded);
     }
@@ -222,7 +229,7 @@ public class ClientHandler implements ServerInterface {
             this.out.println(1);
         }
 
-        boolean userLeftSuccessfully = gameAPI.removeFromWaitQueue(globalContext, user);
+        boolean userLeftSuccessfully = gameAPI.removeFromWaitQueue(user);
         if(userLeftSuccessfully){
             System.out.println("Client successfully removed from waitlist");
             this.out.println(0); // client removed from wait queue succesfully
@@ -230,6 +237,29 @@ public class ClientHandler implements ServerInterface {
             System.out.println("Client unable to be removed from waitlist");
             this.out.println(1); // client unable to be removed from waitlist
         }
+    }
+
+    public void StartGameRPC() {
+        this.out.println("Start Game"); // testing client thread
+
+//        try {
+//            // check if at least 4 players are in wait queue
+//            if(globalContext.waitingQueue.size() < 2) {
+//                return; // do not notify user game start and keep user in waiting status
+//            }
+//
+//            // remove 4 players from waiting queue and add to players array
+//            List<UserContext> players = new ArrayList<>();
+//            globalContext.waitQueueSem.acquire();
+//            for(int i = 0; i < 2; i++){
+//                players.add(globalContext.waitingQueue.remove());
+//            }
+//            globalContext.waitQueueSem.release();
+//            // start game thread
+//            gameAPI.startGame(players);
+//        } catch (InterruptedException e){
+//
+//        }
     }
 
     public String readMessage() {

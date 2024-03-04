@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.io.*;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 // Hello world!
 public class Client {
@@ -40,10 +41,19 @@ public class Client {
             while(soc.isConnected()){
 
                 while(isLoggedIn == false){
+
+
                     System.out.println("Print non-validated menu: ");
                     // print menu options for login options
                     menu.nonValidatedUserMenu();
                     String menuOption = menu.getMenuInput(false);
+
+                    Thread gameStartListener = new Thread(() -> {
+                       if(menuOption.equals("Start Game")){
+                           System.out.println("Client game startin!");
+                       }
+                    });
+                    gameStartListener.start();
 
                     // switch
                     switch(Integer.parseInt(menuOption)){
@@ -72,18 +82,34 @@ public class Client {
                     switch(Integer.parseInt(menuOption)){
                         case 1: // enter wait list
                             gameAPI.joinWaitingQueue();
+
+                            // open client to check # of players left
+                            int playersLeft = gameAPI.checkWaitingTime();
+                            System.out.println("Player's left: " + playersLeft);
+                            while(playersLeft > 0){
+                                int updatedPlayers = gameAPI.checkWaitingTime();
+                                if(playersLeft != updatedPlayers){
+                                    System.out.println("Player's left: " + playersLeft);
+                                    playersLeft = gameAPI.checkWaitingTime();
+                                }
+                                TimeUnit.SECONDS.sleep(5);
+                            }
+
+                            System.out.println("Game is Starting now");
+                            serverWriter.println("Start Game");
+                            serverReader.readLine();
                             break;
-                        case 2: // check wait list time
-                            gameAPI.checkWaitingTime();
-                            break;
-                        case 3: // leave wait list
-                            gameAPI.leaveWaitQueue();
-                            break;
-                        case 4: // logout
+//                        case 2: // check wait list time
+//                            gameAPI.checkWaitingTime();
+//                            break;
+//                        case 3: // leave wait list
+//                            gameAPI.leaveWaitQueue();
+//                            break;
+                        case 2: // logout
                             userAPI.logout();
                             isLoggedIn = false;
                             break;
-                        case 5: // quit
+                        case 3: // quit
                             serverWriter.println("Disconnect");
                             soc.close();
                             System.out.println("Program ending. See you next time!");
