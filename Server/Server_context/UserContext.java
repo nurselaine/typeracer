@@ -74,8 +74,7 @@ public class UserContext {
 
     public void login(){ this.userStatus = STATUS.LOGGEDIN; }
 
-    public void endGame(long score){
-        this.lastScore = score;
+    public void endGame(){
         this.userStatus = STATUS.LOGGEDIN;
     }
 

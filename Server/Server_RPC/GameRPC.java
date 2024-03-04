@@ -53,15 +53,6 @@ public class GameRPC {
         int size = waitQueue.size();
         waitQueueSem.release();
 
-
-//        int playersNeeded = 0;
-//        if (size == 2) {
-//            return 0;
-//        } else if (size > 2){
-//            size = size % 2;
-//        }
-//        playersNeeded = 2 - size;
-
         return size;
     }
 
@@ -86,6 +77,15 @@ public class GameRPC {
         // sort game players by last score
         Collections.sort(gamePlayer, (a, b) -> Double.compare(a.getLastScore(), b.getLastScore()));
 
+        // send each player results and scores (1st, 2nd, 3rd, 4th)
+        processGameScore(gamePlayer, gamePlayer.get(0), gamePlayer.get(1));
+
+        // update each players status
+        endGame(gamePlayer);
+
+    }
+
+    private void processGameScore(List<UserContext> gamePlayer, UserContext player1, UserContext player2){
         try {
             // wait for all players to send in scores
             while(player1.getLastScore() == 0.0 && player2.getLastScore() == 0.0){
@@ -93,12 +93,12 @@ public class GameRPC {
             }
 
             // once all scores are read in by server then create score string
-            String gameResults = "1st " + gamePlayer.get(0).getUsername() + " - " + gamePlayer.get(0).getLastScore() + ":"
-                    + "2st " + gamePlayer.get(1).getUsername() + " - " + gamePlayer.get(1).getLastScore() + "\n";
+            String gameResults = "1st " + player1.getUsername() + " - " + player1.getLastScore() + ":"
+                    + "2st " + player2.getUsername() + " - " + player2.getLastScore() + "\n";
 
             System.out.println(gameResults);
             // message each client the scores
-            for(int i = 0; i < gamePlayer.size(); i++){
+            for(int i = 0; i < 2; i++){ // 2 for testing purposes
                 gamePlayer.get(i).outLock.acquire();
                 gamePlayer.get(i).out.println(gameResults); // sends client back the place first, seconds, third..
                 gamePlayer.get(i).outLock.release();
@@ -110,8 +110,11 @@ public class GameRPC {
     }
 
     // endGame
-    public void endGame(GameContext game){
-
+    public void endGame(List<UserContext> gamePlayers){
+        // clean up and update player status
+        for(int i = 0; i < gamePlayers.size(); i++){
+            gamePlayers.get(i).endGame();
+        }
     }
 
     public boolean removeFromWaitQueue(UserContext user){
