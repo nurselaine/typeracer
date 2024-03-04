@@ -62,11 +62,14 @@ public class GameRPC {
                     updateClient = res;
                 }
                 serverWriter.println("Wait Time");
+                TimeUnit.SECONDS.sleep(5);
             }
             return true;
         } catch (IOException e){
             System.out.println("ERROR: unable to join waiting queue " + e.getMessage());
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
         System.out.println("CHECK WAIT TIME OVER");
         return false;

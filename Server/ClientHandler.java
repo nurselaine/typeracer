@@ -210,6 +210,10 @@ public class ClientHandler implements ServerInterface {
 
     public void CheckWaitQueueRPC() {
 
+        // do not allow client to check queue if client is already playing game - this can be caused because
+        // of old client side polling to check wait queue
+        if(this.user.getStatus() == UserContext.STATUS.PLAYING) return;
+
         try {
             int playersInQueue = gameAPI.checkWaitTime(globalContext);
             System.out.println(this.user.getUsername() + "CHECK WAIT QUEUE SIZE: " + playersInQueue);
@@ -227,6 +231,9 @@ public class ClientHandler implements ServerInterface {
 
                         // send game code to all clients
                         this.gamePlayer.get(i).startGameCode();
+
+                        // update status - goal is to move this into start game RPC
+                        this.gamePlayer.get(i).updateStatus(UserContext.STATUS.PLAYING);
                     }
                 globalContext.waitQueueSem.release();
 
@@ -293,8 +300,16 @@ public class ClientHandler implements ServerInterface {
         // reading in scores from each player
         // TODO: Issue with first client to join game start - an extra wait time rpc is called and causes
         // the client's game score to not be read in by the server
-        System.out.println("Player " + this.gamePlayer.get(0).getUsername() + " " + this.gamePlayer.get(0).readMessage());
-        System.out.println("Player " + this.gamePlayer.get(1).getUsername() + " " + this.gamePlayer.get(1).readMessage());
+        try {
+            this.gamePlayer.get(0).inLock.acquire();
+            System.out.println("Player " + this.gamePlayer.get(0).getUsername() + " " + this.gamePlayer.get(0).readMessage());
+            this.gamePlayer.get(0).inLock.release();
+            this.gamePlayer.get(1).inLock.acquire();
+            System.out.println("Player " + this.gamePlayer.get(1).getUsername() + " " + this.gamePlayer.get(1).readMessage());
+            this.gamePlayer.get(1).inLock.release();
+        } catch (InterruptedException e){
+            System.out.println("testing out semaphor lock on client input stream error");
+        }
 
 //        Thread player1Score = new Thread(() -> {
 //            try {
