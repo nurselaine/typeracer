@@ -18,7 +18,8 @@ public class Client {
         NOT_LOGGED_IN,
         LOGGED_IN,
         WAITING,
-        PLAYING
+        PLAYING,
+        DISCONNECTED,
     }
 
     private ClientState state;
@@ -53,7 +54,7 @@ public class Client {
 
     // main client loop to handle user input and draw menus
     public void run()throws Exception{
-        while(soc.isConnected()){
+        while(soc.isConnected() && this.state != ClientState.DISCONNECTED){
             //mapUserStateToClienState();
             menu.run(state);
             int menuOption = menu.getMenuInput(state);
@@ -71,7 +72,7 @@ public class Client {
      * @throws Exception 
      */
     private void submitRPC(int menuOption) throws Exception{
-        System.out.println(menuOption);
+
         switch(state){
             case NOT_LOGGED_IN:
                 switch(menuOption){
@@ -90,7 +91,8 @@ public class Client {
                     case 3:
                         userAPI.quit();
                         soc.close();
-                        break;
+                        this.state = ClientState.DISCONNECTED;
+                        return;
 
                     default:
                         System.out.println("Invalid command\n");
@@ -144,6 +146,8 @@ public class Client {
                 break;
 
                 case PLAYING:
+                    break;
+
                     
         }
     }

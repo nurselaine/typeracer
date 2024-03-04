@@ -27,12 +27,15 @@ public class GlobalContext {
 
     Semaphore userCacheSemaphore;
 
-    Queue waitingQueue;
+    Semaphore waitQueueSemaphore;
+
+    Queue<User> waitingQueue;
 
     public GlobalContext(UserCache userCache, GameCache gameCache) {
         this.userCache = userCache;
         this.gameCache = gameCache;
         userCacheSemaphore = new Semaphore(1);
+        waitQueueSemaphore = new Semaphore(1);
         waitingQueue = new LinkedList();
         
 
@@ -125,18 +128,38 @@ public class GlobalContext {
         return null;
     }
 
-    public void logout(ClientHandler clientHandler) {
+    /**
+     * This method handles logging user out and updating user
+     * state to CONNECTED state. It will also remove client from wait
+     * queue if necessary.
+     * 
+     * @param clientHandler object that contains client context and 
+     * handlers for sending and receiving client messages
+    */
+    public void logout(ClientHandler clientHandler) throws InterruptedException {
         System.out.println("Logging out user");
-        userCache.logoutUser(clientHandler.getUsername());
+        User user = userCache.getUser(clientHandler.getUsername());
+        userCache.logoutUser(clientHandler.getUsername()); // this method updates user to CONNECTED
+        
+        // remove client from wait queue if necessary
+        waitQueueSemaphore.acquire(1);
+        if(userCache.canLeaveWaitList(user)){
+            waitingQueue.remove(user);
+        }
+        waitQueueSemaphore.release();
         clientHandler.sendMessage("1");
     }
 
-    public void quit(ClientHandler clientHandler) {
-        System.out.println("Quitting user");
+    public void quit(ClientHandler clientHandler) throws InterruptedException {
+        User user = userCache.getUser(clientHandler.getUsername());
+        System.out.println(user.getUsername() + ": Quitting user");
+        logout(clientHandler);
+        // update status to disconnected
+        user.updateStatus(STATUS.DISCONNECTED);
         clientHandler.sendMessage("1");
     }
 
-    public void enterWaitList(ClientHandler clientHandler) {
+    public void enterWaitList(ClientHandler clientHandler) throws InterruptedException {
 
         System.out.println("Entering user into wait list");
         String username = clientHandler.getUsername();
@@ -155,13 +178,15 @@ public class GlobalContext {
 
         // add user to waiting queue and send message to client that user is in wait
         // list
+        waitQueueSemaphore.acquire(1);
         waitingQueue.add(user);
+        waitQueueSemaphore.release();
         user.updateStatus(STATUS.WAITING);
         clientHandler.sendMessage("1");
     }
 
 
-    public void leaveWaitList(ClientHandler clientHandler) {
+    public void leaveWaitList(ClientHandler clientHandler) throws InterruptedException {
         System.out.println("Leaving user from wait list");
         String username = clientHandler.getUsername();
 
@@ -179,7 +204,9 @@ public class GlobalContext {
 
         // remove user from waiting queue and send message to client that user is not in
         // wait list
+        waitQueueSemaphore.acquire(1);
         waitingQueue.remove(user);
+        waitQueueSemaphore.release();
         clientHandler.sendMessage("1");
     }
 }
