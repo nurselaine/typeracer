@@ -35,7 +35,7 @@ public class Client {
             BufferedReader serverReader = new BufferedReader(new InputStreamReader(soc.getInputStream()));
             PrintWriter serverWriter = new PrintWriter(soc.getOutputStream(), true);
             UserRPC userAPI = new UserRPC(input, serverWriter, serverReader);
-            GameRPC gameAPI = new GameRPC(serverWriter, serverReader);
+            GameRPC gameAPI = new GameRPC(serverWriter, serverReader, input);
 
             String connected = serverReader.readLine(); // server is sending 1/0 from connectRPC when clienthanlder istnace is created on connection
             System.out.println("Connected to server: " + connected);
@@ -82,7 +82,7 @@ public class Client {
                     String menuOption = menu.getMenuInput(true);
 
                     switch(Integer.parseInt(menuOption)){
-                        case 1: // enter wait list
+                        case 1: // enter wait list & start game when enough players join wait list
                             gameAPI.joinWaitingQueue();
 
                             // open client to check # of players left
@@ -96,36 +96,10 @@ public class Client {
                                 TimeUnit.SECONDS.sleep(5);
                             }
 
-                            System.out.println("Game is Starting now");
-                            serverWriter.println("Start Game");
-                            serverReader.readLine();
-                            String gameStr = serverReader.readLine();
-                            System.out.println("> Start typing!");
-                            System.out.println("> " + gameStr);
+                            // add start game RPC
+                            gameAPI.startGame();
 
-                            Instant timeStart = Instant.now();
-                            Instant timeEnd = Instant.now();
-
-                            String userStr = "";
-                            while(!userStr.equals(gameStr)){
-                                System.out.println("Press ENTER when done typing: ");
-                                System.out.print("> ");
-                                userStr = input.nextLine();
-                                if(userStr.equals(gameStr)){
-                                    timeEnd = Instant.now();
-                                } else {
-                                    System.out.println("> Typo found! Please try again!! Times running out :(");
-                                }
-                            }
-
-                            System.out.println("Total time " + Duration.between(timeStart, timeEnd).toString());
                             break;
-//                        case 2: // check wait list time
-//                            gameAPI.checkWaitingTime();
-//                            break;
-//                        case 3: // leave wait list
-//                            gameAPI.leaveWaitQueue();
-//                            break;
                         case 2: // logout
                             userAPI.logout();
                             isLoggedIn = false;

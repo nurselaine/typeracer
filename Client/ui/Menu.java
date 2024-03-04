@@ -24,10 +24,8 @@ public class Menu {
                         "*      GAME MENU     *\n" +
                         "**********************\n" +
                         "* 1. ENTER WAIT LIST *\n" +
-                        "* 2. CHECK WAIT TIME *\n" +
-                        "* 3. LEAVE WAIT LIST *\n" +
-                        "* 4. LOGOUT          *\n" +
-                        "* 5. QUIT            *\n" +
+                        "* 2. LOGOUT          *\n" +
+                        "* 3. QUIT            *\n" +
                         "**********************\n"  );
     }
 
