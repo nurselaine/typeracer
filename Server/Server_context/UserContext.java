@@ -1,6 +1,12 @@
 package Server.Server_context;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.Buffer;
 
 public class UserContext {
 
@@ -18,9 +24,12 @@ public class UserContext {
 
     // Represents cumulative wins user has
     private int totalWins;
-    private long lastScore;
+    private double lastScore;
 
     private STATUS userStatus;
+
+    public BufferedReader in;
+    public PrintWriter out;
 
     /**
      * Put enum in its own class so it can be available to all classes for status updates
@@ -40,11 +49,13 @@ public class UserContext {
     private int gameID = -1;
 
     //
-    public UserContext(String socketID, String username, String password){
+    public UserContext(String socketID, String username, String password, BufferedReader in, PrintWriter out){
         this.socketID = socketID;
         this.username = username;
         this.password = password;
         this.userStatus = STATUS.CONNECTED;
+        this.in = in;
+        this.out = out;
     }
 
     public void joinGame(int gameID){
@@ -79,8 +90,19 @@ public class UserContext {
         return username;
     }
 
+    public void updateUsername(String username){
+        this.username = username;
+    }
+
     public String getPassword(){
         return password;
+    }
+    public void updatePassword(String password){
+        this.password = password;
+    }
+
+    public String getSocketID(){
+        return this.socketID;
     }
 
     public STATUS getStatus(){
@@ -96,4 +118,18 @@ public class UserContext {
     }
 
     public void updateStatus(STATUS status) { this.userStatus = status; }
+
+    // using words/min as score
+    public void updateLastScore(double score){
+        this.lastScore = score;
+    }
+
+    public double getLastScore(double score){
+        return this.lastScore;
+    }
+
+    public void startGameCode(PrintWriter out){
+
+        this.out.println(400);
+    }
 }

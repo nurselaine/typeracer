@@ -48,17 +48,22 @@ public class GameRPC {
         return -1;
     }
 
-    public int checkWaitTime(GlobalContext globalContext){
+    // returns # of users in game queue
+    public int checkWaitTime(GlobalContext globalContext) throws InterruptedException {
+        waitQueueSem.acquire();
         int size = waitQueue.size();
-        int playersNeeded = 0;
-        if (size == 2) {
-            return 0;
-        } else if (size > 2){
-            size = size % 2;
-        }
-        playersNeeded = 2 - size;
+        waitQueueSem.release();
 
-        return playersNeeded;
+
+//        int playersNeeded = 0;
+//        if (size == 2) {
+//            return 0;
+//        } else if (size > 2){
+//            size = size % 2;
+//        }
+//        playersNeeded = 2 - size;
+
+        return size;
     }
 
     // start game
@@ -80,9 +85,11 @@ public class GameRPC {
             int gameID = game.gameID;
 //            gameSession.newGame(game);
 
+            // generate game string and send to client
             String gameString = game.randomlyGenerateString();
+            this.out.println(gameString);
             System.out.println("game string " + gameString);
-            players.stream().forEach(player -> notifyGameStartCountdown(gameString));
+
             return players;
         });
 
@@ -101,42 +108,7 @@ public class GameRPC {
             e.printStackTrace();
         }
 
-//        // create new thread to process game
-//        Thread gameThread = new Thread(() -> {
-//
-//            // create new game context with players
-//            GameContext game = new GameContext(players);
-//            System.out.println("Game created and started!");
-//            System.out.println("Players: " + players.get(0) + " " + players.get(1) + " " + players.get(2) + " " + players.get(3));
-//            int gameID = game.gameID;
-////            gameSession.newGame(game);
-//
-//            String gameString = game.randomlyGenerateString();
-//            System.out.println("game string " + gameString);
-//            players.stream().forEach(player -> notifyGameStartCountdown(gameString));
-//        });
-//        gameThread.start();
-
         return null; // return game to add to gameSessions in driver
-    }
-
-    // this method is not going to be used
-    // count down will be initiated on clientside
-    private void notifyGameStartCountdown(String gameString){
-        int count = 3;
-        String[] readySetGo = new String[]{"Ready", "Set", "Go!"};
-        int rsgIndex = 0;
-        try {
-            while(count > 0){
-                out.println(readySetGo[rsgIndex++] + "...");
-                wait(1000);
-            }
-            // send string
-            out.println(gameString);
-        } catch (InterruptedException e){
-            System.out.println("GAME START ERROR: occured during countdown " + e.getMessage());
-            out.println("Error joining game. Please rejoin waiting queue");
-        }
     }
 
     // endGame

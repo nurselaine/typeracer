@@ -55,7 +55,7 @@ public class Server {
 
     public void start(ServerSocketService ss) {
 
-        loadUserData();
+//        loadUserData();
 
         while (ss.isAccepting()) {
 
@@ -103,8 +103,10 @@ public class Server {
                     int colon = user_credentials[0].indexOf(':');
                     String host = user_credentials[0].substring(0, colon);
 
+
+
                     // create new user context and add to user cache
-                    globalContext.addUser(new UserContext(host, user_credentials[1], user_credentials[2]));
+                    globalContext.addUser(new UserContext(host, user_credentials[1], user_credentials[2], null, null));
                 }
             } catch (IOException e) {
                 System.out.println("Unable to initialize user database");

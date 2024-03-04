@@ -42,6 +42,9 @@ public class ClientHandler implements ServerInterface {
         this.out = new PrintWriter(clientSocket.getOutputStream(), true);
         this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         ConnectRPC();
+        String clientSocketID = clientSocket.getRemoteSocketAddress().toString();
+        // adding user context without name and password until authentication
+        this.user = new UserContext(clientSocketID, "", "", this.in, this.out);
         this.gameAPI = new GameRPC(out, in, globalContext);
     }
 
@@ -107,6 +110,7 @@ public class ClientHandler implements ServerInterface {
             this.clientStatus = false;
             return false;
         }
+
         out.println(1);
         System.out.println("Client successfully connected to server!" + socket.getInetAddress());
         return true;
@@ -149,7 +153,12 @@ public class ClientHandler implements ServerInterface {
 
             // add use to user cache
             globalContext.userCacheSem.acquire();
-            userCache.addNewUser(new UserContext(socket.getLocalSocketAddress().toString(), username, password));
+            System.out.println("Adding client to user cache");
+                // update user context information
+                this.user.updateUsername(username);
+                this.user.updatePassword(password);
+                userCache.addNewUser(this.user);
+
             globalContext.userCacheSem.release();
             if(userCache.getLastAdded().getUsername().equals(username)){
                 System.out.println("User " + username + " successfully created!");
@@ -159,7 +168,7 @@ public class ClientHandler implements ServerInterface {
                 this.out.println(0);
             }
             // save credentials to user_database.txt
-            saveUserCredentials(username, password);
+//            saveUserCredentials(username, password);
         } catch (InterruptedException e) {
             System.out.println("ERROR: creating user profile RPC " + e.getMessage());
             e.printStackTrace();
@@ -196,12 +205,45 @@ public class ClientHandler implements ServerInterface {
         this.out.println(waitingQueueSize);
     }
 
-    public void CheckWaitQueueRPC(){
+    public void CheckWaitQueueRPC() {
 
-        int playersNeeded = gameAPI.checkWaitTime(globalContext);
-        System.out.println("CHECK WAIT QUEUE SIZE: " + playersNeeded);
-        // sending client the # of players in the wait queue
-        this.out.println(playersNeeded);
+        try {
+            int playersInQueue = gameAPI.checkWaitTime(globalContext);
+            System.out.println(this.user.getUsername() + "CHECK WAIT QUEUE SIZE: " + playersInQueue);
+
+            if(playersInQueue >= 2){ // 2 for testing purposes
+
+                // create message queue to notify 4 clients from queue start
+                globalContext.waitQueueSem.acquire();
+                System.out.println("Sending message to all players in next game: ");
+                    UserContext[] messageQ = new UserContext[2]; // 2 for testing purposes
+                    for(int i = 0; i < messageQ.length; i++){
+
+                        // remove each client from wait queue
+                        messageQ[i] =  globalContext.waitingQueue.remove();
+//                        System.out.println("Messaging player: " + messageQ[i].getUsername());
+
+                    }
+
+                    for(int i = 0; i < messageQ.length; i++){
+                        System.out.println("Players in messageQ: " + messageQ[i].getUsername());
+                        // message each client game start status
+                        messageQ[i].startGameCode(this.out);
+                    }
+                globalContext.waitQueueSem.release();
+
+//                // get players from wait queue
+//                StartGameRPC(); // TODO: refactor so startgame rpc does not need to be called within check wait queue rpc
+
+//                this.out.println("start");
+            } else {
+                // sending client the # of players in the wait queue
+                this.out.println(playersInQueue);
+            }
+        } catch ( InterruptedException e){
+            System.err.println("ERROR: check wait queue RPC - " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -241,28 +283,24 @@ public class ClientHandler implements ServerInterface {
 
     public void StartGameRPC() {
         System.out.println("START GAME RPC");
-        this.out.println("Start Game"); // testing client thread
+//        this.out.println("Start Game"); // testing client thread
 
         // send string to play game
-        this.out.println("I love to code");
-//        try {
-//            // check if at least 4 players are in wait queue
-//            if(globalContext.waitingQueue.size() < 2) {
-//                return; // do not notify user game start and keep user in waiting status
-//            }
-//
-//            // remove 4 players from waiting queue and add to players array
-//            List<UserContext> players = new ArrayList<>();
-//            globalContext.waitQueueSem.acquire();
-//            for(int i = 0; i < 2; i++){
-//                players.add(globalContext.waitingQueue.remove());
-//            }
-//            globalContext.waitQueueSem.release();
-//            // start game thread
-//            gameAPI.startGame(players);
-//        } catch (InterruptedException e){
-//
-//        }
+//        this.out.println("I love to code");
+        try {
+            // remove 4 players from waiting queue and add to players array
+            List<UserContext> players = new ArrayList<>();
+            globalContext.waitQueueSem.acquire();
+            for(int i = 0; i < 2; i++){ // 2 for testing purposes
+                players.add(globalContext.waitingQueue.remove());
+            }
+            globalContext.waitQueueSem.release();
+            // start game thread
+            gameAPI.startGame(players);
+        } catch (InterruptedException e){
+            System.err.println("ERROR: start game RPC error - " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public String readMessage() {

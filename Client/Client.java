@@ -27,6 +27,7 @@ public class Client {
             // instantiate menu library
             Menu menu = new Menu(input);
             boolean isLoggedIn = false;
+            boolean inGame = false;
 
             // client creates new socket using host and port number that server is running
             // Once server accept the connection with client will socket object be created
@@ -36,7 +37,7 @@ public class Client {
             PrintWriter serverWriter = new PrintWriter(soc.getOutputStream(), true);
             UserRPC userAPI = new UserRPC(input, serverWriter, serverReader);
             GameRPC gameAPI = new GameRPC(serverWriter, serverReader, input);
-
+            System.out.println("HELLOOOOOO");
             String connected = serverReader.readLine(); // server is sending 1/0 from connectRPC when clienthanlder istnace is created on connection
             System.out.println("Connected to server: " + connected);
 
@@ -85,15 +86,15 @@ public class Client {
                         case 1: // enter wait list & start game when enough players join wait list
                             gameAPI.joinWaitingQueue();
 
-                            // open client to check # of players left
-                            int playersLeft = gameAPI.checkWaitingTime();
-                            while(playersLeft > 0){
-                                int updatedPlayers = gameAPI.checkWaitingTime();
-                                if(playersLeft != updatedPlayers){
-                                    System.out.println("Player's left: " + playersLeft);
-                                    playersLeft = gameAPI.checkWaitingTime();
+                            // open client to check # of players in queue
+                            int players = gameAPI.checkWaitingTime(inGame);
+                            while(!inGame){
+                                int updatedPlayers = gameAPI.checkWaitingTime(inGame);
+
+                                if(players != updatedPlayers){
+                                    players = gameAPI.checkWaitingTime(inGame);
                                 }
-                                TimeUnit.SECONDS.sleep(5);
+//                                TimeUnit.SECONDS.sleep(5);
                             }
 
                             // add start game RPC

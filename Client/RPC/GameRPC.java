@@ -50,18 +50,24 @@ public class GameRPC {
         }
     }
 
-    public int checkWaitingTime(){
+    public int checkWaitingTime(boolean inGame){
         try {
             serverWriter.println("Wait Time");
             String res = serverReader.readLine();
-            if (res != null) {
-                int playerNeeded = Integer.parseInt(res);
-                System.out.println("Players needed " + playerNeeded);
-                return playerNeeded;
-//                System.out.println("> Awaiting " + playerNeeded + " other players to join queue...");
-            } else {
-                System.out.println("> Unable to check queue time. Please try again.");
+            while(Integer.parseInt(res) != 400){
+                res = serverReader.readLine();
             }
+            System.out.println("Game starting!");
+//            if (Integer.parseInt(res) == 400) {
+//                inGame = true;
+//                return -1;
+//            } else {
+//                int playerNeeded = Integer.parseInt(res);
+//                System.out.println("Players in queue " + playerNeeded);
+//                return playerNeeded;
+////                System.out.println("> Awaiting " + playerNeeded + " other players to join queue...");
+////                System.out.println("> Unable to check queue time. Please try again.");
+//            }
         } catch (IOException e){
             System.out.println("ERROR: unable to join waiting queue " + e.getMessage());
             e.printStackTrace();
@@ -72,10 +78,13 @@ public class GameRPC {
     public void startGame() throws IOException {
         System.out.println("Game is Starting now");
         this.serverWriter.println("Start Game");
+        // get game string from server
         this.serverReader.readLine();
         this.gameStr = serverReader.readLine();
+
+        // prompt user to start typing
         System.out.println("> Start typing!");
-        System.out.println("> " + gameStr);
+        System.out.println("> PROMPT: " + gameStr);
 
         Instant timeStart = Instant.now();
         Instant timeEnd = Instant.now();
@@ -89,6 +98,7 @@ public class GameRPC {
                 timeEnd = Instant.now();
             } else {
                 System.out.println("> Typo found! Please try again!! Times running out :(");
+                System.out.println("> PROMPT: " + gameStr);
             }
         }
 
