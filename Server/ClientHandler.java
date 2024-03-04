@@ -9,7 +9,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.*;
 
 import Server.Server_RPC.GameRPC;
 //import Server.Server_RPC.LoginRPC;
@@ -287,77 +287,22 @@ public class ClientHandler implements ServerInterface {
 
     public void StartGameRPC() {
         System.out.println("START GAME RPC");
-//        this.out.println("Start Game"); // testing client thread
 
-//         send string to play game
-        for(int i = 0; i < this.gamePlayer.size(); i++){
-            this.gamePlayer.get(i).out.println("I love to code");
-        }
+        gameAPI.startGame(this.gamePlayer);
+    }
 
-        // TODO: get all player scores when each player finishes OR give them TIMEOUT as score if 300 seconds pass
-        System.out.println("WAITING FOR EACH PLAYER TO FINISH AND SEND BACK SCORE");
+    private Runnable waitForClientScore(UserContext player){
+        return () -> {
+            try {
+                this.gamePlayer.get(0).inLock.acquire();
+                System.out.println("Player " + player.getUsername() + " " + player.readMessage());
+                this.gamePlayer.get(0).inLock.release();
 
-        // reading in scores from each player
-        // TODO: Issue with first client to join game start - an extra wait time rpc is called and causes
-        // the client's game score to not be read in by the server
-        try {
-            this.gamePlayer.get(0).inLock.acquire();
-            System.out.println("Player " + this.gamePlayer.get(0).getUsername() + " " + this.gamePlayer.get(0).readMessage());
-            this.gamePlayer.get(0).inLock.release();
-            this.gamePlayer.get(1).inLock.acquire();
-            System.out.println("Player " + this.gamePlayer.get(1).getUsername() + " " + this.gamePlayer.get(1).readMessage());
-            this.gamePlayer.get(1).inLock.release();
-        } catch (InterruptedException e){
-            System.out.println("testing out semaphor lock on client input stream error");
-        }
 
-//        Thread player1Score = new Thread(() -> {
-//            try {
-//                this.gamePlayer.get(0).inLock.acquire();
-//                while(this.gamePlayer.get(0).readMessage() == null){
-//                    double lastScore = Double.parseDouble(this.gamePlayer.get(1).readMessage());
-//                    gamePlayer.get(0).updateLastScore(lastScore);
-//                }
-//                this.gamePlayer.get(0).inLock.release();
-//            } catch (InterruptedException e) {
-//                System.err.println("ERROR: client play game thread issue with client buffered reader semaphore " + e.getMessage());
-//                e.printStackTrace();
-//            }
-//        });
-//        Thread player2Score = new Thread(() -> {
-//            try {
-//                this.gamePlayer.get(1).inLock.acquire();
-//                    // loop until the client messages back with results
-//                    while(this.gamePlayer.get(1).readMessage() == null){
-//                        double lastScore = Double.parseDouble(this.gamePlayer.get(1).readMessage());
-//                        gamePlayer.get(1).updateLastScore(lastScore);
-//                    }
-//                this.gamePlayer.get(1).inLock.release();
-//            } catch (InterruptedException e) {
-//                System.err.println("ERROR: client play game thread issue with client buffered reader semaphore " + e.getMessage());
-//                e.printStackTrace();
-//            }
-//        });
-//        Thread player3Score = new Thread(() -> {
-//            this.gamePlayer.get(3).readMessage();
-//        });
-//        Thread player4Score = new Thread(() -> {
-//            this.gamePlayer.get(4).readMessage();
-//        });
-//        player1Score.start();
-//        player2Score.start();
-
-        // check if server recieved clients lastest scores
-//        this.gamePlayer.stream().forEach(player -> System.out.println(player.getUsername() + " " + player.getLastScore()));
-
-        // will incorporate game thread once normal game works
-//        try {
-//            // start game thread
-//            gameAPI.startGame(this.gamePlayer);
-//        } catch (InterruptedException e){
-//            System.err.println("ERROR: start game RPC error - " + e.getMessage());
-//            e.printStackTrace();
-//        }
+            } catch (InterruptedException e){
+                System.out.println("testing out semaphor lock on client input stream error");
+            }
+        };
     }
 
     public String readMessage() {

@@ -32,6 +32,7 @@ public class UserContext {
     public BufferedReader in;
     public PrintWriter out;
     public Semaphore inLock;
+    public Semaphore outLock;
 
     /**
      * Put enum in its own class so it can be available to all classes for status updates
@@ -59,6 +60,7 @@ public class UserContext {
         this.in = in;
         this.out = out;
         this.inLock = new Semaphore(1);
+        this.outLock = new Semaphore(1);
     }
 
     public void joinGame(int gameID){

@@ -62,7 +62,7 @@ public class GameRPC {
                     updateClient = res;
                 }
                 serverWriter.println("Wait Time");
-                TimeUnit.SECONDS.sleep(5);
+                TimeUnit.SECONDS.sleep(2);
             }
             return true;
         } catch (IOException e){
@@ -75,9 +75,8 @@ public class GameRPC {
         return false;
     }
 
-    public void startGame() throws IOException {
+    public void startGame() throws IOException, InterruptedException {
         System.out.println("Game is Starting now...");
-//        this.serverWriter.println("Start Game");
         // get game string from server
         this.gameStr = serverReader.readLine();
 
@@ -109,6 +108,17 @@ public class GameRPC {
 
         System.out.println("> Words per Minute: " + calculateWordPerMinute(times[0]));
         this.serverWriter.println(totalTime);
+
+        // wait for server to response with game results
+        String results = this.serverReader.readLine();
+        System.out.println(results);
+        String[] resultPlayers = results.split(":");
+
+        System.out.println("*****************************");
+        System.out.println(resultPlayers[0]);
+        System.out.println(resultPlayers[1]);
+        System.out.println("*****************************");
+        TimeUnit.SECONDS.sleep(5);
     }
 
     private long[] calculateTotalTime(Instant start, Instant end){

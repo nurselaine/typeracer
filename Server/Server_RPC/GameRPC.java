@@ -7,10 +7,7 @@ import Server.Server_context.UserContext;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class GameRPC {
@@ -69,47 +66,47 @@ public class GameRPC {
     }
 
     // start game
-    public GameContext startGame(List<UserContext> players) throws InterruptedException {
+    public void startGame(List<UserContext> gamePlayer)  {
+        //         send string to play game
+        for(int i = 0; i < gamePlayer.size(); i++){
+            gamePlayer.get(i).out.println("I love to code");
+        }
 
-        // use a future with timeout parameter
+        // wait for each player to send score back
+        UserContext player1 = gamePlayer.get(0);
+        player1.updateLastScore(Double.parseDouble(player1.readMessage()));
+        UserContext player2 = gamePlayer.get(1);
+        player2.updateLastScore(Double.parseDouble(player2.readMessage()));
 
-        ExecutorService pool = Executors.newSingleThreadExecutor();
-        ScheduledExecutorService timeoutExecuter = Executors.newSingleThreadScheduledExecutor();
+        // printout last scores
+        for(int i = 0; i < gamePlayer.size(); i++){
+            System.out.println("Score for player: " + gamePlayer.get(i).getUsername() + " : " + gamePlayer.get(i).getLastScore());
+        }
 
-        // returns future object for players list with updated player user context
-        // user context should have game scores once thread pool terminates or finishes executing
-        Future<List<UserContext>> future = pool.submit(() -> {
-                        // create new game context with players
-            GameContext game = new GameContext(players);
-            System.out.println("Game created and started!");
-            players.stream().forEach(player -> player.joinGame(game.gameID));
-//            gameSession.newGame(game);
+        // sort game players by last score
+        Collections.sort(gamePlayer, (a, b) -> Double.compare(a.getLastScore(), b.getLastScore()));
 
-            // generate game string and send to each client
-            String gameString = game.randomlyGenerateString();
-            System.out.println("Send game string to each player...");
-            players.stream().forEach(player -> player.out.println(gameString));
-            System.out.println("game string " + gameString);
-
-            return players;
-        });
-
-        timeoutExecuter.schedule(() -> {
-            if(!future.isDone()){
-                future.cancel(true); // cancel task if its not done
-                System.err.println("Game execution timed out");
+        try {
+            // wait for all players to send in scores
+            while(player1.getLastScore() == 0.0 && player2.getLastScore() == 0.0){
+                TimeUnit.SECONDS.sleep(2);
             }
-        }, 300, TimeUnit.SECONDS);
 
-//        try {
-//            // get future object of the players list
-//            future.get();
-//        } catch (InterruptedException | ExecutionException e) {
-//            System.err.println("ERROR: Game unable to retrieve players updated scores " + e.getMessage());
-//            e.printStackTrace();
-//        }
+            // once all scores are read in by server then create score string
+            String gameResults = "1st " + gamePlayer.get(0).getUsername() + " - " + gamePlayer.get(0).getLastScore() + ":"
+                    + "2st " + gamePlayer.get(1).getUsername() + " - " + gamePlayer.get(1).getLastScore() + "\n";
 
-        return null; // return game to add to gameSessions in driver
+            System.out.println(gameResults);
+            // message each client the scores
+            for(int i = 0; i < gamePlayer.size(); i++){
+                gamePlayer.get(i).outLock.acquire();
+                gamePlayer.get(i).out.println(gameResults); // sends client back the place first, seconds, third..
+                gamePlayer.get(i).outLock.release();
+            }
+        } catch (InterruptedException e) {
+            System.out.println("ERROR: sending game scores to game players " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     // endGame
