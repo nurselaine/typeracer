@@ -74,7 +74,7 @@ public class GameRPC {
 
     public void startGame() throws IOException {
         System.out.println("Game is Starting now...");
-        this.serverWriter.println("Start Game");
+//        this.serverWriter.println("Start Game");
         // get game string from server
         this.gameStr = serverReader.readLine();
 
@@ -105,6 +105,7 @@ public class GameRPC {
         System.out.println("> Total time: " + totalTime);
 
         System.out.println("> Words per Minute: " + calculateWordPerMinute(times[0]));
+        this.serverWriter.println(totalTime);
     }
 
     private long[] calculateTotalTime(Instant start, Instant end){

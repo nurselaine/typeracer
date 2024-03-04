@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.Buffer;
+import java.util.concurrent.Semaphore;
 
 public class UserContext {
 
@@ -30,6 +31,7 @@ public class UserContext {
 
     public BufferedReader in;
     public PrintWriter out;
+    public Semaphore inLock;
 
     /**
      * Put enum in its own class so it can be available to all classes for status updates
@@ -56,6 +58,7 @@ public class UserContext {
         this.userStatus = STATUS.CONNECTED;
         this.in = in;
         this.out = out;
+        this.inLock = new Semaphore(1);
     }
 
     public void joinGame(int gameID){
@@ -124,12 +127,21 @@ public class UserContext {
         this.lastScore = score;
     }
 
-    public double getLastScore(double score){
+    public double getLastScore(){
         return this.lastScore;
     }
 
     public void startGameCode(){
 
         this.out.println(400);
+    }
+
+    public String readMessage() {
+        try {
+            return in.readLine().toString();
+        } catch (IOException e) {
+            System.out.println("Error reading message from client");
+        }
+        return null;
     }
 }
