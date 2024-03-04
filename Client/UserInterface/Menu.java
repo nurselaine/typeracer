@@ -86,6 +86,12 @@ public class Menu {
 
         // get user input
         System.out.print("> ");
+        String menuInputValidation = this.input.nextLine();
+        
+        // validating text is only digits (for menu options)
+        if(menuInputValidation.length() != 1 && !menuInputValidation.matches("[0-9]+")){
+            return -1;
+        }
         int menuInput = Integer.parseInt(this.input.nextLine());
 
         System.out.println("");
@@ -124,3 +130,6 @@ public class Menu {
     }
 }
 
+// TODO: Disconnect the client properly - ensure to set clienthandler to null & see logout user for example
+// TODO: Fix client side improper input bug
+// 

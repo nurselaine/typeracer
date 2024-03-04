@@ -36,7 +36,7 @@ public class ClientHandler {
         ConnectRPC();
     }
 
-    public void CommandHandler() throws Exception{
+    public void CommandHandler() throws Exception {
         String command;
         while ((command = in.readLine()) != null || socket.isConnected()){
             switch(command){
