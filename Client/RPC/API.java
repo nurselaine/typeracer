@@ -139,6 +139,16 @@ public class API {
         String message = "";
         try {
             message = serverReader.readLine();
+            // check if message is game start and update client state
+            // print out game start status
+            if(message.equals("GameStart")){
+                if(serverReader.ready()){
+                    String message2 = serverReader.readLine();
+                    System.out.println("> Game start. You can enter game with option 2.");
+                    return message2;
+                } 
+
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -189,6 +199,40 @@ public class API {
 
         System.out.println("User is not in wait list");
         return false;
+    }
+
+    /**
+     * This method handles checking the size of the
+     * current wait queue and calculating how many players
+     * are needed to join before user can enter game
+     * 
+     * Precondition: User status is LOGGED_IN
+    */
+    public void checkWaitTime(){
+        // send RPC to server
+        sendMessage("CheckWaitList");
+
+        // wait for response
+        String response = receiveMessage();
+
+        // validate response
+        if(!response.matches("[0-9]+")){
+            System.out.println("> Please check again in a few seconds. Server unable to process request.");
+        }
+        int queueSize = Integer.parseInt(response);
+        int playersLeft = queueSize;
+        
+        // calculate how many players are left
+        if(queueSize > 4){
+            playersLeft = queueSize % 4;
+        } else {
+            playersLeft = 4 - queueSize;
+        }
+
+        // print results to client
+        String plural = playersLeft == 1 ? "player" : "players";
+        System.out.println("> Wait list players currently waiting on " + playersLeft 
+        + " " + plural + " to join");
     }
 
     public boolean enterGame() {

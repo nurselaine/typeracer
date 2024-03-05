@@ -59,7 +59,13 @@ public class ClientHandler {
                     break;
 
                 case "EnterWaitList":
+                System.out.println("enter wait list handler");
                     globalContext.enterWaitList(this);
+                    break;
+
+                case "CheckWaitList":
+                System.out.println("check wait list handler");
+                    globalContext.checkWaitList(this);
                     break;
 
                 case "LeaveWaitList":

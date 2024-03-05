@@ -205,11 +205,19 @@ public class GlobalContext {
         }
     }
 
+    public void checkWaitList(ClientHandler clientHandler){
+        // stringify queue size
+        String queueSize = Integer.toString(waitingQueue.size());
+
+        // send to client
+        clientHandler.sendMessage(queueSize);
+    }
+
     public boolean isEnoughToStartGame() {
         return waitingQueue.size() >= 2;
     }
 
-public void initNewGame() {
+    public void initNewGame() {
         // pop users from waiting queue
         // and add them to a new game palyers list
         ArrayList<User> players = new ArrayList<User>();
@@ -222,7 +230,7 @@ public void initNewGame() {
         // Create a new game instance and add it to the game cache
         Game game = new Game(players, MAX_PLAYERS);
         gameCache.addGame(game);
-}
+    }
 
 
     public void leaveWaitList(ClientHandler clientHandler) throws InterruptedException {
@@ -296,7 +304,7 @@ public void initNewGame() {
         // client message send plaly game success
         clientHandler.sendMessage("1");
 
-        String typeString = game.getTyppeString();
+        String typeString = game.getTypeString();
 
         // send typeString to client
         clientHandler.sendMessage(typeString);

@@ -96,17 +96,18 @@ public class Client {
                 }
                 break;
 
-            case LOGGED_IN: // meny for not waiting
+            case LOGGED_IN: // menu for not waiting
                 switch (menuOption) {
                     case 1:
                         this.state = userAPI.enterWaitList() ? ClientState.WAITING : ClientState.LOGGED_IN;
-                        userAPI.waitForGameStart().thenRun(() -> {
+                        // userAPI.waitForGameStart().thenRun(() -> {
 
-                        });
+                        // });
                         break;
 
                     case 2:
                         // check wait times
+                        userAPI.checkWaitTime();
                         break;
                     case 3:
                         // logout
@@ -133,7 +134,7 @@ public class Client {
 
                     case 3:
                         // check wait time
-                        // TODO: NEED TO CALL Wait time RPC
+                        userAPI.checkWaitTime();
                         break;
 
                     case 4:

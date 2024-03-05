@@ -41,7 +41,7 @@ public class Game {
         return gameID;
     }   
 
-    public String getTyppeString() {
+    public String getTypeString() {
         return typeString;
     }
 
