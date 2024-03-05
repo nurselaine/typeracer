@@ -176,7 +176,6 @@ public class GlobalContext {
     }
 
 public void initNewGame() {
-    Thread gameThread = new Thread(() -> {
         // pop users from waiting queue
         // and add them to a new game palyers list
         ArrayList<User> players = new ArrayList<User>();
@@ -184,15 +183,10 @@ public void initNewGame() {
             User user = (User) waitingQueue.poll();
             players.add(user);
         }
-
         
         // Create a new game instance and add it to the game cache
         Game game = new Game(players, MAX_PLAYERS);
         gameCache.addGame(game);
-
-    });
-
-    gameThread.start();
 }
 
 

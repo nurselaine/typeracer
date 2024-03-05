@@ -11,7 +11,6 @@ import Client.RPC.API;
 import Client.UserInterface.Menu;
 import Server.ServerContext.User;
 
-// Hello world!
 public class Client {
 
     public enum ClientState {
