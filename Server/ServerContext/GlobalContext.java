@@ -5,6 +5,7 @@ import Server.ServerContext.UserCache;
 import Server.ServerContext.GlobalContext;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
@@ -18,10 +19,14 @@ import Server.ServerContext.RPC.Authenticator;
 import Server.ServerContext.User.STATUS;
 import Server.ServerContext.ClientHandler;
 
+
 public class GlobalContext {
 
     GameCache gameCache;
     UserCache userCache;
+
+    // maximum number of players that can be in a game  
+    private final int MAX_PLAYERS = 2;
 
     Authenticator authenticator;
 
@@ -37,8 +42,6 @@ public class GlobalContext {
         userCacheSemaphore = new Semaphore(1);
         waitQueueSemaphore = new Semaphore(1);
         waitingQueue = new LinkedList();
-        
-
     }
 
     public void registerUser(ClientHandler clientHandler) throws Exception {
@@ -115,6 +118,7 @@ public class GlobalContext {
             clientHandler.sendMessage("3");
             User user = userCache.getUser(userName);
             clientHandler.setUser(user);
+            user.setClinetHandler(clientHandler);
             return user;
         }
 
@@ -184,12 +188,47 @@ public class GlobalContext {
         waitingQueue.add(user);
         waitQueueSemaphore.release();
         user.updateStatus(STATUS.WAITING);
+        waitingQueue.add(user);
         clientHandler.sendMessage("1");
+
+        // if enough players are in waiting queue then
+        // intiate a new game
+        if (isEnoughToStartGame()) {
+            initNewGame();
+        }
     }
+
+    public boolean isEnoughToStartGame() {
+        return waitingQueue.size() >= 2;
+    }
+
+public void initNewGame() {
+    Thread gameThread = new Thread(() -> {
+        // pop users from waiting queue
+        // and add them to a new game palyers list
+        ArrayList<User> players = new ArrayList<User>();
+        for (int i = 0; i < MAX_PLAYERS; i++) {
+            User user = (User) waitingQueue.poll();
+            players.add(user);
+        }
+
+        
+        // Create a new game instance and add it to the game cache
+        Game game = new Game(players, MAX_PLAYERS);
+        gameCache.addGame(game);
+
+    });
+
+    gameThread.start();
+}
 
 
     public void leaveWaitList(ClientHandler clientHandler) throws InterruptedException {
         System.out.println("Leaving user from wait list");
+
+        // send 0 to tell the wating thread in client to stop
+        clientHandler.sendMessage("0");
+
         String username = clientHandler.getUsername();
 
         User user = userCache.getUser(username);
@@ -210,5 +249,88 @@ public class GlobalContext {
         waitingQueue.remove(user);
         waitQueueSemaphore.release();
         clientHandler.sendMessage("1");
+    }
+
+    public void enterGame(ClientHandler clientHandler) {
+        String userName = clientHandler.getUsername();
+
+        User user = userCache.getUser(userName);
+
+        boolean canEnterGame = userCache.canEnterGame(user);
+
+        if (!canEnterGame) {
+            // send message to client that user is not allowed to enter game
+            System.out.println("User " + clientHandler.getUsername() + " is not allowed to enter game");
+            System.out.println("You will be notfied when game ready to start"); 
+            clientHandler.sendMessage("0");
+            return;
+        }
+
+        // send message to client that user is allowed to enter game
+        System.out.println("Entering user into game");
+        clientHandler.sendMessage("1");
+    }
+
+  
+    public void playGame(ClientHandler clientHandler) throws IOException {
+        String username = clientHandler.getUsername();
+
+        User user = userCache.getUser(username);    
+
+        int gameID = user.getGameID();
+
+        Game game = gameCache.getGame(gameID);
+
+        if(game == null){
+            System.out.println("Game not found");
+            clientHandler.sendMessage("0");
+            return;
+        }
+
+        // send message to client that user is allowed to play game
+        System.out.println("Playing game");
+        clientHandler.sendMessage("1");
+
+        String typeString = game.getTyppeString();
+
+        // send typeString to client
+        clientHandler.sendMessage(typeString);
+
+        //get response from client
+        String response;
+        boolean isCorrect = false;
+
+        do{
+            response = clientHandler.receiveMessage();
+            isCorrect = response.equals(typeString);
+
+            if(isCorrect){
+                System.out.println("Correct string inputed");
+                clientHandler.sendMessage("1");
+                return;
+            }
+
+            else{
+                System.out.println("Incorrect string inputed");
+                clientHandler.sendMessage("0");
+            }
+
+        } while(!isCorrect);
+
+
+        if (response.equals(typeString)) {
+            System.out.println("Correct string inputed");
+            clientHandler.sendMessage("1");
+            return;
+        }
+        else if(response.equals("0")){
+            System.out.println("User is not in game");
+            return;
+        }
+
+
+
+
+
     }
 }

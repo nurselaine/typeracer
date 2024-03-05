@@ -71,21 +71,17 @@ public class Client {
      * @param menuOption the menu option selected by the user
      * @throws Exception 
      */
-    private void submitRPC(int menuOption) throws Exception{
-
-        switch(state){
+    private void submitRPC(int menuOption) throws Exception {
+        switch (state) {
             case NOT_LOGGED_IN:
-                switch(menuOption){
+                switch (menuOption) {
                     case 1:
                         userAPI.register();
                         break;
 
                     case 2:
-                        //submit login request to server and update client state if successful
-                        System.out.println("Calling login handler");
-                        
-                        this.state = userAPI.login() ? 
-                        ClientState.LOGGED_IN : ClientState.NOT_LOGGED_IN;
+                        // submit login request to server and update client state if successful
+                        this.state = userAPI.login() ? ClientState.LOGGED_IN : ClientState.NOT_LOGGED_IN;
                         break;
 
                     case 3:
@@ -101,11 +97,13 @@ public class Client {
                 break;
 
             case LOGGED_IN:
-                switch(menuOption){
+                switch (menuOption) {
                     case 1:
-                        this.state = userAPI.enterWaitList() ?
-                        ClientState.WAITING : ClientState.LOGGED_IN;
-                        
+                        this.state = userAPI.enterWaitList() ? ClientState.WAITING : ClientState.LOGGED_IN;
+                        userAPI.waitForGameStart().thenRun(() -> {
+                            this.state = ClientState.PLAYING;
+                        });
+
                         break;
 
                     case 2:
@@ -131,6 +129,7 @@ public class Client {
                         break;
 
                     case 2:
+                        this.state = userAPI.enterGame() ? ClientState.PLAYING : ClientState.WAITING;
                         break;
 
                     case 3:
@@ -145,10 +144,16 @@ public class Client {
                 }
                 break;
 
-                case PLAYING:
-                    break;
+            case PLAYING:
+                switch (menuOption) {
+                    case 1:
+                        Menu.inGame();
+                        userAPI.playGame();
+                        break;
 
-                    
+                    default:
+                        break;
+                }
         }
     }
 
