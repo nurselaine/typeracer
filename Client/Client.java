@@ -96,24 +96,21 @@ public class Client {
                 }
                 break;
 
-            case LOGGED_IN:
+            case LOGGED_IN: // meny for not waiting
                 switch (menuOption) {
                     case 1:
                         this.state = userAPI.enterWaitList() ? ClientState.WAITING : ClientState.LOGGED_IN;
                         userAPI.waitForGameStart().thenRun(() -> {
 
                         });
-
                         break;
 
                     case 2:
+                        // check wait times
                         break;
-
                     case 3:
-                        state = userAPI.Logout() ? ClientState.NOT_LOGGED_IN : ClientState.LOGGED_IN;
-                        break;
-
-                    case 4:
+                        // logout
+                    state = userAPI.Logout() ? ClientState.NOT_LOGGED_IN : ClientState.LOGGED_IN;
                         break;
 
                     default:
@@ -122,21 +119,26 @@ public class Client {
                 }
                 break;
 
-            case WAITING:
+            case WAITING: // menu for waiting
                 switch (menuOption) {
                     case 1:
+                        // leave waitlist
                         this.state = userAPI.leaveWaitList() ? ClientState.LOGGED_IN : ClientState.WAITING;
                         break;
 
                     case 2:
+                        // enter game
                         this.state = userAPI.enterGame() ? ClientState.PLAYING : ClientState.WAITING;
                         break;
 
                     case 3:
-                        state = userAPI.Logout() ? ClientState.NOT_LOGGED_IN : ClientState.WAITING;
+                        // check wait time
+                        // TODO: NEED TO CALL Wait time RPC
                         break;
 
                     case 4:
+                        // logout
+                        state = userAPI.Logout() ? ClientState.NOT_LOGGED_IN : ClientState.LOGGED_IN;
                         break;
                     default:
                         System.out.println("Invalid command\n");
