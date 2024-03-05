@@ -18,7 +18,6 @@ public class Menu {
         this.state = state;
     }
 
-
     public void run(ClientState state) {
         switch (state) {
             case NOT_LOGGED_IN:
