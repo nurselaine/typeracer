@@ -46,6 +46,8 @@ public class Server {
 
         this.userCache = new UserCache();
 
+        this.gameCache = new GameCache();
+
         ss = new ServerSocketService(PORT);
 
         globalContext = new GlobalContext(userCache, gameCache);
@@ -53,7 +55,6 @@ public class Server {
         this.dataBase = new DataBase(path, userCache);
 
         start(ss);
-
     }
 
 

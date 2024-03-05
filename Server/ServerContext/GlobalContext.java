@@ -116,6 +116,8 @@ public class GlobalContext {
             User user = userCache.getUser(userName);
             clientHandler.setUser(user);
             user.setClinetHandler(clientHandler);
+
+            
             return user;
         }
 

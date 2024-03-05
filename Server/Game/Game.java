@@ -22,7 +22,7 @@ public class Game {
         maxPlayers = maxPlayers;
         this.players = players;
         this.isGameRunning = true;
-
+        notifyUsersOfGameReady();
     }
 
     public void notifyUsersOfGameReady() {
@@ -31,7 +31,6 @@ public class Game {
 
             // notify client that game is ready
             client.sendMessage("GameStart");
-
         }
     }
 

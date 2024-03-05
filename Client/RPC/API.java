@@ -12,7 +12,7 @@ public class API {
     private BufferedReader serverReader;
 
     public API(Scanner input, PrintWriter serverWriter, BufferedReader serverReader) {
-        this.input = input;
+        this.input = input; 
         this.serverReader = serverReader;
         this.serverWriter = serverWriter;
     }
