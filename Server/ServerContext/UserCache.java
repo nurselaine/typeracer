@@ -100,4 +100,8 @@ public class UserCache {
         STATUS status = user.getStatus();
         return status == STATUS.WAITING;
     }
+
+    public boolean canEnterGame(User user){
+        return user.getGameID() != -1;
+    }
 }

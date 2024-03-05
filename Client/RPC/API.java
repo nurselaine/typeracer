@@ -1,4 +1,5 @@
 package Client.RPC;
+
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.ObjectInputFilter.Status;
@@ -23,10 +24,10 @@ public class API {
 
         String username = getInputFromUser("Enter username");
 
-        //submit user name to server
+        // submit user name to server
         sendMessage(username);
 
-        //wait for server response
+        // wait for server response
         int response = Integer.parseInt(receiveMessage());
 
         if (response == 1) {
@@ -38,11 +39,11 @@ public class API {
 
         // get password from user
         String password = getInputFromUser("Enter password");
-        
-        //submit password to server
+
+        // submit password to server
         sendMessage(password);
 
-        //wait for server response
+        // wait for server response
         response = Integer.parseInt(receiveMessage());
 
         if (response == 1) {
@@ -58,15 +59,15 @@ public class API {
 
         String username = getInputFromUser("Enter username");
 
-        //submit user name to server
+        // submit user name to server
         sendMessage(username);
 
         String password = getInputFromUser("Enter password");
 
-        //submit password to server
+        // submit password to server
         sendMessage(password);
 
-        //wait for server response
+        // wait for server response
         int response = Integer.parseInt(receiveMessage());
 
         // if username not found
@@ -90,7 +91,7 @@ public class API {
             return true;
         }
 
-        //unknown error
+        // unknown error
         else if (response == -1) {
             System.out.println("Unknown error");
         }
@@ -102,7 +103,7 @@ public class API {
         // send logout request to server
         serverWriter.println("Logout");
 
-        //wait for server response
+        // wait for server response
         int response = Integer.parseInt(receiveMessage());
         boolean isLoggedout = false;
         if (response == 1) {
@@ -129,10 +130,9 @@ public class API {
         return username;
     }
 
-    public void sendMessage(String message){
+    public void sendMessage(String message) {
         serverWriter.println(message);
     }
-
 
     public String receiveMessage() {
         String message = "";
@@ -154,7 +154,7 @@ public class API {
         }
     }
 
-    public boolean enterWaitList(){
+    public boolean enterWaitList() {
         sendMessage("EnterWaitList");
 
         String response = receiveMessage();
@@ -165,7 +165,7 @@ public class API {
             return true;
         }
 
-        if(response.equals("0")){
+        if (response.equals("0")) {
             System.out.println("User is already in wait list");
             return false;
         }
@@ -188,9 +188,51 @@ public class API {
         return false;
     }
 
+    public boolean enterGame() {
+        sendMessage("EnterGame");
+
+        String response = receiveMessage();
+
+        if (response.equals("1")) {
+            System.out.println("User entered into game");
+            return true;
+        }
+
+        System.out.println("User is not in wait list");
+        return false;
+    }
+
+    public void playGame() {
+        sendMessage("PlayGame");
+
+        String response = receiveMessage();
+
+        if (response.equals("1")) {
+            System.out.println("User is playing game");
+            return;
+        }
+        else if(response.equals("0")){
+            System.out.println("User is not in game");
+            return;
+        }   
+
+        String str = receiveMessage();
+
+
+        do{
+
+        System.out.println("\nSubmit this string: " + str);
+        String input = getInputFromUser("> Enter string: ");
+        sendMessage(input);
+        
+        } while(receiveMessage().equals("0"));  
+
+        System.out.println("Correct string inputed");
+    }
 
     /**
      * wait for game to start on server
+     * 
      * @return
      */
     public CompletableFuture<Void> waitForGameStart() {
@@ -199,10 +241,11 @@ public class API {
                 String response = receiveMessage();
                 if (response.equals("GameStart")) {
 
-                    System.out.println("Game is reeady to start");
+                    System.out.println("Game is reeady to start\nEnter 2 to start game");
+
                 }
 
-                else{
+                else {
                     System.out.println("left wait list");
                 }
 

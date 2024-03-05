@@ -66,6 +66,14 @@ public class ClientHandler {
                     globalContext.leaveWaitList(this);
                     break;
 
+                    case "EnterGame":
+                    globalContext.enterGame(this);
+                    break;
+
+                    case "PlayGame":
+                    globalContext.playGame(this);
+                    break;
+
                 default:
                     System.out.println("Invalid command");
                     break;

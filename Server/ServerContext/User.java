@@ -20,6 +20,7 @@ public class User {
 
     private STATUS userStatus;
 
+    private int currentGameID;
     // 
     private ClientHandler clientHandler;
 
@@ -82,6 +83,14 @@ public class User {
 
     public ClientHandler getClientHandler(){
         return clientHandler;
+    }
+
+    public void setGameID(int gameID){
+        this.currentGameID = gameID;
+    }
+
+    public int getGameID(){
+        return currentGameID;
     }
 
     /**

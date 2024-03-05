@@ -30,9 +30,6 @@ public class Menu {
                 validatedUserWaiting();
                 break;
 
-            case PLAYING:
-                inGameMenu();
-                break;
             default:
                 break;
         }
@@ -71,18 +68,18 @@ public class Menu {
                 "**********************\n");
     }
 
-    public static void inGameMenu() {
+    public static void inGame(){
         System.out.println("**********************\n" +
-                "*      Game jksdfjasd;js           *\n" +
-                "**********************\n" +
-                "* 1. ENTER WAIT LIST *\n" +
-                "* 2. CHECK WAIT TIME *\n" +
-                "* 3. LOGOUT          *\n" +
-                "* 4. QUIT            *\n" +
+                "* Enter String Bellow*\n" +
                 "**********************\n");
     }
 
+
     public int getMenuInput(ClientState state) {
+
+        if(state == ClientState.PLAYING)
+            return 1;
+            
         System.out.println("Get menu option method: ");
 
         // get user input
@@ -93,7 +90,7 @@ public class Menu {
         System.out.println("");
 
         // continue to get menu option from user until valid option is entered
-        while (menuInput < 1 || menuInput > getNumOfMenuOptions(state)) {
+        while (menuInput < 1 || menuInput > getNumOfMenuOptions(state) && state != ClientState.PLAYING) {
 
             // draw the menu again
             run(state);
