@@ -111,5 +111,3 @@ public class ClientHandler {
         this.username = user.getUsername();
     }
 }
-
-

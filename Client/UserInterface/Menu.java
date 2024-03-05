@@ -29,6 +29,7 @@ public class Menu {
             case WAITING:
                 validatedUserWaiting();
                 break;
+            case PLAYING:
 
             default:
                 break;
@@ -79,7 +80,7 @@ public class Menu {
 
         if(state == ClientState.PLAYING)
             return 1;
-            
+
         System.out.println("Get menu option method: ");
 
         // get user input
