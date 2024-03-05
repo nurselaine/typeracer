@@ -54,6 +54,7 @@ public class Client {
     public void run()throws Exception{
         while(soc.isConnected()){
             //mapUserStateToClienState();
+
             menu.run(state);
             int menuOption = menu.getMenuInput(state);
             submitRPC(menuOption);
@@ -144,7 +145,7 @@ public class Client {
             case PLAYING:
                 switch (menuOption) {
                     case 1:
-                        Menu.inGame();
+                        //Menu.inGame();
                         userAPI.playGame();
                         break;
 
