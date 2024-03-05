@@ -157,6 +157,7 @@ public class API {
     public boolean enterWaitList() {
         sendMessage("EnterWaitList");
 
+        // wait for success message
         String response = receiveMessage();
 
         if (response.equals("1")) {
@@ -172,6 +173,7 @@ public class API {
 
         System.out.println("unknown error entering user into wait list");
         return false;
+
     }
 
     public boolean leaveWaitList() {
@@ -241,7 +243,7 @@ public class API {
                 String response = receiveMessage();
                 if (response.equals("GameStart")) {
 
-                    System.out.println("Game is reeady to start\nEnter 2 to start game");
+                    System.out.println("Game is ready to start\nEnter 2 to start game");
 
                 }
 

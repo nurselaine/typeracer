@@ -98,7 +98,7 @@ public class Client {
                     case 1:
                         this.state = userAPI.enterWaitList() ? ClientState.WAITING : ClientState.LOGGED_IN;
                         userAPI.waitForGameStart().thenRun(() -> {
-                            this.state = ClientState.PLAYING;
+
                         });
 
                         break;

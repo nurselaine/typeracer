@@ -117,7 +117,7 @@ public class GlobalContext {
             clientHandler.setUser(user);
             user.setClinetHandler(clientHandler);
 
-            
+
             return user;
         }
 
@@ -154,16 +154,19 @@ public class GlobalContext {
         if (!canEnterWaitList) {
             // send message to client that user is already in wait list
             System.out.println("User " + clientHandler.getUsername() + " is already in wait list");
+
+            // client message send failed
             clientHandler.sendMessage("0");
             return;
         }
+
         System.out.println("User " + clientHandler.getUsername() + " entered into wait list");
 
-        // add user to waiting queue and send message to client that user is in wait
-        // list
-
+        // add user to waiting queue 
         user.updateStatus(STATUS.WAITING);
         waitingQueue.add(user);
+
+        // client message send success
         clientHandler.sendMessage("1");
 
         // if enough players are in waiting queue then
@@ -183,6 +186,7 @@ public void initNewGame() {
         ArrayList<User> players = new ArrayList<User>();
         for (int i = 0; i < MAX_PLAYERS; i++) {
             User user = (User) waitingQueue.poll();
+            user.updateStatus(STATUS.PLAYING);
             players.add(user);
         }
         
