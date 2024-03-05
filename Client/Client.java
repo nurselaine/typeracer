@@ -14,6 +14,7 @@ import Server.ServerContext.User;
 public class Client {
 
     public enum ClientState {
+        DISCONNECTED,
         NOT_LOGGED_IN,
         LOGGED_IN,
         WAITING,
@@ -53,7 +54,7 @@ public class Client {
 
     // main client loop to handle user input and draw menus
     public void run()throws Exception{
-        while(soc.isConnected()){
+        while(soc.isConnected() && this.state != ClientState.DISCONNECTED){
             //mapUserStateToClienState();
 
             menu.run(state);
@@ -87,6 +88,9 @@ public class Client {
                     case 3:
                         userAPI.quit();
                         soc.close();
+                        this.state = ClientState.DISCONNECTED;
+                        
+                        
                         break;
 
                     default:
@@ -137,6 +141,7 @@ public class Client {
                         }
                         break;
 
+                        // check wait time rpc
                         case 3:
                         userAPI.checkWaitTime();
                         userAPI.waitForGameStart().thenRun(() -> {
@@ -144,10 +149,12 @@ public class Client {
                         });
                         break;
 
+                        // logout rpc
                     case 4:
                         state = userAPI.Logout() ? ClientState.NOT_LOGGED_IN : ClientState.WAITING;
                         break;
 
+                        // quit rpc
                     case 5:
                         break;
                     default:
