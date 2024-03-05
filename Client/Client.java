@@ -147,6 +147,8 @@ public class Client {
                     case 1:
                         //Menu.inGame();
                         userAPI.playGame();
+
+                        state = ClientState.LOGGED_IN;
                         break;
 
                     default:

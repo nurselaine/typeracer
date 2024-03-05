@@ -255,12 +255,15 @@ public void initNewGame() {
 
         if(game == null){
             System.out.println("Game not found");
+
+            // client message send plaly game failed 
             clientHandler.sendMessage("0");
             return;
         }
 
-        // send message to client that user is allowed to play game
         System.out.println("Playing game");
+
+        // client message send plaly game success
         clientHandler.sendMessage("1");
 
         String typeString = game.getTyppeString();

@@ -204,32 +204,34 @@ public class API {
         return false;
     }
 
-    public void playGame() {
+    public boolean playGame() {
         sendMessage("PlayGame");
 
         String response = receiveMessage();
 
         if (response.equals("1")) {
             System.out.println("User is playing game");
-            return;
         }
         else if(response.equals("0")){
             System.out.println("User is not in game");
-            return;
+            return false;
         }   
 
         String str = receiveMessage();
 
+        
 
         do{
 
-        System.out.println("\nSubmit this string: " + str);
-        String input = getInputFromUser("> Enter string: ");
+        System.out.println("\n" + str + "\033[0m");
+        String input = getInputFromUser("Enter string");
         sendMessage(input);
         
         } while(receiveMessage().equals("0"));  
 
         System.out.println("Correct string inputed");
+
+        return true;
     }
 
     /**
