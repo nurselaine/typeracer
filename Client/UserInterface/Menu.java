@@ -29,7 +29,8 @@ public class Menu {
             case WAITING:
                 validatedUserWaiting();
                 break;
-            case PLAYING:
+            //case PLAYING:
+            //break;
 
             default:
                 break;

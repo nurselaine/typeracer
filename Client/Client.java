@@ -11,7 +11,6 @@ import Client.RPC.API;
 import Client.UserInterface.Menu;
 import Server.ServerContext.User;
 
-// Hello world!
 public class Client {
 
     public enum ClientState {
@@ -56,6 +55,7 @@ public class Client {
     public void run()throws Exception{
         while(soc.isConnected() && this.state != ClientState.DISCONNECTED){
             //mapUserStateToClienState();
+
             menu.run(state);
             int menuOption = menu.getMenuInput(state);
             submitRPC(menuOption);
@@ -101,7 +101,7 @@ public class Client {
                     case 1:
                         this.state = userAPI.enterWaitList() ? ClientState.WAITING : ClientState.LOGGED_IN;
                         userAPI.waitForGameStart().thenRun(() -> {
-                            this.state = ClientState.PLAYING;
+
                         });
 
                         break;
@@ -147,8 +147,10 @@ public class Client {
             case PLAYING:
                 switch (menuOption) {
                     case 1:
-                        Menu.inGame();
+                        //Menu.inGame();
                         userAPI.playGame();
+
+                        state = ClientState.LOGGED_IN;
                         break;
 
                     default:

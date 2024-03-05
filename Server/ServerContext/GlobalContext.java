@@ -119,6 +119,8 @@ public class GlobalContext {
             User user = userCache.getUser(userName);
             clientHandler.setUser(user);
             user.setClinetHandler(clientHandler);
+
+
             return user;
         }
 
@@ -177,9 +179,12 @@ public class GlobalContext {
         if (!canEnterWaitList) {
             // send message to client that user is already in wait list
             System.out.println("User " + clientHandler.getUsername() + " is already in wait list");
+
+            // client message send failed
             clientHandler.sendMessage("0");
             return;
         }
+
         System.out.println("User " + clientHandler.getUsername() + " entered into wait list");
 
         // add user to waiting queue and send message to client that user is in wait
@@ -189,6 +194,8 @@ public class GlobalContext {
         waitQueueSemaphore.release();
         user.updateStatus(STATUS.WAITING);
         waitingQueue.add(user);
+
+        // client message send success
         clientHandler.sendMessage("1");
 
         // if enough players are in waiting queue then
@@ -203,23 +210,18 @@ public class GlobalContext {
     }
 
 public void initNewGame() {
-    Thread gameThread = new Thread(() -> {
         // pop users from waiting queue
         // and add them to a new game palyers list
         ArrayList<User> players = new ArrayList<User>();
         for (int i = 0; i < MAX_PLAYERS; i++) {
             User user = (User) waitingQueue.poll();
+            user.updateStatus(STATUS.PLAYING);
             players.add(user);
         }
-
         
         // Create a new game instance and add it to the game cache
         Game game = new Game(players, MAX_PLAYERS);
         gameCache.addGame(game);
-
-    });
-
-    gameThread.start();
 }
 
 
@@ -283,12 +285,15 @@ public void initNewGame() {
 
         if(game == null){
             System.out.println("Game not found");
+
+            // client message send plaly game failed 
             clientHandler.sendMessage("0");
             return;
         }
 
-        // send message to client that user is allowed to play game
         System.out.println("Playing game");
+
+        // client message send plaly game success
         clientHandler.sendMessage("1");
 
         String typeString = game.getTyppeString();
