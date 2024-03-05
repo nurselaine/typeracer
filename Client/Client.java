@@ -28,6 +28,7 @@ public class Client {
     BufferedReader serverReader;
     PrintWriter serverWriter;
     API userAPI;
+    boolean readyToPlay;
     GameAPI gameAPI;
     String connected;
     User user;
@@ -38,7 +39,7 @@ public class Client {
             this.serverReader = new BufferedReader(new InputStreamReader(soc.getInputStream()));
             this.serverWriter = new PrintWriter(soc.getOutputStream(), true);
             this.connected = serverReader.readLine();
-
+            this.readyToPlay = false;
             this.state = ClientState.NOT_LOGGED_IN;
             this.input = new Scanner(System.in);
             this.menu = new Menu(input, state);
@@ -99,12 +100,13 @@ public class Client {
                     case 1:
                         this.state = userAPI.enterWaitList() ? ClientState.WAITING : ClientState.LOGGED_IN;
                         userAPI.waitForGameStart().thenRun(() -> {
-
+                            readyToPlay = true;
                         });
 
                         break;
 
                     case 2:
+                        userAPI.checkWaitTime();
                         break;
 
                     case 3:
@@ -127,14 +129,26 @@ public class Client {
                         break;
 
                     case 2:
-                        this.state = userAPI.enterGame() ? ClientState.PLAYING : ClientState.WAITING;
+                        if(readyToPlay){
+                            this.state = userAPI.enterGame() ? ClientState.PLAYING : ClientState.WAITING;
+                        }
+                        else{
+                            System.out.println("Game not ready yet");
+                        }
                         break;
 
-                    case 3:
-                        state = userAPI.Logout() ? ClientState.NOT_LOGGED_IN : ClientState.WAITING;
+                        case 3:
+                        userAPI.checkWaitTime();
+                        userAPI.waitForGameStart().thenRun(() -> {
+                            readyToPlay = true;
+                        });
                         break;
 
                     case 4:
+                        state = userAPI.Logout() ? ClientState.NOT_LOGGED_IN : ClientState.WAITING;
+                        break;
+
+                    case 5:
                         break;
                     default:
                         System.out.println("Invalid command");
@@ -148,6 +162,8 @@ public class Client {
                         //Menu.inGame();
                         userAPI.playGame();
 
+                        // reset data for next game
+                        readyToPlay = false;
                         state = ClientState.LOGGED_IN;
                         break;
 

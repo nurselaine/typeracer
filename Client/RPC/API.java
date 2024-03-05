@@ -218,16 +218,17 @@ public class API {
         }   
 
         String str = receiveMessage();
-
+        boolean isCorrect = true;
         
 
-        do{
-
-        System.out.println("\n" + str + "\033[0m");
-        String input = getInputFromUser("Enter string");
-        sendMessage(input);
-        
-        } while(receiveMessage().equals("0"));  
+        do {
+            if (!isCorrect)
+                System.out.println("Icorrecet try again");
+            System.out.println("\n" + str + "\033[0m");
+            String input = getInputFromUser("Enter string");
+            sendMessage(input);
+            isCorrect = receiveMessage().equals("1");
+        } while (!isCorrect);
 
         System.out.println("Correct string inputed");
 
@@ -246,11 +247,10 @@ public class API {
                 if (response.equals("GameStart")) {
 
                     System.out.println("Game is ready to start\nEnter 2 to start game");
-
                 }
 
-                else {
-                    System.out.println("left wait list");
+                else{
+                    
                 }
 
             } catch (Exception e) {
@@ -258,5 +258,11 @@ public class API {
             }
             return null;
         });
+    }
+
+    public void checkWaitTime(){
+        sendMessage("CheckWaitTime");
+        String response = receiveMessage();
+        System.out.println("Waiting for " + response + " more players");
     }
 }

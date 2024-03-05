@@ -72,6 +72,11 @@ public class ClientHandler {
 
                     case "PlayGame":
                     globalContext.playGame(this);
+                    globalContext.setUserToLoginState(this);
+                    break;
+
+                    case "CheckWaitTime":
+                    globalContext.checkWaitTime(this);
                     break;
 
                 default:

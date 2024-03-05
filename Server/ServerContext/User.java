@@ -20,7 +20,7 @@ public class User {
 
     private STATUS userStatus;
 
-    private int currentGameID;
+    private int gameID;
     // 
     private ClientHandler clientHandler;
 
@@ -41,6 +41,8 @@ public class User {
         this.socketID = socketID;
         this.username = username;
         this.password = password;
+        this.gameID = -1;
+        this.clientHandler = null;
         this.userStatus = STATUS.DISCONNECTED;
     }
 
@@ -49,6 +51,7 @@ public class User {
         this.password = "invalid";
         this.socketID = "invalid";
         this.clientHandler = null;
+        this.gameID = -1;
         this.userStatus = STATUS.DISCONNECTED;
     }
 
@@ -86,11 +89,15 @@ public class User {
     }
 
     public void setGameID(int gameID){
-        this.currentGameID = gameID;
+        this.gameID = gameID;
     }
 
     public int getGameID(){
-        return currentGameID;
+        return gameID;
+    }
+
+    public void setStatus(STATUS status){
+        this.userStatus = status;
     }
 
     /**

@@ -228,6 +228,12 @@ public void initNewGame() {
 
         User user = userCache.getUser(userName);
 
+        if(user.getStatus() != STATUS.PLAYING){
+            System.out.println("User is not in game");
+            clientHandler.sendMessage("0");
+            return;
+        }
+
         boolean canEnterGame = userCache.canEnterGame(user);
 
         if (!canEnterGame) {
@@ -282,6 +288,7 @@ public void initNewGame() {
             if(isCorrect){
                 System.out.println("Correct string inputed");
                 clientHandler.sendMessage("1");
+                user.setStatus(STATUS.LOGGEDIN);
                 return;
             }
 
@@ -302,6 +309,39 @@ public void initNewGame() {
             System.out.println("User is not in game");
             return;
         }
-
     }
+    
+    public void checkWaitTime(ClientHandler clientHandler) {
+
+        User user = userCache.getUser(clientHandler.getUsername());
+        
+        if(user.getStatus() == STATUS.WAITING){
+            // send message to bypass WaitForGameStart 
+            // thread in client listenig for game start
+            clientHandler.sendMessage("0");
+            System.out.println("User is not in wait list");
+            return;
+        }
+
+        System.out.println("Checking wait time");
+
+        //get number of players required to start game
+        int waitTime = MAX_PLAYERS - waitingQueue.size();
+
+        // send wait time to client
+        clientHandler.sendMessage(Integer.toString(waitTime));
+        
+    }
+
+    public void setUserToLoginState(ClientHandler clientHandler) {
+        System.out.println("Setting user to login state");
+        clientHandler.getUsername();
+
+        User user = userCache.getUser(clientHandler.getUsername());
+
+        user.setStatus(STATUS.LOGGEDIN);
+
+        user.setGameID(-1);
+    }
+
 }

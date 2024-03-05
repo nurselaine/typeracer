@@ -1,10 +1,11 @@
 package Server.Game;
-
 import java.util.ArrayList;
+
+import Server.ServerContext.User;
 
 public class GameCache {
 
-    private int totalGames;
+    private static int totalGames;
 
     ArrayList<Game> games;
 
@@ -24,4 +25,16 @@ public class GameCache {
         }
         return null;
     }
+     
+    // public void initNewGame(ArrayList<User> players, int maxPlayers) {
+    //     Thread gamThread = new Thread(new Runnable() {
+    //         @Override
+    //         public void run() {
+    //             Game game = new Game(players, maxPlayers);
+    //             addGame(game);
+    //         }
+    //     });
+    //     Game game = new Game(players, maxPlayers);
+    //     addGame(game);
+    // }
 }
