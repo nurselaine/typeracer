@@ -2,6 +2,7 @@ package Server;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -70,10 +71,11 @@ public class Server {
                     while (clientHandler.clientStatus) {
                         clientHandler.CommandHandler();
                     }
-                } catch (IOException e) {
-                    System.out.println("ERROR: creating client handler " + e.getMessage());
+                    return;
+                } catch (SocketException e) {
+                    System.out.println("Client socket disconnected. A Client has left server!");
                 } catch (Exception e) {
-                    // TODO Auto-generated catch block
+                    System.out.println("ERROR: creating client handler " + e.getMessage());
                     e.printStackTrace();
                 }
             });

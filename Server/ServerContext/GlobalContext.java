@@ -130,7 +130,7 @@ public class GlobalContext {
 
     /**
      * This method handles logging user out and updating user
-     * state to CONNECTED state. It will also remove client from wait
+     * state to DISCONNECTED state. It will also remove client from wait
      * queue if necessary.
      * 
      * @param clientHandler object that contains client context and 
@@ -139,8 +139,7 @@ public class GlobalContext {
     public void logout(ClientHandler clientHandler) throws InterruptedException {
         System.out.println("Logging out user");
         User user = userCache.getUser(clientHandler.getUsername());
-        userCache.logoutUser(clientHandler.getUsername()); // this method updates user to CONNECTED
-        
+        userCache.logoutUser(clientHandler.getUsername()); 
         // remove client from wait queue if necessary
         waitQueueSemaphore.acquire(1);
         if(userCache.canLeaveWaitList(user)){
@@ -151,12 +150,15 @@ public class GlobalContext {
     }
 
     public void quit(ClientHandler clientHandler) throws InterruptedException {
-        User user = userCache.getUser(clientHandler.getUsername());
-        System.out.println(user.getUsername() + ": Quitting user");
-        logout(clientHandler);
-        // update status to disconnected
-        user.updateStatus(STATUS.DISCONNECTED);
+        System.out.println("Quit handler");
+        if(clientHandler.clientStatus && clientHandler.getUsername() != null){
+            User user = userCache.getUser(clientHandler.getUsername());
+            System.out.println(user.getUsername() + ": Quitting user");
+            logout(clientHandler);
+        }
+        
         clientHandler.sendMessage("1");
+        clientHandler.clientStatus = false; // update client status
     }
 
     public void enterWaitList(ClientHandler clientHandler) throws InterruptedException {

@@ -27,7 +27,7 @@ public class ClientHandler {
 
     public boolean clientStatus;
 
-    public ClientHandler(Socket clientSocket, GlobalContext globalContext)  throws IOException {
+    public ClientHandler(Socket clientSocket, GlobalContext globalContext) throws IOException {
         this.socket = clientSocket;
         this.clientStatus = true;
         this.globalContext = globalContext;
