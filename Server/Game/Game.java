@@ -7,7 +7,7 @@ import Server.ServerContext.User;
 
 public class Game {
 
-    private static int gameID;
+    private int gameID;
     AtomicInteger counter = new AtomicInteger(0);
     private boolean isGameRunning;
     private int maxPlayers;
@@ -20,6 +20,7 @@ public class Game {
     public Game(ArrayList<User> players, int maxPlayers) {
         gameID = counter.incrementAndGet();
         maxPlayers = maxPlayers;
+        typeString = "test";
         this.players = players;
         this.isGameRunning = true;
         notifyUsersOfGameReady();
@@ -28,6 +29,8 @@ public class Game {
     public void notifyUsersOfGameReady() {
         for (User player : players) {
             ClientHandler client = player.getClientHandler();
+
+            player.setGameID(gameID); 
 
             // notify client that game is ready
             client.sendMessage("GameStart");
