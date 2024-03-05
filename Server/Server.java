@@ -33,7 +33,7 @@ public class Server {
 
     UserCache userCache;
 
-    private GameCache gameCache;
+    GameCache gameCache;
 
     DataBase dataBase;
 
@@ -56,6 +56,11 @@ public class Server {
 
     }
 
+
+    /**
+     * Start the server
+     * @param ss
+     */
     public void start(ServerSocketService ss) {
         // load database
         // TODO: make database not a thread and load it in the constructor do not run in thread 

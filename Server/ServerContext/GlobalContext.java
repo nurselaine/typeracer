@@ -300,9 +300,5 @@ public void initNewGame() {
             return;
         }
 
-
-
-
-
     }
 }

@@ -18,6 +18,7 @@ public class Menu {
         this.state = state;
     }
 
+
     public void run(ClientState state) {
         switch (state) {
             case NOT_LOGGED_IN:
@@ -29,6 +30,7 @@ public class Menu {
             case WAITING:
                 validatedUserWaiting();
                 break;
+            case PLAYING:
 
             default:
                 break;
@@ -79,7 +81,7 @@ public class Menu {
 
         if(state == ClientState.PLAYING)
             return 1;
-            
+
         System.out.println("Get menu option method: ");
 
         // get user input
