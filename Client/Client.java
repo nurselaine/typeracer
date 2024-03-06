@@ -172,6 +172,11 @@ public class Client {
                         //Menu.inGame();
                         userAPI.playGame();
 
+                        // Output scores
+                        System.out.println("Waiting for other players to finish");
+                        String response = serverReader.readLine();
+                        System.out.println(response);
+
                         // reset data for next game
                         readyToPlay = false;
                         state = ClientState.LOGGED_IN;

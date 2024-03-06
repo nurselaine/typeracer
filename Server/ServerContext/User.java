@@ -104,6 +104,10 @@ public class User {
         this.lastScore = lastScore;
     }
 
+    public double getLastScore(){
+        return lastScore;
+    }
+
     /**
      * Override equals method to compare user objects
      */

@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import Server.ServerContext.ClientHandler;
@@ -17,6 +20,7 @@ public class Game {
     AtomicInteger counter = new AtomicInteger(0);
     private boolean isGameRunning;
     private int maxPlayers;
+    private int finishedPlayers;
 
     private String typeString;
 
@@ -87,15 +91,22 @@ public class Game {
     }
 
     public String getScoresForAll() {
-        // once all users are finished typing 
-        // or timeout has been reached
-        // Each user's attribute for last score should be updated
-        // to the last game total typnig time
-        // sort the user list by total typing time
-        // create a string to send back to each client
-        // that displays the score to them
-        // merging changes
-        return "";
+        StringBuilder sb = new StringBuilder();
+
+        Collections.sort(players,(a, b) -> Double.compare(a.getLastScore(), b.getLastScore()));
+
+        for (int i = 0; i < players.size(); i++) {
+            sb.append((i + 1) + ". " + players.get(i).getUsername() + " : " + players.get(i).getLastScore() + "\n");
+        }
+
+        return sb.toString();
     }
 
+    public void incrementFinishedPlayers() {
+        finishedPlayers++;
+    }
+
+    public boolean finished() {
+        return finishedPlayers == maxPlayers;
+    }
 }

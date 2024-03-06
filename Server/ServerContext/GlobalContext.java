@@ -307,7 +307,7 @@ public class GlobalContext {
         // get typing time
         String totalTime = clientHandler.receiveMessage();
 
-
+    
         // validate whether total time is double values
 
         // cast to double value
@@ -317,6 +317,14 @@ public class GlobalContext {
         user.updateLastScore(userScore);
 
         System.out.println(user.getUsername() + " has scored " + userScore);
+
+        // output scores
+        game.incrementFinishedPlayers();
+        String finalScores;
+        if (game.finished()) {
+            finalScores = game.getScoresForAll();
+            clientHandler.sendMessage(finalScores);
+        } 
     }
     
     public void checkWaitTime(ClientHandler clientHandler) {
