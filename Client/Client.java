@@ -117,7 +117,7 @@ public class Client {
                         state = userAPI.Logout() ? ClientState.NOT_LOGGED_IN : ClientState.LOGGED_IN;
                         break;
 
-                    // cloe client
+                    // close client
                     case 4:
                         closeClient();
                         break;

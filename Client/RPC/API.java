@@ -266,7 +266,7 @@ public class API {
                 }
 
                 else{
-                    
+
                 }
 
             } catch (Exception e) {
@@ -279,6 +279,18 @@ public class API {
     public void checkWaitTime(){
         sendMessage("CheckWaitTime");
         String response = receiveMessage();
-        System.out.println("Waiting for " + response + " more players");
+
+        if(response.equals("1")){
+
+            response = receiveMessage();
+            System.out.println("Waiting for " + response + " more players");
+            return ;
+        }
+
+        else if (response.equals("2")) {
+
+            System.out.println("Game has already started\nPress 2 to enter!");
+        }
+
     }
 }

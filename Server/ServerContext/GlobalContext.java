@@ -322,16 +322,23 @@ public class GlobalContext {
     public void checkWaitTime(ClientHandler clientHandler) {
 
         User user = userCache.getUser(clientHandler.getUsername());
+        STATUS userStatus = user.getStatus();
         
         if(user.getStatus() == STATUS.WAITING){
             // send message to bypass WaitForGameStart 
             // thread in client listenig for game start
             clientHandler.sendMessage("0");
-            System.out.println("User is not in wait list");
+        }
+
+        else if(userStatus == STATUS.PLAYING){
+            // user is in waiting state handle it in client side
+            clientHandler.sendMessage("2"); 
             return;
         }
 
         System.out.println("Checking wait time");
+         
+        clientHandler.sendMessage("1");
 
         //get number of players required to start game
         int waitTime = MAX_PLAYERS - waitingQueue.size();
