@@ -184,7 +184,7 @@ public class GlobalContext {
         return waitingQueue.size() >= 2;
     }
 
-public void initNewGame() {
+    public void initNewGame() {
         // pop users from waiting queue
         // and add them to a new game palyers list
         ArrayList<User> players = new ArrayList<User>();
@@ -197,7 +197,7 @@ public void initNewGame() {
         // Create a new game instance and add it to the game cache
         Game game = new Game(players, MAX_PLAYERS);
         gameCache.addGame(game);
-}
+    }
 
 
     public void leaveWaitList(ClientHandler clientHandler) {
@@ -293,7 +293,7 @@ public void initNewGame() {
                 System.out.println("Correct string inputed");
                 clientHandler.sendMessage("1");
                 user.setStatus(STATUS.LOGGEDIN);
-                return;
+                // return;
             }
 
             else{
@@ -303,16 +303,20 @@ public void initNewGame() {
 
         } while(!isCorrect);
 
+        // receive score from user
+        // get typing time
+        String totalTime = clientHandler.receiveMessage();
 
-        if (response.equals(typeString)) {
-            System.out.println("Correct string inputed");
-            clientHandler.sendMessage("1");
-            return;
-        }
-        else if(response.equals("0")){
-            System.out.println("User is not in game");
-            return;
-        }
+
+        // validate whether total time is double values
+
+        // cast to double value
+        Double userScore = Double.parseDouble(totalTime);
+
+        // update User last score
+        user.updateLastScore(userScore);
+
+        System.out.println(user.getUsername() + " has scored " + userScore);
     }
     
     public void checkWaitTime(ClientHandler clientHandler) {

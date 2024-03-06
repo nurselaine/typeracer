@@ -220,17 +220,33 @@ public class API {
         String str = receiveMessage();
         boolean isCorrect = true;
         
+        // start timing
+        long startTime = System.currentTimeMillis();
 
         do {
             if (!isCorrect)
-                System.out.println("Icorrecet try again");
+                System.out.println("Incorrect try again");
             System.out.println("\n" + str + "\033[0m");
             String input = getInputFromUser("Enter string");
             sendMessage(input);
             isCorrect = receiveMessage().equals("1");
         } while (!isCorrect);
 
+        long endTime = System.currentTimeMillis();
+
+        // calculate time in seconds
+        double timeTaken = (endTime - startTime) / 1000.0;
+
+        // find words per minute
+        double typingSpeed = ((double) str.length() / timeTaken) * 60;
+
         System.out.println("Correct string inputed");
+
+        System.out.println("> Typing Speed: " + typingSpeed + " characters per minute");
+        System.out.println("> Total time taken: " + timeTaken + " seconds!");
+
+        // send scores to playgameRPC on server
+        sendMessage(Double.toString(typingSpeed));
 
         return true;
     }

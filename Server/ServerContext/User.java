@@ -16,7 +16,7 @@ public class User {
 
     // Represents cumulative wins user has
     private int totalWins;
-    private long lastScore;
+    private double lastScore;
 
     private STATUS userStatus;
 
@@ -98,6 +98,10 @@ public class User {
 
     public void setStatus(STATUS status){
         this.userStatus = status;
+    }
+
+    public void updateLastScore(double lastScore){
+        this.lastScore = lastScore;
     }
 
     /**
