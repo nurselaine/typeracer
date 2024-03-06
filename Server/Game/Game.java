@@ -94,7 +94,7 @@ public class Game {
         // sort the user list by total typing time
         // create a string to send back to each client
         // that displays the score to them
-        
+        // merging changes
         return "";
     }
 
