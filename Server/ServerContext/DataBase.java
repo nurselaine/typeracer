@@ -1,6 +1,10 @@
 package Server.ServerContext;
 
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.io.IOException;
@@ -23,6 +27,19 @@ public class DataBase {
 
     } 
 
+    // method that writes a user object to the file in path
+    public void addToDatabase(User user) {
+    
+        try {
+
+            String credential = user.getSocketID() + " " + user.getUsername() + " " + user.getPassword();
+            Files.write(path, Collections.singletonList(credential), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            // client credentials string
+        } catch (IOException e){
+            System.out.println("ERROR: unable to save user credential to database" + e.getMessage());
+        }
+    }
+    
     /// Elaine code. do not touch
     public void run() {
         while (fileReader.hasNext()) {

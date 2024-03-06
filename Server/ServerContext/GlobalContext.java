@@ -12,6 +12,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import javax.security.sasl.AuthorizeCallback;
+import javax.xml.crypto.Data;
 
 import Server.Game.Game;
 import Server.Game.GameCache;
@@ -33,11 +34,14 @@ public class GlobalContext {
 
     Semaphore userCacheSemaphore;
 
+    DataBase dataBase;
+
     Queue waitingQueue;
 
-    public GlobalContext(UserCache userCache, GameCache gameCache) {
+    public GlobalContext(UserCache userCache, GameCache gameCache, DataBase dataBase) {
         this.userCache = userCache;
         this.gameCache = gameCache;
+        this.dataBase =  dataBase;
         userCacheSemaphore = new Semaphore(1);
         waitingQueue = new LinkedList();
     }
@@ -71,6 +75,8 @@ public class GlobalContext {
 
         // add user to user cache
         userCache.addNewUser(user);
+
+        dataBase.addToDatabase(user);
 
         // send message to client that user is registered successfully
         clientHandler.sendMessage("1");

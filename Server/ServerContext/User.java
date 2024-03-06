@@ -108,6 +108,10 @@ public class User {
         return lastScore;
     }
 
+    public String getSocketID(){
+        return socketID;
+    }
+
     /**
      * Override equals method to compare user objects
      */

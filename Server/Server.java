@@ -51,9 +51,10 @@ public class Server {
 
         ss = new ServerSocketService(PORT);
 
-        globalContext = new GlobalContext(userCache, gameCache);
-
         this.dataBase = new DataBase(path, userCache);
+
+        globalContext = new GlobalContext(userCache, gameCache, dataBase);
+
 
         start(ss);
     }
