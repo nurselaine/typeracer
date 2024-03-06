@@ -47,6 +47,18 @@ public class Menu {
                 "**********************\n");
     }
 
+    public static void gameOverMenu() {
+        System.out.println("**********************\n" +
+                "*     LOGIN MENU     *\n" +
+                "**********************\n" +
+                "* 1. ENTER WAIT LIST *\n" +
+                "* 2. CHECK WAIT TIME *\n" +
+                "* 3. LOGOUT          *\n" +
+                "* 4. LOGOUT          *\n" +
+                "* 5. QUIT            *\n" +
+                "**********************\n");
+    }
+
     public static void validatedUserNotWaiting() {
         System.out.println("**********************\n" +
                 "*      GAME MENU     *\n" +

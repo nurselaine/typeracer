@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import javax.security.sasl.AuthorizeCallback;
 
@@ -321,10 +322,18 @@ public class GlobalContext {
         // output scores
         game.incrementFinishedPlayers();
         String finalScores;
-        if (game.finished()) {
-            finalScores = game.getScoresForAll();
-            clientHandler.sendMessage(finalScores);
+        while (!game.finished()) {
+            System.out.println("Game is finished " + game.finished());
+            try {
+                TimeUnit.SECONDS.sleep(2);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                // System.out.println("Game " + game.getGameID() + " timeout reached");
+                e.printStackTrace();
+            }
         } 
+        finalScores = game.getScoresForAll();
+        clientHandler.sendMessage(finalScores);
     }
     
     public void checkWaitTime(ClientHandler clientHandler) {

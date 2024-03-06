@@ -175,7 +175,9 @@ public class Client {
                         // Output scores
                         System.out.println("Waiting for other players to finish");
                         String response = serverReader.readLine();
-                        System.out.println(response);
+                        String[] result = response.split(":");
+
+                        System.out.println(result[0] + "\n" + result[1]);
 
                         // reset data for next game
                         readyToPlay = false;

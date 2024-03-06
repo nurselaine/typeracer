@@ -6,9 +6,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import Server.ServerContext.ClientHandler;
@@ -25,10 +24,11 @@ public class Game {
     private String typeString;
 
     ArrayList<User> players;
+    private int TIMEOUT = 20; // 20 second time limit
 
     public Game(ArrayList<User> players, int maxPlayers) {
         gameID = counter.incrementAndGet();
-        maxPlayers = maxPlayers;
+        this.maxPlayers = maxPlayers;
         typeString = "test";
         this.players = players;
         this.isGameRunning = true;
@@ -95,9 +95,14 @@ public class Game {
 
         Collections.sort(players,(a, b) -> Double.compare(a.getLastScore(), b.getLastScore()));
 
+        // check if any players time did not update
+        
+
         for (int i = 0; i < players.size(); i++) {
-            sb.append((i + 1) + ". " + players.get(i).getUsername() + " : " + players.get(i).getLastScore() + "\n");
+            sb.append((i + 1) + ". " + players.get(i).getUsername() + " - " + players.get(i).getLastScore() + ":");
         }
+
+        System.out.println("RESULT: " + sb.toString());
 
         return sb.toString();
     }
@@ -108,5 +113,9 @@ public class Game {
 
     public boolean finished() {
         return finishedPlayers == maxPlayers;
+    }
+
+    public int getTimeout(){
+        return this.TIMEOUT;
     }
 }
