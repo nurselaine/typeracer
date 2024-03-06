@@ -139,6 +139,10 @@ public class GlobalContext {
 
     public void quit(ClientHandler clientHandler) {
         System.out.println("Quitting user");
+        if(clientHandler.clientStatus && clientHandler.getUsername() != null) 
+            logout(clientHandler);
+
+        clientHandler.clientStatus = false;
         clientHandler.sendMessage("1");
     }
 

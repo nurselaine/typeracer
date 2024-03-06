@@ -66,11 +66,11 @@ public class Client {
     /**
      * This method handles the menu option selected by the user
      * and submits the appropriate RPC to the server
-     * based on state the menu option selected will submit the 
+     * based on state the menu option selected will submit the
      * a differnet RPC to the server
      * 
      * @param menuOption the menu option selected by the user
-     * @throws Exception 
+     * @throws Exception
      */
     private void submitRPC(int menuOption) throws Exception {
         switch (state) {
@@ -86,11 +86,7 @@ public class Client {
                         break;
 
                     case 3:
-                        userAPI.quit();
-                        soc.close();
-                        this.state = ClientState.DISCONNECTED;
-                        
-                        
+                        closeClient();
                         break;
 
                     default:
@@ -101,6 +97,8 @@ public class Client {
 
             case LOGGED_IN:
                 switch (menuOption) {
+
+                    // wait rpc
                     case 1:
                         this.state = userAPI.enterWaitList() ? ClientState.WAITING : ClientState.LOGGED_IN;
                         userAPI.waitForGameStart().thenRun(() -> {
@@ -109,15 +107,19 @@ public class Client {
 
                         break;
 
+                    // check wait time rpc 
                     case 2:
                         userAPI.checkWaitTime();
                         break;
 
+                    // logout rpc
                     case 3:
                         state = userAPI.Logout() ? ClientState.NOT_LOGGED_IN : ClientState.LOGGED_IN;
                         break;
 
+                    // cloe client
                     case 4:
+                        closeClient();
                         break;
 
                     default:
@@ -154,8 +156,9 @@ public class Client {
                         state = userAPI.Logout() ? ClientState.NOT_LOGGED_IN : ClientState.WAITING;
                         break;
 
-                        // quit rpc
+                    // quit rpc
                     case 5:
+                        closeClient();
                         break;
                     default:
                         System.out.println("Invalid command");
@@ -192,4 +195,11 @@ public class Client {
     public void setClientState(ClientState state){
         this.state = state;
     }
+
+    public void closeClient() throws Exception {
+        userAPI.quit();
+        soc.close();
+        this.state = ClientState.DISCONNECTED;
+    }
+
 }

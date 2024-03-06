@@ -99,7 +99,6 @@ public class ClientHandler {
     public void sendMessage(String message) {
         out.println(message);
     }
-
     public String receiveMessage() throws IOException {
         return in.readLine();
     }
@@ -114,5 +113,13 @@ public class ClientHandler {
 
     public void setUser(User user){
         this.username = user.getUsername();
+    }
+
+    public void closeClientHandler() throws IOException{
+        this.in.close();
+        this.out.close();
+
+        this.socket.close();
+
     }
 }
