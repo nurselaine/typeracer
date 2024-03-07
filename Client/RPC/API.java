@@ -55,6 +55,7 @@ public class API {
     }
 
     public boolean login() {
+        System.out.println("LOGIN HANDLER CLIENT SIDE");
         serverWriter.println("Login");
 
         String username = getInputFromUser("Enter username");

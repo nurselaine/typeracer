@@ -98,8 +98,13 @@ public class Menu {
 
         // get user input
         System.out.print("> ");
-
-        int menuInput = Integer.parseInt(this.input.nextLine());
+        String menuInputValidation = this.input.nextLine();
+        
+        // validating text is only digits (for menu options)
+        if(menuInputValidation.length() != 1 && !menuInputValidation.matches("[0-9]+")){
+            return -1;
+        }
+        int menuInput = Integer.parseInt(menuInputValidation);
 
         System.out.println("");
 
@@ -119,6 +124,7 @@ public class Menu {
 
         return (menuInput);
     }
+    // hello??
 
     // helper fucntion to get the number of menu
     // options based on the client state

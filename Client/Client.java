@@ -72,6 +72,7 @@ public class Client {
      * @param menuOption the menu option selected by the user
      * @throws Exception
      */
+
     private void submitRPC(int menuOption) throws Exception {
         switch (state) {
             case NOT_LOGGED_IN:
@@ -90,7 +91,7 @@ public class Client {
                         break;
 
                     default:
-                        System.out.println("Invalid command");
+                        System.out.println("Invalid command\n");
                         break;
                 }
                 break;
@@ -123,7 +124,7 @@ public class Client {
                         break;
 
                     default:
-                        System.out.println("Invalid command");
+                        System.out.println("Invalid command\n");
                         break;
                 }
                 break;
@@ -161,7 +162,7 @@ public class Client {
                         closeClient();
                         break;
                     default:
-                        System.out.println("Invalid command");
+                        System.out.println("Invalid command\n");
                         break;
                 }
                 break;
