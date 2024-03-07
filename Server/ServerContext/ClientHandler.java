@@ -65,6 +65,20 @@ public class ClientHandler {
                 case "LeaveWaitList":
                     globalContext.leaveWaitList(this);
                     break;
+
+                    case "EnterGame":
+                    globalContext.enterGame(this);
+                    break;
+
+                    case "PlayGame":
+                    globalContext.playGame(this);
+                    globalContext.setUserToLoginState(this);
+                    break;
+
+                    case "CheckWaitTime":
+                    globalContext.checkWaitTime(this);
+                    break;
+
                 default:
                     System.out.println("Invalid command");
                     break;
@@ -85,7 +99,6 @@ public class ClientHandler {
     public void sendMessage(String message) {
         out.println(message);
     }
-
     public String receiveMessage() throws IOException {
         return in.readLine();
     }
@@ -101,6 +114,12 @@ public class ClientHandler {
     public void setUser(User user){
         this.username = user.getUsername();
     }
+
+    public void closeClientHandler() throws IOException{
+        this.in.close();
+        this.out.close();
+
+        this.socket.close();
+
+    }
 }
-
-

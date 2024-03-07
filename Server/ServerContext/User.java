@@ -16,9 +16,13 @@ public class User {
 
     // Represents cumulative wins user has
     private int totalWins;
-    private long lastScore;
+    private double lastScore;
 
     private STATUS userStatus;
+
+    private int gameID;
+    // 
+    private ClientHandler clientHandler;
 
     /**
      * Put enum in its own class so it can be available to all classes for status updates
@@ -37,6 +41,8 @@ public class User {
         this.socketID = socketID;
         this.username = username;
         this.password = password;
+        this.gameID = -1;
+        this.clientHandler = null;
         this.userStatus = STATUS.DISCONNECTED;
     }
 
@@ -44,6 +50,8 @@ public class User {
         this.username = "invalid";
         this.password = "invalid";
         this.socketID = "invalid";
+        this.clientHandler = null;
+        this.gameID = -1;
         this.userStatus = STATUS.DISCONNECTED;
     }
 
@@ -72,6 +80,38 @@ public class User {
         this.userStatus = status;
     }
 
+    public void setClinetHandler(ClientHandler clientHandler){
+        this.clientHandler = clientHandler;
+    }   
+
+    public ClientHandler getClientHandler(){
+        return clientHandler;
+    }
+
+    public void setGameID(int gameID){
+        this.gameID = gameID;
+    }
+
+    public int getGameID(){
+        return gameID;
+    }
+
+    public void setStatus(STATUS status){
+        this.userStatus = status;
+    }
+
+    public void updateLastScore(double lastScore){
+        this.lastScore = lastScore;
+    }
+
+    public double getLastScore(){
+        return lastScore;
+    }
+
+    public String getSocketID(){
+        return socketID;
+    }
+
     /**
      * Override equals method to compare user objects
      */
@@ -88,5 +128,6 @@ public class User {
         this.username = "invalid";
         this.password = "invalid";
         this.socketID = "invalid";
+        this.clientHandler = null;
     }
 }

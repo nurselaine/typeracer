@@ -11,10 +11,10 @@ import Client.RPC.API;
 import Client.UserInterface.Menu;
 import Server.ServerContext.User;
 
-// Hello world!
 public class Client {
 
     public enum ClientState {
+        DISCONNECTED,
         NOT_LOGGED_IN,
         LOGGED_IN,
         WAITING,
@@ -29,6 +29,7 @@ public class Client {
     BufferedReader serverReader;
     PrintWriter serverWriter;
     API userAPI;
+    boolean readyToPlay;
     GameAPI gameAPI;
     String connected;
     User user;
@@ -39,7 +40,7 @@ public class Client {
             this.serverReader = new BufferedReader(new InputStreamReader(soc.getInputStream()));
             this.serverWriter = new PrintWriter(soc.getOutputStream(), true);
             this.connected = serverReader.readLine();
-
+            this.readyToPlay = false;
             this.state = ClientState.NOT_LOGGED_IN;
             this.input = new Scanner(System.in);
             this.menu = new Menu(input, state);
@@ -53,8 +54,9 @@ public class Client {
 
     // main client loop to handle user input and draw menus
     public void run()throws Exception{
-        while(soc.isConnected()){
+        while(soc.isConnected() && this.state != ClientState.DISCONNECTED){
             //mapUserStateToClienState();
+
             menu.run(state);
             int menuOption = menu.getMenuInput(state);
             submitRPC(menuOption);
@@ -64,32 +66,28 @@ public class Client {
     /**
      * This method handles the menu option selected by the user
      * and submits the appropriate RPC to the server
-     * based on state the menu option selected will submit the 
+     * based on state the menu option selected will submit the
      * a differnet RPC to the server
      * 
      * @param menuOption the menu option selected by the user
-     * @throws Exception 
+     * @throws Exception
      */
-    private void submitRPC(int menuOption) throws Exception{
-        System.out.println(menuOption);
-        switch(state){
+
+    private void submitRPC(int menuOption) throws Exception {
+        switch (state) {
             case NOT_LOGGED_IN:
-                switch(menuOption){
+                switch (menuOption) {
                     case 1:
                         userAPI.register();
                         break;
 
                     case 2:
-                        //submit login request to server and update client state if successful
-                        System.out.println("Calling login handler");
-                        
-                        this.state = userAPI.login() ? 
-                        ClientState.LOGGED_IN : ClientState.NOT_LOGGED_IN;
+                        // submit login request to server and update client state if successful
+                        this.state = userAPI.login() ? ClientState.LOGGED_IN : ClientState.NOT_LOGGED_IN;
                         break;
 
                     case 3:
-                        userAPI.quit();
-                        soc.close();
+                        closeClient();
                         break;
 
                     default:
@@ -99,21 +97,30 @@ public class Client {
                 break;
 
             case LOGGED_IN:
-                switch(menuOption){
+                switch (menuOption) {
+
+                    // wait rpc
                     case 1:
-                        this.state = userAPI.enterWaitList() ?
-                        ClientState.WAITING : ClientState.LOGGED_IN;
-                        
+                        this.state = userAPI.enterWaitList() ? ClientState.WAITING : ClientState.LOGGED_IN;
+                        userAPI.waitForGameStart().thenRun(() -> {
+                            readyToPlay = true;
+                        });
+
                         break;
 
+                    // check wait time rpc 
                     case 2:
+                        userAPI.checkWaitTime();
                         break;
 
+                    // logout rpc
                     case 3:
                         state = userAPI.Logout() ? ClientState.NOT_LOGGED_IN : ClientState.LOGGED_IN;
                         break;
 
+                    // close client
                     case 4:
+                        closeClient();
                         break;
 
                     default:
@@ -129,13 +136,30 @@ public class Client {
                         break;
 
                     case 2:
+                        if(readyToPlay){
+                            this.state = userAPI.enterGame() ? ClientState.PLAYING : ClientState.WAITING;
+                        }
+                        else{
+                            System.out.println("Game not ready yet");
+                        }
                         break;
 
-                    case 3:
+                        // check wait time rpc
+                        case 3:
+                        userAPI.checkWaitTime();
+                        userAPI.waitForGameStart().thenRun(() -> {
+                            readyToPlay = true;
+                        });
+                        break;
+
+                        // logout rpc
+                    case 4:
                         state = userAPI.Logout() ? ClientState.NOT_LOGGED_IN : ClientState.WAITING;
                         break;
 
-                    case 4:
+                    // quit rpc
+                    case 5:
+                        closeClient();
                         break;
                     default:
                         System.out.println("Invalid command\n");
@@ -143,8 +167,30 @@ public class Client {
                 }
                 break;
 
-                case PLAYING:
-                    
+            case PLAYING:
+                switch (menuOption) {
+                    case 1:
+                        //Menu.inGame();
+                        userAPI.playGame();
+
+                        // Output scores
+                        System.out.println("Waiting for other players to finish");
+                        String response = serverReader.readLine();
+                        String[] result = response.split(":");
+
+                        for (int i = 0; i < result.length; i++) {
+                            System.out.println(result[i]);
+                        }
+                        //System.out.println(result[0] + "\n" + result[1]);
+
+                        // reset data for next game
+                        readyToPlay = false;
+                        state = ClientState.LOGGED_IN;
+                        break;
+
+                    default:
+                        break;
+                }
         }
     }
 
@@ -160,4 +206,11 @@ public class Client {
     public void setClientState(ClientState state){
         this.state = state;
     }
+
+    public void closeClient() throws Exception {
+        userAPI.quit();
+        soc.close();
+        this.state = ClientState.DISCONNECTED;
+    }
+
 }

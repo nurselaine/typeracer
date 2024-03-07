@@ -35,6 +35,4 @@ public class ServerSocketService {
     public boolean isAccepting(){
         return ss.isBound();
     }
-
-
 }
