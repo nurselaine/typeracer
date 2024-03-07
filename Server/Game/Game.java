@@ -16,7 +16,7 @@ import Server.ServerContext.User;
 public class Game {
 
     private int gameID;
-    AtomicInteger counter = new AtomicInteger(0);
+    private static AtomicInteger counter = new AtomicInteger(0);
     private boolean isGameRunning;
     private int maxPlayers;
     private int finishedPlayers;
@@ -113,7 +113,7 @@ public class Game {
     }
 
     public boolean finished() {
-        return finishedPlayers == maxPlayers;
+        return finishedPlayers >= maxPlayers;
     }
 
     public int getTimeout(){
