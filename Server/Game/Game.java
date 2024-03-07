@@ -93,7 +93,7 @@ public class Game {
     public String getScoresForAll() {
         StringBuilder sb = new StringBuilder();
 
-        Collections.sort(players,(a, b) -> Double.compare(a.getLastScore(), b.getLastScore()));
+        Collections.sort(players,(b, a) -> Double.compare(a.getLastScore(), b.getLastScore()));
 
 
         // check if any players time did not update
