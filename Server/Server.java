@@ -59,7 +59,6 @@ public class Server {
         start(ss);
     }
 
-
     /**
      * Start the server
      * @param ss

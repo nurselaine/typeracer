@@ -28,7 +28,7 @@ public class GlobalContext {
     UserCache userCache;
 
     // maximum number of players that can be in a game  
-    private final int MAX_PLAYERS = 2;
+    private final int MAX_PLAYERS = 4;
 
     Authenticator authenticator;
 
@@ -188,7 +188,7 @@ public class GlobalContext {
     }
 
     public boolean isEnoughToStartGame() {
-        return waitingQueue.size() >= 2;
+        return waitingQueue.size() >= MAX_PLAYERS;
     }
 
     public void initNewGame() {

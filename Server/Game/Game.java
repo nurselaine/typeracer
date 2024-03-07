@@ -95,10 +95,11 @@ public class Game {
 
         Collections.sort(players,(a, b) -> Double.compare(a.getLastScore(), b.getLastScore()));
 
+
         // check if any players time did not update
         
 
-        for (int i = 0; i < players.size(); i++) {
+        for (int i = 0; i < maxPlayers ;i++) {
             sb.append((i + 1) + ". " + players.get(i).getUsername() + " - " + players.get(i).getLastScore() + ":");
         }
 

@@ -177,7 +177,10 @@ public class Client {
                         String response = serverReader.readLine();
                         String[] result = response.split(":");
 
-                        System.out.println(result[0] + "\n" + result[1]);
+                        for (int i = 0; i < result.length; i++) {
+                            System.out.println(result[i]);
+                        }
+                        //System.out.println(result[0] + "\n" + result[1]);
 
                         // reset data for next game
                         readyToPlay = false;
