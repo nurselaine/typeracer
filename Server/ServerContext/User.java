@@ -39,8 +39,6 @@ public class User {
 
     public User(String socketID, String username, String password){
         this.socketID = socketID;
-        this.username = username;
-        this.password = password;
         this.gameID = -1;
         this.clientHandler = null;
         this.userStatus = STATUS.DISCONNECTED;

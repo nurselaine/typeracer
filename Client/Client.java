@@ -36,7 +36,7 @@ public class Client {
 
     public Client(){
         try{
-            this.soc = new Socket("localhost", 3001);
+            this.soc = new Socket("localhost", 9876);
             this.serverReader = new BufferedReader(new InputStreamReader(soc.getInputStream()));
             this.serverWriter = new PrintWriter(soc.getOutputStream(), true);
             this.connected = serverReader.readLine();

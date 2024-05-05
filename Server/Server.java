@@ -19,42 +19,16 @@ import Server.ServerContext.DataBase;
 public class Server {
 
     // port number to listen on
-    private int PORT;
+    private int port;
 
     // server socket service
     private ServerSocketService ss;
 
-    private static GlobalContext globalContext;
-
-    // binary semaphore to manage access to global context
-    public static Semaphore globalContextSem;
-
-    // binary semaphore to manage access to user cache
-    public static Semaphore userCacheSem;
-
-    UserCache userCache;
-
-    GameCache gameCache;
-
-    DataBase dataBase;
-
-    // path to user database
-    private final Path path = Paths.get("user_database.txt");
-
     public Server(int PORT){
 
-        this.PORT = PORT;
-
-        this.userCache = new UserCache();
-
-        this.gameCache = new GameCache();
+        this.port = PORT;
 
         ss = new ServerSocketService(PORT);
-
-        this.dataBase = new DataBase(path, userCache);
-
-        globalContext = new GlobalContext(userCache, gameCache, dataBase);
-
 
         start(ss);
     }
@@ -64,9 +38,7 @@ public class Server {
      * @param ss
      */
     public void start(ServerSocketService ss) {
-        // load database
-        // TODO: make database not a thread and load it in the constructor do not run in thread 
-        dataBase.run();
+        
 
         while (ss.isAccepting()) {
 
@@ -94,7 +66,7 @@ public class Server {
 
     public static void main(String[] args) {
         System.out.println("multi-threaded server...");
-        int PORT = 3001;
+        int PORT = 9876;
         Server server = new Server(PORT);
     }
 }
